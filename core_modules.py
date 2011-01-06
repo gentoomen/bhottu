@@ -9,12 +9,12 @@ import time
 
 
 #### Core Modules ####
-
+"""
 def Pong(parsed):
     if parsed['event'] == 'ping':
         log('PINGPONG')
         return'PONG :' + parsed['event_ping'] + '\r\n'
-
+"""
 
 def quitNow(parsed):
     if parsed['event'] == 'privmsg':
@@ -23,7 +23,7 @@ def quitNow(parsed):
         combostring = NICK + ", gtfo"
         if combostring in message:
             if authUser(nick) == True:
-                log('QUIT <='+nick)
+                log('QUIT by '+nick)
                 return_list =[]
                 return_list.append(sendMsg(None, "Bye :("))
                 #this is instant close now, it does not have time to send PART

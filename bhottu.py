@@ -20,7 +20,7 @@ from utils import log_raw, log
 
 
 #ENABLED addon modules/functions separated with comma
-core_modules = [Pong, quitNow, userKick, userMode, echoMsg, shoutMsg]
+core_modules = [quitNow, userKick, userMode, echoMsg, shoutMsg]
 addon_modules = [nickPlus, queryNick, outputTitle, projectWiz, quoteIt, echoQuote, hackerJargons, newReply, trigReply, rmReply, intoLines, spewLines, Greeting, Colors]
 #our socket
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -51,6 +51,9 @@ def Parse(incoming):
     elif 'PING' in incoming:
         parsed['event'] = 'ping'
         parsed['event_ping'] = incoming.split()[1]
+        #sending PONG straight away
+        irc.send('PONG :' + parsed['event_ping'] + '\r\n')
+        log_raw('PONG :' + parsed['event_ping'] + '\r\n')
     elif 'JOIN' in incoming:
         parsed['event'] = 'join'
         tmp_vars = incoming.split('!')

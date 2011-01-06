@@ -1,6 +1,5 @@
 TODO
 
-* Implement Pong() in bhottu.py so we can run with out core/addon-modules
 * Thorough check of current modules.py/functions
     - sanitizing
     - sensible logging via log()
