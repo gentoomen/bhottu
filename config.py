@@ -4,14 +4,14 @@
 #Connection options
 SERVER = 'irc.rizon.net'
 PORT = 6667
-NICK ='SICPBot'
+NICK ='bhottu'
 REALNAME = 'bhottu'
 IDENT = 'bhottu'
-CHANNEL = '#/g/sicp_area51'
+CHANNEL = ''
 MODE = 0 #This is a bitmask for user mode
-
+NICK_PASS = ''
 #Authed users
-GODS = ['agaric','Telnet','chown','Manhose','Archie_Medes', 'imMute']
+GODS = ['']
 
 #Logging options
 RAW_LOGGING = True

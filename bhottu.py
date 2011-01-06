@@ -92,7 +92,7 @@ def Register(incoming):
         registered = True
     if not identified:
         if ":End of /MOTD command" in incoming:
-            irc.send('PRIVMSG nickserv :identify yH1#Ns1z7^F1 \r\n')
+            irc.send('PRIVMSG nickserv :identify '+NICK_PASS+' \r\n')
             log('Identified with server')
             identified = True
     if not joined:
