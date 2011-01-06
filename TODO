@@ -1,0 +1,15 @@
+TODO
+
+* re-write of core utils and basic utils handling
+    - function which would hold ping and logging functions aka compulsory functions
+    - function which would hold all basic management kick/say/mode/topic/etc. functions
+* Thorough check of current modules.py/functions
+    - sanitizing
+    - sensible logging via log()
+* Re-evaluation of Parser() in bhottu.py
+    - more event handling
+    - checking of current parse methods
+* re-connect on pinged out
+* write a README
+* loggin to file
+

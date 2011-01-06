@@ -37,14 +37,14 @@ identified = False
 joined = False
 initialized = False
 #raw logging enabled/disabled
-raw_log = False
+raw_log = True
 
 #### FUNCTIONS ####
 
 def log_raw(msg):
-    if raw_log:
-        for line in msg:
-            print('['+time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())+'] (RAW) '+line)
+    if raw_log and len(msg) > 0:
+        for m in msg.splitlines():
+            print('['+time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())+'] (RAW) '+m)
 
 def Parse(incoming):
     parsed = {}
@@ -57,7 +57,7 @@ def Parse(incoming):
         parsed['event_host'] = event_host_tmp.split('@')[1]
         parsed['event_user'] = event_host_tmp.split('@')[0]
         event_msg_temp = tmp_vars[1].split(':')[1:]
-        parsed['event_msg'] = ":".join(event_msg_temp).replace('\n','').replace('\r','')
+        parsed['event_msg'] = ":".join(event_msg_temp).replace('\n','').replace('\r','') #why the join?
     elif 'PING' in incoming:
         parsed['event'] = 'ping'
         parsed['event_ping'] = incoming.split()[1]
