@@ -11,21 +11,17 @@ import string
 import time
 import datetime
 
+from core_modules import *
 #import functions from modules
-from modules import *
-#### CONSTANTS ####
-SERVER = 'irc.rizon.net'
-PORT = 6667
-NICK ='SICPBot'
-REALNAME = 'bhottu'
-IDENT = 'bhottu'
-CHANNEL = '#/g/sicp'
-MODE = 0 #This is a bitmask for user mode
+from addon_modules import *
+from config import *
+from utils import log_raw, log
 
-#### VARS ####
+
 
 #ENABLED addon modules/functions separated with comma
-modules = [Pong, nickPlus, queryNick, outputTitle, projectWiz, quoteIt, echoQuote, hackerJargons, newReply, trigReply, rmReply, intoLines, spewLines, quitNow, userKick, userMode, echoMsg, shoutMsg, Greeting, Colors]
+core_modules = [Pong, quitNow, userKick, userMode, echoMsg, shoutMsg]
+addon_modules = [nickPlus, queryNick, outputTitle, projectWiz, quoteIt, echoQuote, hackerJargons, newReply, trigReply, rmReply, intoLines, spewLines, Greeting, Colors]
 #our socket
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #connection retries
@@ -37,14 +33,8 @@ identified = False
 joined = False
 initialized = False
 #raw logging enabled/disabled
-raw_log = True
 
 #### FUNCTIONS ####
-
-def log_raw(msg):
-    if raw_log and len(msg) > 0:
-        for m in msg.splitlines():
-            print('['+time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())+'] (RAW) '+m)
 
 def Parse(incoming):
     parsed = {}
@@ -88,7 +78,8 @@ def Parse(incoming):
 
 def moduleHandler(parsed):
     msg_list=[]
-    msg_list = [f(parsed) for f in modules]
+    msg_list = [f(parsed) for f in core_modules]
+    msg_list.extend([f(parsed) for f in addon_modules])
     return msg_list
 
 def Register(incoming):
@@ -142,9 +133,12 @@ def Main():
             if m is not None:
                 if type(m) == list:
                     for sub in m:
-                        irc.send(sub)
+                        if sub is not None:
+                            irc.send(sub)
+                            log_raw(sub)
                 else:
                     irc.send(m)
+                    log_raw(m)
 
 #### MAIN ####
 dbInit()

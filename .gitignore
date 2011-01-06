@@ -1,0 +1,6 @@
+#ignore pythons compiled files
+*.pyc
+#ignore color modules pic
+mod_colors.png
+#ignore all testing dirs
+testing/
