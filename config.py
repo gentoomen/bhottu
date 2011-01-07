@@ -9,6 +9,7 @@ REALNAME = 'bhottu'
 IDENT = 'bhottu'
 CHANNEL = ''
 MODE = 0 #This is a bitmask for user mode
+VHOST = False
 NICK_PASS = ''
 #Authed users
 GODS = ['']

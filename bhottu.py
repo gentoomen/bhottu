@@ -95,9 +95,12 @@ def Register(incoming):
         registered = True
     if not identified:
         if ":End of /MOTD command" in incoming:
-            irc.send('PRIVMSG nickserv :identify '+NICK_PASS+' \r\n')
-            log('Identified with server')
-            identified = True
+            if VHOST:
+                irc.send('PRIVMSG nickserv :identify '+NICK_PASS+' \r\n')
+                log('Identified with server')
+                identified = True
+            else
+                identified = True
     if not joined:
         if "Password accepted" in incoming:
             irc.send('JOIN %s \r\n' % CHANNEL)
