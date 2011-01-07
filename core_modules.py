@@ -72,3 +72,20 @@ def shoutMsg(parsed):
         if combostring in message:
             saying = message.replace(combostring,'').upper()
             return sendMsg(None, "" + saying)
+
+funcnames  =  {
+        'help':"helpSystem"
+        }
+
+def helpSystem(parsed):
+    """simple help system"""
+    if parsed['event'] == 'privmsg':
+        message = parsed['event_msg']
+        combostring = NICK + ", help "
+        if combostring in message:
+            messageitems = message.split()
+            try:
+                helptext = globals()[funcnames[messageitems[2]]].__doc__
+            except:
+                helptext = "I Ain't got help for that, dude."
+            return sendMsg(None, helptext)

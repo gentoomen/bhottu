@@ -20,7 +20,7 @@ from utils import log_raw, log
 
 
 #ENABLED addon modules/functions separated with comma
-core_modules = [quitNow, userKick, userMode, echoMsg, shoutMsg]
+core_modules = [quitNow, userKick, userMode, echoMsg, shoutMsg, helpSystem]
 addon_modules = [nickPlus, queryNick, outputTitle, projectWiz, quoteIt, echoQuote, hackerJargons, newReply, trigReply, rmReply, intoLines, spewLines, Greeting, Colors]
 #our socket
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
