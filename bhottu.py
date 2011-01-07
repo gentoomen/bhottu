@@ -107,7 +107,7 @@ def Register(incoming):
                 irc.send('JOIN %s \r\n' % CHANNEL)
                 log('Joined %s' % CHANNEL)
                 joined = True
-            else
+            else:
                 irc.send('JOIN %s \r\n' % CHANNEL)
                 log('Joined %s' % CHANNEL)
                 joined = True
