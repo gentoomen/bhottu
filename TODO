@@ -14,4 +14,4 @@ TODO
 * better core modules
 * fix nickserv identification
     - if no vhost disable behaviour
-
+    - fix checking
