@@ -99,7 +99,7 @@ def Register(incoming):
                 irc.send('PRIVMSG nickserv :identify '+NICK_PASS+' \r\n')
                 log('Identified with server')
                 identified = True
-            else
+            else:
                 identified = True
     if not joined:
         if "Password accepted" in incoming:
