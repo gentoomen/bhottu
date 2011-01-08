@@ -5,11 +5,13 @@
 #bhottu v2
 
 import os
+import sys
 import re
 import socket
 import string
 import time
 import datetime
+import signal
 
 from core_modules import *
 #import functions from modules
@@ -114,7 +116,17 @@ def Register(incoming):
     if registered and identified and joined:
         initialized = True
 
+def sigint_handler(signum,  frame):
+    """Handles SIGINT signal (<C-c>). Quits program."""
+    #raise RuntimeError("Aborted.")
+    sys.exit(0)
+
 def Main():
+    """Program entry point. Execution starts here."""
+    # register signal handlers
+    # signal_handler
+    signal.signal(signal.SIGINT,  sigint_handler)
+
     connected = False
     while not connected:
         log(("Trying to connect to server: %s port: %i") % (SERVER, PORT))
@@ -152,5 +164,6 @@ def Main():
                     log_raw(m)
 
 #### MAIN ####
-dbInit()
-Main()
+if __name__  == "__main__":
+    dbInit()
+    Main()

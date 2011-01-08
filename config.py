@@ -7,15 +7,15 @@ PORT = 6667
 NICK ='bhottu'
 REALNAME = 'bhottu'
 IDENT = 'bhottu'
-CHANNEL = '#/g/sicp_area51'
+CHANNEL = ''
 MODE = 0 #This is a bitmask for user mode
 VHOST = False
 NICK_PASS = ''
 #Authed users
-GODS = ['tetsuo42']
+GODS = ['']
 
 #Logging options
 RAW_LOGGING = True
 LOG_TO_STDOUT = True
-LOG_TO_FILE = False
+LOG_TO_FILE = True
 LOG_FILE = 'bhottu_log'
