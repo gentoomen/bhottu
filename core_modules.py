@@ -17,6 +17,7 @@ def Pong(parsed):
 """
 
 def quitNow(parsed):
+    """Tells the robot to kindly leave. Remeber, robots have no feelings, cause feelinkgs are gay."""
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
         nick = parsed['event_nick']
@@ -34,6 +35,7 @@ def quitNow(parsed):
             return return_list
 
 def userKick(parsed):
+    """Kick specific user. Authorized users only."""
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
         nick = parsed['event_nick']
@@ -45,6 +47,7 @@ def userKick(parsed):
                 return('KICK %s %s :%s \r\n' % (CHANNEL, name, 'I am a pretty young maiden'))
 
 def userMode(parsed):
+    """Change user mode. Syntax: mode [name] [mode]. Authorized users only."""
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
         nick = parsed['event_nick']
@@ -58,6 +61,7 @@ def userMode(parsed):
                 return('MODE %s %s %s \r\n' % (CHANNEL, name, mode))
 
 def echoMsg(parsed):
+    """Echo given text."""
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
         combostring = NICK + ", say "
@@ -66,6 +70,7 @@ def echoMsg(parsed):
             return sendMsg(None, saying)
 
 def shoutMsg(parsed):
+    """Shout given text."""
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
         combostring = NICK + ", shout "
@@ -73,12 +78,17 @@ def shoutMsg(parsed):
             saying = message.replace(combostring,'').upper()
             return sendMsg(None, "" + saying)
 
-funcnames  =  {
-        'help':"helpSystem"
-        }
 
 def helpSystem(parsed):
-    """simple help system"""
+    """Simple help system."""
+    funcnames = {
+            'gtfo':"quitNow",
+            'kick':"userKick",
+            'mode':"userMode",
+            'say':"echoMsg",
+            'shout':"shoutMsg",
+            'help':"helpSystem",
+            }
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
         combostring = NICK + ", help "

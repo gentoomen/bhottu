@@ -12,7 +12,7 @@ MODE = 0 #This is a bitmask for user mode
 VHOST = False
 NICK_PASS = ''
 #Authed users
-GODS = ['']
+GODS = ['tetsuo42']
 
 #Logging options
 RAW_LOGGING = True
