@@ -124,7 +124,7 @@ def sigint_handler(signum,  frame):
 def Main():
     """Program entry point. Execution starts here."""
     # register signal handlers
-    # signal_handler
+    # sigint_handler
     signal.signal(signal.SIGINT,  sigint_handler)
 
     connected = False

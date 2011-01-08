@@ -17,7 +17,7 @@ def Pong(parsed):
 """
 
 def quitNow(parsed):
-    """Tells the robot to kindly leave. Remeber, robots have no feelings, cause feelinkgs are gay."""
+    """Tells the robot to kindly leave. Remeber, robots have no feelings, 'cause feelings are gay."""
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
         nick = parsed['event_nick']
@@ -87,15 +87,25 @@ def helpSystem(parsed):
             'mode':"userMode",
             'say':"echoMsg",
             'shout':"shoutMsg",
-            'help':"helpSystem",
+            'help':"helpSystem"
             }
     if parsed['event'] == 'privmsg':
-        message = parsed['event_msg']
+        message = parsed['event_msg'].strip()
+
+        combostring = NICK + ", help"
+        if message  == combostring:
+            helptext = "The following commands are available:"
+            for key, value in funcnames.iteritems():
+                helptext = "%s %s," % (helptext, key)
+            helptext = "%s %s" % (helptext, "type help [command] to receive more help.")
+            return sendMsg(None, helptext)
+
         combostring = NICK + ", help "
         if combostring in message:
+        #if message.starts(combostring):
             messageitems = message.split()
             try:
                 helptext = globals()[funcnames[messageitems[2]]].__doc__
             except:
-                helptext = "I Ain't got help for that, dude."
+                helptext = "I ain't got help for that, dude."
             return sendMsg(None, helptext)
