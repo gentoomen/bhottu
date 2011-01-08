@@ -22,7 +22,7 @@ def quitNow(parsed):
         message = parsed['event_msg']
         nick = parsed['event_nick']
         combostring = NICK + ", gtfo"
-        if combostring in message:
+        if message.startswith(combostring):
             if authUser(nick) == True:
                 log('QUIT by '+nick)
                 return_list =[]
@@ -41,7 +41,7 @@ def userKick(parsed):
         nick = parsed['event_nick']
         if authUser(nick) == True:
             combostring = NICK + ", kick "
-            if combostring in message:
+            if message.startswith(combostring):
                 name = message.replace(combostring,'')
                 log('KICK %s %s :%s' % (name, CHANNEL, 'I am a pretty young maiden'))
                 return('KICK %s %s :%s \r\n' % (CHANNEL, name, 'I am a pretty young maiden'))
@@ -53,7 +53,7 @@ def userMode(parsed):
         nick = parsed['event_nick']
         if authUser(nick) == True:
             combostring = NICK + ", mode "
-            if combostring in message:
+            if message.startswith(combostring):
                 message = message.replace(combostring,'')
                 name = message.split(' ')[0]
                 mode = message.split(' ')[1]
@@ -65,7 +65,7 @@ def echoMsg(parsed):
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
         combostring = NICK + ", say "
-        if combostring in message:
+        if message.startswith(combostring):
             saying = message.replace(combostring,'')
             return sendMsg(None, saying)
 
@@ -74,7 +74,7 @@ def shoutMsg(parsed):
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
         combostring = NICK + ", shout "
-        if combostring in message:
+        if message.startswith(combostring):
             saying = message.replace(combostring,'').upper()
             return sendMsg(None, "" + saying)
 
@@ -90,7 +90,7 @@ def helpSystem(parsed):
             'help':"helpSystem"
             }
     if parsed['event'] == 'privmsg':
-        message = parsed['event_msg'].strip()
+        message = parsed['event_msg']
 
         combostring = NICK + ", help"
         if message  == combostring:
@@ -101,8 +101,7 @@ def helpSystem(parsed):
             return sendMsg(None, helptext)
 
         combostring = NICK + ", help "
-        if combostring in message:
-        #if message.starts(combostring):
+        if message.startswith(combostring):
             messageitems = message.split()
             try:
                 helptext = globals()[funcnames[messageitems[2]]].__doc__

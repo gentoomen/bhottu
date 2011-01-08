@@ -49,7 +49,7 @@ def Parse(incoming):
         parsed['event_host'] = event_host_tmp.split('@')[1]
         parsed['event_user'] = event_host_tmp.split('@')[0]
         event_msg_temp = tmp_vars[1].split(':')[1:]
-        parsed['event_msg'] = ":".join(event_msg_temp).replace('\n','').replace('\r','') #why the join?
+        parsed['event_msg'] = ":".join(event_msg_temp).replace('\n','').replace('\r','').strip() #why the join?
     elif 'PING' in incoming:
         parsed['event'] = 'ping'
         parsed['event_ping'] = incoming.split()[1]
