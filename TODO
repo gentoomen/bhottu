@@ -6,6 +6,7 @@ TODO
 * Re-evaluation of Parser() in bhottu.py
     - more event handling
     - checking of current parse methods
+    - remove prepending whites from event_msg
 * re-connect on pinged out
 * write a README
 * fix logging
