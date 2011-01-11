@@ -120,13 +120,18 @@ def outputTitle(parsed):
         if umessage is not None:
             try:
                 log(umessage.group())
-                #req = urllib2.Request(umessage.group(0))
-                response = urllib2.urlopen(umessage.group(0))
+                if ' ' in umessage.group(0):
+                    response = urllib2.urlopen(umessage.group(0).split(' ')[0])
+                else:
+                    response = urllib2.urlopen(umessage.group(0))
                 html = response.read()
                 response.close()
-                tt=html.split('<title>')[1]
-                html=tt.split('</title>')[0].replace('\r','')
+                title = re.search('<title>.*<\/title>', html, re.I)
+                title = title.group(0)
+                html=title.split('>')[1]
+                html = html.split('<')[0]
                 html = html.replace('\n','').lstrip()
+                html = html.replace('\r','').rstrip()
                 return_msg = sendMsg(None, "Site title: %s" % (html))
             except:
                 return_msg = sendMsg(None, 'Cannot find site title')
