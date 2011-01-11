@@ -14,3 +14,4 @@ TODO
 * buffer for irc.recv
 * better core modules
 * move db inits inside relevant functions
+* Fully port spewing quotes from file based to DB based
