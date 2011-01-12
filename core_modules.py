@@ -64,19 +64,23 @@ def echoMsg(parsed):
     """Echo given text."""
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
+        nick = parsed['event_nick']
         combostring = NICK + ", say "
         if message.startswith(combostring):
-            saying = message.replace(combostring,'')
-            return sendMsg(None, saying)
+            if authUser(nick) == True:
+                saying = message.replace(combostring,'')
+                return sendMsg(None, saying)
 
 def shoutMsg(parsed):
     """Shout given text."""
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
+        nick = parsed['event_nick']
         combostring = NICK + ", shout "
         if message.startswith(combostring):
-            saying = message.replace(combostring,'').upper()
-            return sendMsg(None, "" + saying)
+            if authUser(nick) == True:
+                saying = message.replace(combostring,'').upper()
+                return sendMsg(None, "" + saying)
 
 
 def helpSystem(parsed):
