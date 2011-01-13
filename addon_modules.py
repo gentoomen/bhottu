@@ -126,8 +126,9 @@ def outputTitle(parsed):
                     response = urllib2.urlopen(umessage.group(0))
                 html = response.read()
                 response.close()
-                title = re.search('<title>.*<\/title>', html, re.I)
+                title = re.search('<title>.*<\/title>', html, re.I|re.S)
                 title = title.group(0)
+                title = ' '.join(title.split())
                 html=title.split('>')[1]
                 html = html.split('<')[0]
                 html = html.replace('\n','').lstrip()
