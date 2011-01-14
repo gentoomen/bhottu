@@ -149,12 +149,14 @@ def outputTitle(parsed):
 
             conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
             db = conn.cursor()
+            conn.text_factory = str
             test = db.execute("SELECT * FROM urls WHERE url=?",[url]).fetchall()
             if len(test) > 0:
                 conn.close()
                 log('duplicate url found in db')
                 return return_msg
             else:
+                conn.text_factory = str
                 db.execute("INSERT INTO urls (url, title, time) VALUES (?, ?, ?)",[url, title, datetime.datetime.now()])
                 conn.close()
                 return return_msg
