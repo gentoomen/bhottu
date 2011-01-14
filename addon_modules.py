@@ -8,6 +8,7 @@ import os
 import re
 import string
 import time
+import datetime
 import urllib2
 import sqlite3
 
@@ -53,6 +54,12 @@ def dbInit():
     conn = sqlite3.connect('dbs/greetings.db',isolation_level=None)
     db = conn.cursor()
     db.execute('''create table if not exists greetings (nick text, greeting text)''')
+    conn.commit()
+    conn.close()
+
+    conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
+    db = conn.cursor()
+    db.execute('''create table if not exists urls (url text, title text, time timestamp)''')
     conn.commit()
     conn.close()
 
@@ -121,9 +128,10 @@ def outputTitle(parsed):
             try:
                 log(umessage.group())
                 if ' ' in umessage.group(0):
-                    response = urllib2.urlopen(umessage.group(0).split(' ')[0])
+                    url = umessage.group(0).split(' ')[0]
                 else:
-                    response = urllib2.urlopen(umessage.group(0))
+                    url = umessage.group(0)
+                response = urllib2.urlopen(url)
                 html = response.read()
                 response.close()
                 title = re.search('<title>.*<\/title>', html, re.I|re.S)
@@ -134,9 +142,40 @@ def outputTitle(parsed):
                 html = html.replace('\n','').lstrip()
                 html = html.replace('\r','').rstrip()
                 return_msg = sendMsg(None, "Site title: %s" % (html))
+                title = html
             except:
                 return_msg = sendMsg(None, 'Cannot find site title')
-            return return_msg
+                title = 'NONE'
+
+            conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
+            db = conn.cursor()
+            test = db.execute("SELECT * FROM urls WHERE url=?",[url]).fetchall()
+            if len(test) > 0:
+                conn.close()
+                log('duplicate url found in db')
+                return return_msg
+            else:
+                db.execute("INSERT INTO urls (url, title, time) VALUES (?, ?, ?)",[url, title, datetime.datetime.now()])
+                conn.close()
+                return return_msg
+
+    if parsed['event'] == 'privmsg':
+        combostring = NICK + ", links"
+        if combostring in parsed['event_msg']:
+            title = parsed['event_msg'].replace(combostring,'').strip()
+            log(title)
+            conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
+            db = conn.cursor()
+            db.execute("SELECT * FROM urls WHERE title LIKE ? OR url LIKE ?",['%'+title+'%', '%'+title+'%'])
+            derp = db.fetchall()
+            db.close()
+            if len(derp) > 3:
+                return sendMsg(None, str(len(derp))+' entries found, refine your search')
+            else:
+                return_list = []
+                for idk in derp:
+                    return_list.append(sendMsg(None, idk[0]+' '+idk[1]))
+                return return_list
 
 def projectWiz(parsed):
 
