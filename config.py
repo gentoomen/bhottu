@@ -4,10 +4,10 @@
 #Connection options
 SERVER = 'irc.rizon.net'
 PORT = 6667
-NICK ='bhottu'
+NICK ='BotTest'
 REALNAME = 'bhottu'
 IDENT = 'bhottu'
-CHANNEL = ''
+CHANNEL = '#/g/sicp'
 MODE = 0 #This is a bitmask for user mode
 VHOST = False
 NICK_PASS = ''

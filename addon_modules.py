@@ -16,6 +16,7 @@ import sqlite3
 #### VARIABLES ####
 
 that_was = None
+be_quiet = None
 
 #### DATABASE INITS ####
 
@@ -60,6 +61,13 @@ def dbInit():
     conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
     db = conn.cursor()
     db.execute('''create table if not exists urls (url text, title text, time timestamp)''')
+    conn.commit()
+    conn.close()
+
+    ##Vars
+    conn = sqlite3.connect('dbs/vars.db',isolation_level=None)
+    db = conn.cursor()
+    db.execute('''create table if not exists vars (var text, replace text)''')
     conn.commit()
     conn.close()
 
@@ -317,14 +325,14 @@ def newReply(parsed):
         combostring = NICK + ", "
         if combostring in message:
             log("nick in msg")
-            if '->reply' in message:
+            if '<reply>' in message:
                 if '->rm' in message:
                     return
-                log("->reply in msg")
+                log("<reply> in msg")
                 message = message.replace(combostring, '')
                 try:
-                    trigger = message.split('->reply')[0].rstrip()
-                    reply = message.split('->reply')[1::]
+                    trigger = message.split('<reply>')[0]
+                    reply = message.split('<reply>')[1::]
                     reply = reply[0].lstrip()
                 except:
                     return sendMsg(None, 'Incorrect syntax')
@@ -336,24 +344,40 @@ def newReply(parsed):
                 db.execute("INSERT INTO replies (trigger, reply) VALUES (?, ?)",[trigger, reply])
                 db.close()
 
-"""
-def trigReply(parsed):
+def addVar(parsed):
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
-        nick = parsed['event_nick']
-        conn = sqlite3.connect('dbs/reply.db',isolation_level=None)
+        combostring = NICK + ", add "
+        if combostring in message:
+            parts = message.replace(combostring, '')
+            parts = parts.split(' to ')
+            replacement = parts[0]
+            var = parts[1].upper().replace('$','')
+            conn = sqlite3.connect('dbs/vars.db',isolation_level=None)
+            conn.text_factory = str
+            db = conn.cursor()
+            replacement = db.execute('INSERT INTO vars (var, replace) VALUES (?, ?)',[var, replacement])
+            db.close()
+            return sendMsg(None, 'Added.')
+        
+def trigReply(parsed):
+    def replaceVar(message):
+        trigger = message.split(' ')
+        internal = message
+        conn = sqlite3.connect('dbs/vars.db',isolation_level=None)
         conn.text_factory = str
         db = conn.cursor()
-        #message = str(message)
-        reply = db.execute("SELECT reply FROM replies WHERE trigger=? ORDER BY RANDOM() LIMIT 1",[message]).fetchall()
-        return_list = []
-        for row in reply:
-            return_list.append(sendMsg(None, "%s" % (row[0].replace('$nick',nick))))
+        for line in trigger:
+            if '$' in line:
+                var = line.replace('$','').strip('\'/.#][()!",£&*;:()\\')
+                replacement = db.execute('SELECT replace FROM vars WHERE var=? ORDER BY RANDOM() LIMIT 1',[var.upper()]).fetchall()
+                try:
+                    internal = internal.replace(var, replacement[0][0])
+                except:
+                    internal = internal.replace(var, '[X]')
         db.close()
-        return return_list
-"""
+        return internal.replace('$','')
 
-def trigReply(parsed):
     if parsed['event'] == 'privmsg':
         global that_was
         message = parsed['event_msg']
@@ -374,10 +398,11 @@ def trigReply(parsed):
             return_list = []
             for row in reply:
                 return_list.append(sendMsg(None, "%s" % (row[0].replace('$nick',nick))))
-                returned = row[0].replace('$nick',nick)
+                returned = row[0].replace('$NICK',nick)
+                returned = row[0].replace('$TIME',parsed['event_timestamp'])
             db.close()
             that_was = '"'+returned+'" triggered by "'+message+'"'
-            return return_list
+            return sendMsg(None, replaceVar(returned))
         else:
             return
 

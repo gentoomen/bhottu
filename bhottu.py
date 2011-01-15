@@ -12,6 +12,7 @@ import string
 import time
 import datetime
 import signal
+from time import gmtime, strftime
 
 from core_modules import *
 #import functions from modules
@@ -19,11 +20,9 @@ from addon_modules import *
 from config import *
 from utils import log_raw, log
 
-
-
 #ENABLED addon modules/functions separated with comma
 core_modules = [quitNow, userKick, userMode, echoMsg, shoutMsg, helpSystem]
-addon_modules = [nickPlus, queryNick, outputTitle, projectWiz, quoteIt, echoQuote, hackerJargons, newReply, trigReply, rmReply, intoLines, spewLines, Greeting, Colors]
+addon_modules = [nickPlus, queryNick, outputTitle, projectWiz, quoteIt, echoQuote, hackerJargons, newReply, trigReply, rmReply, intoLines, spewLines, Greeting, Colors, addVar]
 #our socket
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #connection retries
@@ -50,6 +49,7 @@ def Parse(incoming):
         parsed['event_user'] = event_host_tmp.split('@')[0]
         event_msg_temp = tmp_vars[1].split(':')[1:]
         parsed['event_msg'] = ":".join(event_msg_temp).replace('\n','').replace('\r','').strip() #why the join?
+        parsed['event_timestamp'] = strftime("%H:%M:%S +0000", gmtime())
     elif 'PING' in incoming:
         parsed['event'] = 'ping'
         parsed['event_ping'] = incoming.split()[1]
