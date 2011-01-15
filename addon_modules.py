@@ -121,10 +121,12 @@ def queryNick(parsed):
             try:
                 pointnum = int(db.execute("SELECT points FROM nickplus WHERE name=?",[uname]).fetchall()[0][0])
                 return_msg = sendMsg(nick, 'Points for '+uname+' = ' + str(pointnum))
+                conn.close()
+                return return_msg
             except:
                 pass
-            conn.close()
-            return return_msg
+            #conn.close()
+            #return return_msg
 
 def outputTitle(parsed):
     if parsed['event'] == 'privmsg':
@@ -192,20 +194,33 @@ def projectWiz(parsed):
     def projectWizList(what): #NOT-INCLUDE
         what = what.split(None, 1)
         if 'open' in what[0]:
-            query = "SELECT * FROM projects WHERE status='OPEN'"
+            #query = "SELECT * FROM projects WHERE status='OPEN'"
+            conn = sqlite3.connect('dbs/projects.db',isolation_level=None)
+            db = conn.cursor()
+            db.execute("SELECT * FROM projects WHERE status='OPEN'")
         elif what[0] == 'closed':
-            query = "SELECT * FROM projects WHERE status='CLOSED'"
+            #query = "SELECT * FROM projects WHERE status='CLOSED'"
+            conn = sqlite3.connect('dbs/projects.db',isolation_level=None)
+            db = conn.cursor()
+            db.execute("SELECT * FROM projects WHERE status='CLOSED'")
         elif what[0] == 'all':
-            query = "SELECT * FROM projects"
+            #query = "SELECT * FROM projects"
+            conn = sqlite3.connect('dbs/projects.db',isolation_level=None)
+            db = conn.cursor()
+            db.execute("SELECT * FROM projects")
         elif what[0] == 'lang':
             if len(what) < 2:
                 return sendMsg(None, 'Syntax: lang [lang]')
-            query = "SELECT * FROM projects WHERE language="'\''+what[1]+'\''
+            #query = "SELECT * FROM projects WHERE language="'\''+what[1]+'\''
+            conn = sqlite3.connect('dbs/projects.db',isolation_level=None)
+            db = conn.cursor()
+            db.execute("SELECT * FROM projects WHERE language=?",[what[1]])
         else:
             return sendMsg(None, 'Syntax: list [ open, closed, all, lang [lang] ]')
-        conn = sqlite3.connect('dbs/projects.db',isolation_level=None)
-        db = conn.cursor()
-        db.execute(query)
+
+        #conn = sqlite3.connect('dbs/projects.db',isolation_level=None)
+        #db = conn.cursor()
+        #db.execute(query)
         derp = db.fetchall()
         return_list = []
         for row in derp:
@@ -359,7 +374,7 @@ def addVar(parsed):
             replacement = db.execute('INSERT INTO vars (var, replace) VALUES (?, ?)',[var, replacement])
             db.close()
             return sendMsg(None, 'Added.')
-        
+
 def trigReply(parsed):
     def replaceVar(message):
         trigger = message.split(' ')
