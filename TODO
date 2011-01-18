@@ -3,10 +3,6 @@ TODO
 * Thorough check of current addon_modules.py/functions
     - sanitizing
     - sensible logging via log()
-* Re-evaluation of Parser() in bhottu.py
-    - more event handling
-    - checking of current parse methods
-    - remove leading whites from event_msg
 * re-connect on pinged out
 * write a README
 * fix logging

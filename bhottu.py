@@ -40,43 +40,20 @@ initialized = False
 def Parse(incoming):
     parsed = {}
     parsed['raw'] = incoming
-    if 'PRIVMSG' in incoming:
-        parsed['event'] = 'privmsg'
-        tmp_vars = incoming.split('!')
-        parsed['event_nick'] = tmp_vars[0].strip(':')
-        event_host_tmp = tmp_vars[1].split(' ')[0]
-        parsed['event_host'] = event_host_tmp.split('@')[1]
-        parsed['event_user'] = event_host_tmp.split('@')[0]
-        event_msg_temp = tmp_vars[1].split(':')[1:]
-        parsed['event_msg'] = ":".join(event_msg_temp).replace('\n','').replace('\r','').strip() #why the join?
-        parsed['event_timestamp'] = strftime("%H:%M:%S +0000", gmtime())
-    elif 'PING' in incoming:
-        parsed['event'] = 'ping'
-        parsed['event_ping'] = incoming.split()[1]
-        #sending PONG straight away
-        irc.send('PONG :' + parsed['event_ping'] + '\r\n')
-        log_raw('PONG :' + parsed['event_ping'] + '\r\n')
-    elif 'JOIN' in incoming:
-        parsed['event'] = 'join'
-        tmp_vars = incoming.split('!')
-        parsed['event_nick'] = tmp_vars[0].strip(':')
-        event_host_tmp = tmp_vars[1].split(' ')[0]
-        parsed['event_host'] = event_host_tmp.split('@')[1]
-        parsed['event_user'] = event_host_tmp.split('@')[0]
-    elif 'PART' in incoming:
-        parsed['event'] = 'part'
-        tmp_vars = incoming.split('!')
-        parsed['event_nick'] = tmp_vars[0].strip(':')
-        event_host_tmp = tmp_vars[1].split(' ')[0]
-        parsed['event_host'] = event_host_tmp.split('@')[1]
-        parsed['event_user'] = event_host_tmp.split('@')[0]
-    elif 'QUIT' in incoming:
-        parsed['event'] = 'quit'
-        tmp_vars = incoming.split('!')
-        parsed['event_nick'] = tmp_vars[0].strip(':')
-        event_host_tmp = tmp_vars[1].split(' ')[0]
-        parsed['event_host'] = event_host_tmp.split('@')[1]
-        parsed['event_user'] = event_host_tmp.split('@')[0]
+    if parsed['raw'].startswith(':'):
+        tmp_vars = parsed['raw'].split(' ',3)
+        parsed['event'] = tmp_vars[1].lower()
+        parsed['event_host'] = tmp_vars[0].split('@')[1]
+        parsed['event_user'] = tmp_vars[0].split('@')[0].split('!')[1]
+        parsed['event_nick'] = tmp_vars[0].split('@')[0].split('!')[0].lstrip(':')
+        if parsed['event'] == 'privmsg':
+            parsed['event_msg'] = tmp_vars[3].lstrip(':').strip()
+            parsed['event_timestamp'] = strftime("%H:%M:%S +0000", gmtime())
+    elif parsed['raw'].startswith('PING'):
+            parsed['event'] = 'ping'
+            parsed['event_ping'] = incoming.split()[1]
+            irc.send('PONG ' + parsed['event_ping'] + '\r\n')
+            log_raw('PONG ' + parsed['event_ping'] + '\r\n')
     else:
         parsed['event'] = None
     return parsed
