@@ -61,6 +61,7 @@ def dbInit():
     conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
     db = conn.cursor()
     db.execute('''create table if not exists urls (url text, title text, time timestamp)''')
+    db.execute('''create table if not exists blacklist (domain text)''')
     conn.commit()
     conn.close()
 
@@ -135,30 +136,41 @@ def outputTitle(parsed):
         if message.rfind("http://") != -1:
             umessage = re.search('htt(p|ps)://.*', message)
         if umessage is not None:
-            try:
-                log(umessage.group())
-                if ' ' in umessage.group(0):
-                    url = umessage.group(0).split(' ')[0]
-                else:
-                    url = umessage.group(0)
-                response = urllib2.urlopen(url)
-                html = response.read()
-                response.close()
-                title = re.search('<title>.*<\/title>', html, re.I|re.S)
-                title = title.group(0)
-                title = ' '.join(title.split())
-                html=title.split('>')[1]
-                html = html.split('<')[0]
-                html = html.replace('\n','').lstrip()
-                html = html.replace('\r','').rstrip()
-                return_msg = sendMsg(None, "Site title: %s" % (html))
-                title = html
-            except:
-                return_msg = sendMsg(None, 'Cannot find site title')
-                title = 'NONE'
-
+            log(umessage.group())
+            if ' ' in umessage.group(0):
+                url = umessage.group(0).split(' ')[0]
+            else:
+                url = umessage.group(0)
+            domain = url.strip('http://').strip('https://').split('/',1)[0]
+            log(domain)
             conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
             db = conn.cursor()
+            derp = db.execute("SELECT * FROM blacklist WHERE domain=?",[domain]).fetchall()
+            #conn.close()
+            if len(derp) > 0:
+                log('domain is blacklisted, will not fetch title')
+                title = 'NONE'
+                return_msg = None
+            else:
+                try:
+                    response = urllib2.urlopen(url)
+                    html = response.read()
+                    response.close()
+                    title = re.search('<title>.*<\/title>', html, re.I|re.S)
+                    title = title.group(0)
+                    title = ' '.join(title.split())
+                    html=title.split('>')[1]
+                    html = html.split('<')[0]
+                    html = html.replace('\n','').lstrip()
+                    html = html.replace('\r','').rstrip()
+                    return_msg = sendMsg(None, "Site title: %s" % (html))
+                    title = html
+                except:
+                    return_msg = sendMsg(None, 'Cannot find site title')
+                    title = 'NONE'
+
+            #conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
+            #db = conn.cursor()
             conn.text_factory = str
             test = db.execute("SELECT * FROM urls WHERE url=?",[url]).fetchall()
             if len(test) > 0:
@@ -188,6 +200,22 @@ def outputTitle(parsed):
                 for idk in derp:
                     return_list.append(sendMsg(None, idk[0]+' '+idk[1]))
                 return return_list
+    if parsed['event'] == 'privmsg':
+        combostring = NICK + ", blacklist"
+        if combostring in parsed['event_msg']:
+            if authUser(parsed['event_nick']) == True:
+                domain = parsed['event_msg'].replace(combostring,'').strip()
+                log(domain)
+                conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
+                db = conn.cursor()
+                derp = db.execute("SELECT * FROM blacklist WHERE domain=?",[domain]).fetchall()
+                if len(derp) > 0:
+                    db.close()
+                    return sendMsg(None, 'domain already blacklisted')
+                else:
+                    db.execute("INSERT INTO blacklist (domain) VALUES (?)",[domain])
+                    conn.close()
+                    return sendMsg(None, domain+' blacklisted')
 
 def projectWiz(parsed):
 
@@ -535,7 +563,7 @@ def Colors(parsed):
         if combostring in message:
             color = message.replace(combostring, '').split(' ',1)
             if len(color) == 2:
-                hex_test = re.search('#([0-9A-Fa-f]{6})', color[0])
+                hex_test = re.search('#([0-9A-Fa-f]{6})(?!\w)', color[0])
                 if hex_test is not None:
                     hex_test = hex_test.group()
                     hex_test = hex_test.strip('#')
@@ -553,7 +581,7 @@ def Colors(parsed):
                     return sendMsg(None,'SYNTAX: add color #ffffff definition')
             else:
                 return sendMsg(None,'SYNTAX: add color #ffffff definition')
-        uname = re.search('#([0-9A-Fa-f]{6})', parsed['event_msg'])
+        uname = re.search('#([0-9A-Fa-f]{6})(?!\w)', parsed['event_msg'])
         if uname is not None:
             uname = uname.group()
             log(uname+' seen')
