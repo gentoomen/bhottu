@@ -131,59 +131,6 @@ def queryNick(parsed):
 
 def outputTitle(parsed):
     if parsed['event'] == 'privmsg':
-        message = parsed['event_msg']
-        umessage = None
-        if message.rfind("http://") != -1:
-            umessage = re.search('htt(p|ps)://.*', message)
-        if umessage is not None:
-            log(umessage.group())
-            if ' ' in umessage.group(0):
-                url = umessage.group(0).split(' ')[0]
-            else:
-                url = umessage.group(0)
-            domain = url.strip('http://').strip('https://').split('/',1)[0]
-            log(domain)
-            conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
-            db = conn.cursor()
-            derp = db.execute("SELECT * FROM blacklist WHERE domain=?",[domain]).fetchall()
-            #conn.close()
-            if len(derp) > 0:
-                log('domain is blacklisted, will not fetch title')
-                title = 'NONE'
-                return_msg = None
-            else:
-                try:
-                    response = urllib2.urlopen(url)
-                    html = response.read()
-                    response.close()
-                    title = re.search('<title>.*<\/title>', html, re.I|re.S)
-                    title = title.group(0)
-                    title = ' '.join(title.split())
-                    html=title.split('>')[1]
-                    html = html.split('<')[0]
-                    html = html.replace('\n','').lstrip()
-                    html = html.replace('\r','').rstrip()
-                    return_msg = sendMsg(None, "Site title: %s" % (html))
-                    title = html
-                except:
-                    return_msg = sendMsg(None, 'Cannot find site title')
-                    title = 'NONE'
-
-            #conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
-            #db = conn.cursor()
-            conn.text_factory = str
-            test = db.execute("SELECT * FROM urls WHERE url=?",[url]).fetchall()
-            if len(test) > 0:
-                conn.close()
-                log('duplicate url found in db')
-                return return_msg
-            else:
-                conn.text_factory = str
-                db.execute("INSERT INTO urls (url, title, time) VALUES (?, ?, ?)",[url, title, datetime.datetime.now()])
-                conn.close()
-                return return_msg
-
-    if parsed['event'] == 'privmsg':
         combostring = NICK + ", links"
         if combostring in parsed['event_msg']:
             title = parsed['event_msg'].replace(combostring,'').strip()
@@ -216,6 +163,61 @@ def outputTitle(parsed):
                     db.execute("INSERT INTO blacklist (domain) VALUES (?)",[domain])
                     conn.close()
                     return sendMsg(None, domain+' blacklisted')
+    if parsed['event'] == 'privmsg':
+        message = parsed['event_msg']
+        umessage = None
+        if message.rfind("http://") != -1 or message.rfind("https://") != -1:
+            umessage = re.search('htt(p|ps)://.*', message)
+        if umessage is not None:
+            log(umessage.group())
+            if ' ' in umessage.group(0):
+                url = umessage.group(0).split(' ')[0]
+            else:
+                url = umessage.group(0)
+            domain = url.strip('http://').strip('https://').split('/',1)[0]
+            log(domain)
+            conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
+            db = conn.cursor()
+            derp = db.execute("SELECT * FROM blacklist WHERE domain=?",[domain]).fetchall()
+            #conn.close()
+            if len(derp) > 0:
+                log('domain is blacklisted, will not fetch title')
+                title = 'BL'
+                return_msg = None
+            elif url.endswith(('.jpg','.png','.gif','.txt')):
+                log('url is a pic, will not fetch title')
+                title = 'PIC'
+                return_msg = None
+            else:
+                try:
+                    response = urllib2.urlopen(url)
+                    html = response.read()
+                    response.close()
+                    title = re.search('<title>.*<\/title>', html, re.I|re.S)
+                    title = title.group(0)
+                    title = ' '.join(title.split())
+                    html=title.split('>')[1]
+                    html = html.split('<')[0]
+                    html = html.replace('\n','').lstrip()
+                    html = html.replace('\r','').rstrip()
+                    return_msg = sendMsg(None, "Site title: %s" % (html))
+                    title = html
+                except:
+                    return_msg = sendMsg(None, 'Cannot find site title')
+                    title = 'NONE'
+            #conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
+            #db = conn.cursor()
+            conn.text_factory = str
+            test = db.execute("SELECT * FROM urls WHERE url=?",[url]).fetchall()
+            if len(test) > 0:
+                conn.close()
+                log('duplicate url found in db')
+                return return_msg
+            else:
+                conn.text_factory = str
+                db.execute("INSERT INTO urls (url, title, time) VALUES (?, ?, ?)",[url, title, datetime.datetime.now()])
+                conn.close()
+                return return_msg
 
 def projectWiz(parsed):
 
@@ -357,7 +359,8 @@ def hackerJargons(parsed):
                     #    print 'jargon send failed'
                     return_list.append(sendMsg(None, out[0]+', '+out[1]+' : '))
                     for r in j_list:
-                        return_list.append(sendMsg(None, r))
+                        if len(r) > 0:
+                            return_list.append(sendMsg(None, r))
                 db.close()
                 return return_list
 
@@ -558,7 +561,7 @@ def Greeting(parsed):
 
 def Colors(parsed):
     if parsed['event'] == 'privmsg':
-        combostring = NICK + ", add color "
+        combostring = NICK + ", color "
         message = parsed['event_msg']
         if combostring in message:
             color = message.replace(combostring, '').split(' ',1)
