@@ -11,3 +11,9 @@ TODO
 * better core modules
 * move db inits inside relevant functions
 * Fully port spewing quotes from file based to DB based
+* A poll function, to cater voting needs
+    -topic
+    -index based voting
+    -tracking votes
+    -add users "idea/vote" to poll if user votes for new
+* A function for self updating bhottu
