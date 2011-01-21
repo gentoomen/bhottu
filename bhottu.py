@@ -46,9 +46,11 @@ def Parse(incoming):
         parsed['event_host'] = tmp_vars[0].split('@')[1]
         parsed['event_user'] = tmp_vars[0].split('@')[0].split('!')[1]
         parsed['event_nick'] = tmp_vars[0].split('@')[0].split('!')[0].lstrip(':')
+        parsed['event_timestamp'] = strftime("%H:%M:%S +0000", gmtime())
         if parsed['event'] == 'privmsg':
             parsed['event_msg'] = tmp_vars[3].lstrip(':').strip()
-            parsed['event_timestamp'] = strftime("%H:%M:%S +0000", gmtime())
+        if parsed['event'] == 'nick':
+            parsed['event_msg'] = tmp_vars[2].lstrip(':').strip()
     elif parsed['raw'].startswith('PING'):
             parsed['event'] = 'ping'
             parsed['event_ping'] = incoming.split()[1]
