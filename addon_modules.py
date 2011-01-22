@@ -126,8 +126,6 @@ def queryNick(parsed):
                 return return_msg
             except:
                 pass
-            #conn.close()
-            #return return_msg
 
 def outputTitle(parsed):
     if parsed['event'] == 'privmsg':
@@ -179,7 +177,6 @@ def outputTitle(parsed):
             conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
             db = conn.cursor()
             derp = db.execute("SELECT * FROM blacklist WHERE domain=?",[domain]).fetchall()
-            #conn.close()
             if len(derp) > 0:
                 log('domain is blacklisted, will not fetch title')
                 title = 'BL'
@@ -205,8 +202,6 @@ def outputTitle(parsed):
                 except:
                     return_msg = sendMsg(None, 'Cannot find site title')
                     title = 'NONE'
-            #conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
-            #db = conn.cursor()
             conn.text_factory = str
             test = db.execute("SELECT * FROM urls WHERE url=?",[url]).fetchall()
             if len(test) > 0:
@@ -220,21 +215,26 @@ def outputTitle(parsed):
                 return return_msg
 
 def projectWiz(parsed):
+    def mls(svar,lvar):
+        temp = ""
+        svar.strip()
+        if(len(svar) >= lvar):
+            temp = svar[0:lvar]
+        else:
+            temp = svar.center(lvar)
+        return temp
 
     def projectWizList(what): #NOT-INCLUDE
         what = what.split(None, 1)
-        if 'open' in what[0]:
-            #query = "SELECT * FROM projects WHERE status='OPEN'"
+        if what[0] == 'open':
             conn = sqlite3.connect('dbs/projects.db',isolation_level=None)
             db = conn.cursor()
             db.execute("SELECT * FROM projects WHERE status='OPEN'")
         elif what[0] == 'closed':
-            #query = "SELECT * FROM projects WHERE status='CLOSED'"
             conn = sqlite3.connect('dbs/projects.db',isolation_level=None)
             db = conn.cursor()
             db.execute("SELECT * FROM projects WHERE status='CLOSED'")
         elif what[0] == 'all':
-            #query = "SELECT * FROM projects"
             conn = sqlite3.connect('dbs/projects.db',isolation_level=None)
             db = conn.cursor()
             db.execute("SELECT * FROM projects")
@@ -247,56 +247,65 @@ def projectWiz(parsed):
             db.execute("SELECT * FROM projects WHERE language=?",[what[1]])
         else:
             return sendMsg(None, 'Syntax: list [ open, closed, all, lang [lang] ]')
-
-        #conn = sqlite3.connect('dbs/projects.db',isolation_level=None)
-        #db = conn.cursor()
-        #db.execute(query)
         derp = db.fetchall()
         return_list = []
+        #header>   title(10)  | version(5)  | description(18) | language(7)  | maintainer{s}(15) | status(6)
+        return_list.append("%s|%s|%s|%s|%s|%s" % (mls("title",10), mls("ver",5), mls("description",18), mls("language",7), mls("maintainer{s}",15), mls("status",6)))
         for row in derp:
-            return_list.append(sendMsg(None, "%s | %s | %s | %s | %s | %s" % (row[0],row[1],row[2],row[3],row[4],row[5])))
+            return_list.append("%s|%s|%s|%s|%s|%s" % (mls(row[0], 10), mls(row[1],5), mls(row[2],18), mls(row[3],7), mls(row[4],15), mls(row[5],6)))
         db.close()
         return return_list
 
-    def projectWizAdd(add_string): #NOT-INCLUDE
+    def projectWizAdd(add_string):
         add_string = add_string.replace(' | ','|')
         add_string = add_string.replace('| ','|')
         add_string = add_string.replace(' |','|')
         add_string = add_string.split('|',5)
         if len(add_string) == 6:
-
             log('ADDING -> '+str(add_string))
-
             conn = sqlite3.connect('dbs/projects.db')
             db = conn.cursor()
+            derp = db.execute("SELECT * FROM projects WHERE name=?",[add_string[0]]).fetchall()
+            if len(derp) > 0:
+                db.close()
+                return sendMsg(None, 'Project is already added')
             db.execute('insert into projects values (?,?,?,?,?,?)', add_string)
             conn.commit()
             db.close()
-
+            return sendMsg(None, 'Project added')
         else:
-            return sendMsg(None, 'Syntax: <name> | <version> | <description> | <maintainers> | <lang> | <status>')
+            return sendMsg(None, 'Syntax: <name> | <version> | <description> | <lang> | <maintainers> | <status>')
 
     if parsed['event'] == 'privmsg':
         unick = parsed['event_nick']
         message = parsed['event_msg']
         main_trigger = NICK + ", projects"
-        if main_trigger in message:
+        if message.startswith(main_trigger):
             trigger =  message.replace(main_trigger,'')
             trigger = trigger.split(None, 1)
-
             if not trigger:
                 #help msg here in future
                 return sendMsg(None, 'why yes please')
-
-            if trigger[0] == 'add':
-                if len(trigger) < 2:
-                    return sendMsg(None, 'I should output help messages for add, but I wont')
-                return projectWizAdd(trigger[1])
+            elif trigger[0] == 'add':
+                if authUser(parsed['event_nick']) == True:
+                    if len(trigger) < 2:
+                        return sendMsg(None, 'I should output help messages for add, but I wont')
+                    return projectWizAdd(trigger[1])
+                else:
+                    return sendMsg(None, 'GODS only can add new projects')
             elif trigger[0] == 'list':
-                if len(trigger) < 2:
-                    return sendMsg(None, 'Correct syntax: projects list [open|closed|lang] ')
-                log('\''+trigger[1]+'\'')
-                return projectWizList(trigger[1])
+                if authUser(parsed['event_nick']) == True:
+                    if len(trigger) < 2:
+                        return sendMsg(None, 'Correct syntax: projects list [open|closed|lang] ')
+                    tmp_list = []
+                    for row in projectWizList(trigger[1]):
+                        tmp_list.append(sendMsg(None,row))
+                else:
+                    if len(trigger) < 2:
+                        return sendPM(parsed['event_nick'], 'Correct syntax: projects list [open|closed|lang] ')
+                    for row in projectWizList(trigger[1]):
+                        tmp_list.append(sendPM(parsed['event_nick'],row))
+                return tmp_list
             else:
                 return sendMsg(None, 'Proper syntax, learn it!')
 
@@ -351,12 +360,6 @@ def hackerJargons(parsed):
 
                     out[2] = out[2].replace('   ','').replace('\r','')
                     j_list = out[2].split('\n')
-                    #print out[2]
-                    #try:
-                    #    irc.send('PRIVMSG '+ str(CHANNEL) +' :' + str(out[2]) + '\r\n')
-                    #irc.send('PRIVMSG '+ ' :' + line + '\r\n') #not sure if we need the \r\n
-                    #except:
-                    #    print 'jargon send failed'
                     return_list.append(sendMsg(None, out[0]+', '+out[1]+' : '))
                     for r in j_list:
                         if len(r) > 0:
@@ -382,11 +385,9 @@ def newReply(parsed):
                     reply = reply[0].lstrip()
                 except:
                     return sendMsg(None, 'Incorrect syntax')
-                #trigger = trigger.replace(combostring, '')
                 conn = sqlite3.connect('dbs/reply.db',isolation_level=None)
                 conn.text_factory = str
                 db = conn.cursor()
-                #replies (trigger text, reply text)
                 db.execute("INSERT INTO replies (trigger, reply) VALUES (?, ?)",[trigger, reply])
                 db.close()
 
@@ -438,7 +439,6 @@ def trigReply(parsed):
         conn.text_factory = str
         db = conn.cursor()
         returned = ''
-        #message = str(message)
         reply = db.execute("SELECT reply FROM replies WHERE trigger=? ORDER BY RANDOM() LIMIT 1",[message]).fetchall()
         if len(reply) > 0:
             return_list = []
@@ -458,7 +458,6 @@ def rmReply(parsed):
         nick = parsed['event_nick']
         combostring = NICK + ", "
         if combostring in message:
-            #print "nick in msg"
             if '->rm' in message:
                 log("->rm in msg")
                 try:
@@ -468,7 +467,6 @@ def rmReply(parsed):
                 conn = sqlite3.connect('dbs/reply.db',isolation_level=None)
                 conn.text_factory = str
                 db = conn.cursor()
-                #replies (trigger text, reply text)
                 if authUser(nick) == True:
                     db.execute("DELETE FROM replies WHERE reply=?",[reply])
                     return_msg = sendMsg(None, "Total records deleted: " + str(conn.total_changes))
