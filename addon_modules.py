@@ -11,13 +11,14 @@ import time
 import datetime
 import urllib2
 import sqlite3
-
+import feedparser
 
 #### VARIABLES ####
 
 that_was = None
 be_quiet = None
-
+#repo_time = None
+last_repo_check = None
 #### DATABASE INITS ####
 
 def dbInit():
@@ -72,6 +73,13 @@ def dbInit():
     conn.commit()
     conn.close()
 
+    conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
+    db = conn.cursor()
+    db.execute('''create table if not exists repos (repo text, feed text, last_item text)''')
+    #db.execute("INSERT INTO repos (repo, feed, last_item) VALUES (?,?,?)",["bhottu","https://github.com/gentoomen/bhottu/commits/master.atom",""])
+    #db.execute('''create table if not exists commits (repo text, msg text, url text)''')
+    conn.commit()
+    conn.close()
 #### ADDONS ####
 
 def nickPlus(parsed):
@@ -207,7 +215,7 @@ def outputTitle(parsed):
             if len(test) > 0:
                 conn.close()
                 log('duplicate url found in db')
-                return return_msg
+                return # return_msg
             else:
                 conn.text_factory = str
                 db.execute("INSERT INTO urls (url, title, time) VALUES (?, ?, ?)",[url, title, datetime.datetime.now()])
@@ -620,3 +628,63 @@ def Colors(parsed):
                     log(result)
                 return_list = ''.join(return_list)
             return sendMsg(None, return_list)
+
+def Commits(parsed):
+    global last_repo_check
+    if parsed['event'] == 'privmsg':
+        combostring = NICK + ", repo "
+        if parsed['event_msg'].startswith(combostring):
+            if authUser(parsed['event_nick']) == True:
+                repo = parsed['event_msg'].replace(combostring, '').split(' ',2)
+                if len(repo) == 3:
+                    conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
+                    db = conn.cursor()
+                    derp = db.execute("SELECT * FROM repos WHERE repo=? OR feed=? OR last_item=?",[repo[0],repo[1],repo[2]]).fetchall()
+                    if len(derp) > 0:
+                        return sendMsg(None, 'we call that a duplicate')
+                    db.execute("INSERT INTO repos (repo, feed, last_item) VALUES (?,?,?)",[repo[0],repo[1],repo[2]])
+                    conn.commit()
+                    conn.close()
+                    return sendMsg(None, 'repo feed added')
+                else:
+                    return sendMsg(None,'the fuck, format your msg properly')
+    if last_repo_check == None:
+        last_repo_check = datetime.datetime.now()
+    else:
+        pass
+    if datetime.datetime.now() - last_repo_check > datetime.timedelta(minutes = 10):
+        conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
+        db = conn.cursor()
+        repos = db.execute("SELECT * FROM repos").fetchall()
+        conn.close()
+        if len(repos) < 1:
+            log('No repos found')
+            last_repo_check = datetime.datetime.now()
+            return
+        for repo in repos:
+            item_index = 0
+            item_list = []
+            #feed = feedparser.parse("https://github.com/gentoomen/bhottu/commits/master.atom")
+            feed = feedparser.parse(repo[1])
+            for item in feed['entries']:
+                if item_index == 0:
+                    first_item = item['title']
+                if item['title'] == repo[2]:
+                    break
+                else:
+                    item_list.append([repo[0], item['title'], item['link']])
+                    item_index += 1
+            print(str(item_index)+' new items')
+            conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
+            db = conn.cursor()
+            db.execute("UPDATE repos SET last_item=? WHERE repo=?",[first_item,repo[0]])
+            conn.commit()
+            conn.close()
+        item_list.reverse()
+        msg_list =[]
+        for commit in item_list:
+            msg_list.append(sendMsg(None, '['+commit[0]+'] '+commit[1]+' => '+commit[2]))
+        last_repo_check = datetime.datetime.now()
+        return msg_list
+
+
