@@ -661,9 +661,10 @@ def Commits(parsed):
             log('No repos found')
             last_repo_check = datetime.datetime.now()
             return
+        item_list = []
         for repo in repos:
             item_index = 0
-            item_list = []
+
             #feed = feedparser.parse("https://github.com/gentoomen/bhottu/commits/master.atom")
             feed = feedparser.parse(repo[1])
             for item in feed['entries']:
