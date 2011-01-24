@@ -631,12 +631,14 @@ def Colors(parsed):
 
 def Commits(parsed):
     global last_repo_check
+    interval = 10 ##Update interval in minutes
     if parsed['event'] == 'privmsg':
         combostring = NICK + ", repo "
         if parsed['event_msg'].startswith(combostring):
             if authUser(parsed['event_nick']) == True:
-                repo = parsed['event_msg'].replace(combostring, '').split(' ',2)
-                if len(repo) == 3:
+                repo = parsed['event_msg'].replace(combostring, '').split(' ',1)
+                if len(repo) == 2:
+                    repo[2] = NULL
                     conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
                     db = conn.cursor()
                     derp = db.execute("SELECT * FROM repos WHERE repo=? OR feed=? OR last_item=?",[repo[0],repo[1],repo[2]]).fetchall()
@@ -645,20 +647,21 @@ def Commits(parsed):
                     db.execute("INSERT INTO repos (repo, feed, last_item) VALUES (?,?,?)",[repo[0],repo[1],repo[2]])
                     conn.commit()
                     conn.close()
-                    return sendMsg(None, 'repo feed added')
+                    return sendMsg(None, 'repo added, 1st update will contain all new msgs, so prepare for spam kthxbai')
                 else:
                     return sendMsg(None,'the fuck, format your msg properly')
     if last_repo_check == None:
         last_repo_check = datetime.datetime.now()
     else:
         pass
-    if datetime.datetime.now() - last_repo_check > datetime.timedelta(minutes = 10):
+    if datetime.datetime.now() - last_repo_check > datetime.timedelta(minutes = interval):
+        log('Commits() -> Refreshing feeds'+'('+interval+'min)')
         conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
         db = conn.cursor()
         repos = db.execute("SELECT * FROM repos").fetchall()
         conn.close()
         if len(repos) < 1:
-            log('No repos found')
+            log('Commits() ->'+'NO REPOS ADDED, DISBALE ME OR ADD SOME FUCKING FEEDS')
             last_repo_check = datetime.datetime.now()
             return
         item_list = []
@@ -675,7 +678,7 @@ def Commits(parsed):
                 else:
                     item_list.append([repo[0], item['title'], item['link']])
                     item_index += 1
-            print(str(item_index)+' new items')
+            log('Commits() ->'+'['+repo[0]+'] '+str(item_index)+' new commits found')
             conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
             db = conn.cursor()
             db.execute("UPDATE repos SET last_item=? WHERE repo=?",[first_item,repo[0]])
