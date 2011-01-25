@@ -630,7 +630,7 @@ def Colors(parsed):
 
 def Commits(parsed):
     global last_repo_check
-    interval = 10 ##Update interval in minutes
+    interval = 2 ##Update interval in minutes
     if parsed['event'] == 'privmsg':
         combostring = NICK + ", repo "
         if parsed['event_msg'].startswith(combostring):
@@ -649,6 +649,22 @@ def Commits(parsed):
                     return sendMsg(None, 'repo added, 1st update will contain all new msgs, so prepare for spam kthxbai')
                 else:
                     return sendMsg(None,'the fuck, format your msg properly')
+    if parsed['event'] == 'privmsg':
+        combostring = NICK + ", remove repo "
+        if parsed['event_msg'].startswith(combostring):
+            if authUser(parsed['event_nick']) == True:
+                repo = parsed['event_msg'].replace(combostring, '').strip()
+                try:
+                    conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
+                    db = conn.cursor()
+                    db.execute("DELETE FROM repos WHERE rep=?",[repo])
+                    conn.commit()
+                    conn.close()
+                    log('Commits(): Removed '+repo)
+                    return sendMsg(None, 'removed '+repo)
+                except:
+                    log('Commits(): Failed to remove'+repo)
+                    return sendMsg(None, 'failed to remove'+repo)
     #if this could be done locally, it would be awesome
     if last_repo_check == None:
         last_repo_check = datetime.datetime.now()
