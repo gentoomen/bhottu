@@ -657,7 +657,7 @@ def Commits(parsed):
                 try:
                     conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
                     db = conn.cursor()
-                    db.execute("DELETE FROM repos WHERE rep=?",[repo])
+                    db.execute("DELETE FROM repos WHERE repo=?",[repo])
                     conn.commit()
                     conn.close()
                     log('Commits(): Removed '+repo)
