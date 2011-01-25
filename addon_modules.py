@@ -12,7 +12,7 @@ import datetime
 import urllib2
 import sqlite3
 import feedparser
-
+import subprocess
 #### VARIABLES ####
 
 that_was = None
@@ -76,7 +76,6 @@ def dbInit():
     conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
     db = conn.cursor()
     db.execute('''create table if not exists repos (repo text, feed text, last_item text)''')
-    #db.execute("INSERT INTO repos (repo, feed, last_item) VALUES (?,?,?)",["bhottu","https://github.com/gentoomen/bhottu/commits/master.atom",""])
     #db.execute('''create table if not exists commits (repo text, msg text, url text)''')
     conn.commit()
     conn.close()
@@ -650,26 +649,29 @@ def Commits(parsed):
                     return sendMsg(None, 'repo added, 1st update will contain all new msgs, so prepare for spam kthxbai')
                 else:
                     return sendMsg(None,'the fuck, format your msg properly')
+    #if this could be done locally, it would be awesome
     if last_repo_check == None:
         last_repo_check = datetime.datetime.now()
     else:
         pass
     if datetime.datetime.now() - last_repo_check > datetime.timedelta(minutes = interval):
-        log('Commits() -> Refreshing feeds'+'('+interval+'min)')
+        log('Commits(): Refreshing feeds'+'('+str(interval)+'min)')
         conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
         db = conn.cursor()
         repos = db.execute("SELECT * FROM repos").fetchall()
         conn.close()
         if len(repos) < 1:
-            log('Commits() ->'+'NO REPOS ADDED, DISBALE ME OR ADD SOME FUCKING FEEDS')
+            log('Commits(): '+'NO REPOS ADDED, DISBALE ME(Commits()) OR ADD SOME FUCKING FEEDS')
             last_repo_check = datetime.datetime.now()
             return
-        item_list = []
+        item_list = [] #we append all msg for all repos
         for repo in repos:
             item_index = 0
-
-            #feed = feedparser.parse("https://github.com/gentoomen/bhottu/commits/master.atom")
-            feed = feedparser.parse(repo[1])
+            try:
+                feed = feedparser.parse(repo[1])
+            except:
+                log('Commits(): Failed to fetch feed for '+'['+repo[0]+']'+', skipping')
+                continue
             for item in feed['entries']:
                 if item_index == 0:
                     first_item = item['title']
@@ -678,7 +680,7 @@ def Commits(parsed):
                 else:
                     item_list.append([repo[0], item['title'], item['link']])
                     item_index += 1
-            log('Commits() ->'+'['+repo[0]+'] '+str(item_index)+' new commits found')
+            log('Commits(): '+'['+repo[0]+'] '+str(item_index)+' new commits found')
             conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
             db = conn.cursor()
             db.execute("UPDATE repos SET last_item=? WHERE repo=?",[first_item,repo[0]])
@@ -690,5 +692,20 @@ def Commits(parsed):
             msg_list.append(sendMsg(None, '['+commit[0]+'] '+commit[1]+' => '+commit[2]))
         last_repo_check = datetime.datetime.now()
         return msg_list
+
+def AutoUpdate(parsed):
+    if parsed['event'] == 'privmsg':
+        combostring = NICK + ", it's your birthday"
+        if parsed['event_msg'].startswith(combostring):
+            if authUser(parsed['event_nick']) == True:
+                retcode = subprocess.call(["git","pull","origin","master"])
+                return_list = []
+                if retcode == 0:
+                    return_list.append(sendMsg(None, "YAY, brb cake!!"))
+                    return_list.append('QUIT :mmmmm chocolate cake\n\r')
+                    subprocess.Popen('./bhottu.py', shell=True)
+                else:
+                    return_list.append(sendMsg(None, "Hmph, no cake!!"))
+                return return_list
 
 
