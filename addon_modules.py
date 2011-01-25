@@ -281,7 +281,7 @@ def projectWiz(parsed):
             db.close()
             return sendMsg(None, 'Project added')
         else:
-            return sendMsg(None, 'You need: <name> | <version> | <description> | <lang> | <maintainers> | <status>')
+            return sendMsg(None, 'Syntax: <name> | <version> | <description> | <lang> | <maintainers> | <status>')
 
     if parsed['event'] == 'privmsg':
         unick = parsed['event_nick']
