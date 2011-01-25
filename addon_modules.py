@@ -637,7 +637,7 @@ def Commits(parsed):
             if authUser(parsed['event_nick']) == True:
                 repo = parsed['event_msg'].replace(combostring, '').split(' ',1)
                 if len(repo) == 2:
-                    repo[2] = NULL
+                    repo.extend(['foobar'])
                     conn = sqlite3.connect('dbs/repos.db',isolation_level=None)
                     db = conn.cursor()
                     derp = db.execute("SELECT * FROM repos WHERE repo=? OR feed=? OR last_item=?",[repo[0],repo[1],repo[2]]).fetchall()
