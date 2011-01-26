@@ -384,7 +384,7 @@ def newReply(parsed):
                 if authUser(parsed['event_nick']) == True:
                     if '->rm' in message:
                         return
-                    log("<reply> in msg")
+                    log("newReply(): <reply> in msg")
                     message = message.replace(combostring, '')
                     try:
                         trigger = message.split('<reply>')[0].strip()
@@ -467,7 +467,6 @@ def rmReply(parsed):
         combostring = NICK + ", "
         if combostring in message:
             if '->rm' in message:
-                log("->rm in msg")
                 try:
                     reply = message.split('->rm')[1].lstrip()
                 except:
@@ -478,8 +477,10 @@ def rmReply(parsed):
                 if authUser(nick) == True:
                     db.execute("DELETE FROM replies WHERE reply=?",[reply])
                     return_msg = sendMsg(None, "Total records deleted: " + str(conn.total_changes))
+                    log('rmReply(): Deleted '+reply)
                 else:
                     return_msg = sendMsg(None, "03>Lol nice try faggot")
+                    log('rmReply(): '+nick+' UNAUTHORIZED delete attempt of'+reply)
                 db.close()
                 return return_msg
 
@@ -595,7 +596,7 @@ def Colors(parsed):
                     db = conn.cursor()
                     db.execute("INSERT INTO colors (r,g,b, colorname) VALUES (?, ?, ?, ?)",[r, g, b, color[1]])
                     db.close()
-                    log('Added a color definition')
+                    log('Colors(): Added a color definition for'+hex_test)
                     return sendMsg(None, 'Added a color definition')
                 else:
                     return sendMsg(None,'SYNTAX: add color #ffffff definition')
@@ -625,7 +626,7 @@ def Colors(parsed):
                 return_list.append(' => ')
                 for result in fout.readlines():
                     return_list.append(result)
-                    log(result)
+                    log('Colors(): '+result)
                 return_list = ''.join(return_list)
             return sendMsg(None, return_list)
 
