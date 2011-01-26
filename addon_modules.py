@@ -88,7 +88,6 @@ def nickPlus(parsed):
         uname = re.search('^\w+(?=\+{2})', message)
         pointnum = None
         if uname is not None:
-            log(uname.group())
             uname = uname.group()
             log('nickPlus(): message: ' + message)
             log('nickPlus(): nick: ' + nick)
@@ -124,7 +123,7 @@ def queryNick(parsed):
         conn = sqlite3.connect('dbs/points.db',isolation_level=None)
         if combostring in message:
             uname = message.split(combostring)[1].replace('++','')
-            log('queryNick(): Querying DB with: 'uname)
+            log('queryNick(): Querying DB with: '+uname)
             db = conn.cursor()
             try:
                 pointnum = int(db.execute("SELECT points FROM nickplus WHERE name=?",[uname]).fetchall()[0][0])
@@ -139,7 +138,7 @@ def outputTitle(parsed):
         combostring = NICK + ", links"
         if combostring in parsed['event_msg']:
             title = parsed['event_msg'].replace(combostring,'').strip()
-            log('outputTitle(): Querying DB with: 'title)
+            log('outputTitle(): Querying DB with: '+title)
             conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
             db = conn.cursor()
             db.execute("SELECT * FROM urls WHERE title LIKE ? OR url LIKE ?",['%'+title+'%', '%'+title+'%'])
@@ -174,13 +173,13 @@ def outputTitle(parsed):
         if message.rfind("http://") != -1 or message.rfind("https://") != -1:
             umessage = re.search('htt(p|ps)://.*', message)
         if umessage is not None:
-            log('outputTitle(): Seen: 'umessage.group())
+            log('outputTitle(): Seen: '+umessage.group())
             if ' ' in umessage.group(0):
                 url = umessage.group(0).split(' ')[0]
             else:
                 url = umessage.group(0)
             domain = url.strip('http://').strip('https://').split('/',1)[0]
-            log('outputTitle(): Domain: 'domain)
+            log('outputTitle(): Domain: '+domain)
             conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
             db = conn.cursor()
             derp = db.execute("SELECT * FROM blacklist WHERE domain=?",[domain]).fetchall()
