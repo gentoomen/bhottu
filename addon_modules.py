@@ -380,39 +380,40 @@ def newReply(parsed):
         nick = parsed['event_nick']
         combostring = NICK + ", "
         if combostring in message:
-            log("nick in msg")
             if '<reply>' in message:
-                if '->rm' in message:
-                    return
-                log("<reply> in msg")
-                message = message.replace(combostring, '')
-                try:
-                    trigger = message.split('<reply>')[0]
-                    reply = message.split('<reply>')[1::]
-                    reply = reply[0].lstrip()
-                except:
-                    return sendMsg(None, 'Incorrect syntax')
-                conn = sqlite3.connect('dbs/reply.db',isolation_level=None)
-                conn.text_factory = str
-                db = conn.cursor()
-                db.execute("INSERT INTO replies (trigger, reply) VALUES (?, ?)",[trigger, reply])
-                db.close()
+                if authUser(parsed['event_nick']) == True:
+                    if '->rm' in message:
+                        return
+                    log("<reply> in msg")
+                    message = message.replace(combostring, '')
+                    try:
+                        trigger = message.split('<reply>')[0].strip()
+                        reply = message.split('<reply>')[1::].strip()
+                        #reply = reply[1].lstrip()
+                    except:
+                        return sendMsg(None, 'Incorrect syntax')
+                    conn = sqlite3.connect('dbs/reply.db',isolation_level=None)
+                    conn.text_factory = str
+                    db = conn.cursor()
+                    db.execute("INSERT INTO replies (trigger, reply) VALUES (?, ?)",[trigger, reply])
+                    db.close()
 
 def addVar(parsed):
     if parsed['event'] == 'privmsg':
         message = parsed['event_msg']
         combostring = NICK + ", add "
         if combostring in message:
-            parts = message.replace(combostring, '')
-            parts = parts.split(' to ')
-            replacement = parts[0]
-            var = parts[1].upper().replace('$','')
-            conn = sqlite3.connect('dbs/vars.db',isolation_level=None)
-            conn.text_factory = str
-            db = conn.cursor()
-            replacement = db.execute('INSERT INTO vars (var, replace) VALUES (?, ?)',[var, replacement])
-            db.close()
-            return sendMsg(None, 'Added.')
+            if authUser(parsed['event_nick']) == True:
+                parts = message.replace(combostring, '')
+                parts = parts.split(' to ')
+                replacement = parts[0]
+                var = parts[1].upper().replace('$','')
+                conn = sqlite3.connect('dbs/vars.db',isolation_level=None)
+                conn.text_factory = str
+                db = conn.cursor()
+                replacement = db.execute('INSERT INTO vars (var, replace) VALUES (?, ?)',[var, replacement])
+                db.close()
+                return sendMsg(None, 'Added.')
 
 def trigReply(parsed):
     def replaceVar(message):
@@ -630,7 +631,7 @@ def Colors(parsed):
 
 def Commits(parsed):
     global last_repo_check
-    interval = 2 ##Update interval in minutes
+    interval = 5 ##Update interval in minutes
     if parsed['event'] == 'privmsg':
         combostring = NICK + ", repo "
         if parsed['event_msg'].startswith(combostring):
