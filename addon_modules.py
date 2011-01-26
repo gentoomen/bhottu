@@ -381,22 +381,23 @@ def newReply(parsed):
         combostring = NICK + ", "
         if combostring in message:
             if '<reply>' in message:
-                if authUser(parsed['event_nick']) == True:
-                    if '->rm' in message:
-                        return
-                    log("newReply(): <reply> in msg")
-                    message = message.replace(combostring, '')
-                    try:
-                        trigger = message.split('<reply>')[0].strip()
-                        reply = message.split('<reply>')[1::].strip()
-                        #reply = reply[1].lstrip()
-                    except:
-                        return sendMsg(None, 'Incorrect syntax')
-                    conn = sqlite3.connect('dbs/reply.db',isolation_level=None)
-                    conn.text_factory = str
-                    db = conn.cursor()
-                    db.execute("INSERT INTO replies (trigger, reply) VALUES (?, ?)",[trigger, reply])
-                    db.close()
+                #if authUser(parsed['event_nick']) == True:
+                if '->rm' in message:
+                    return
+                log("newReply(): <reply> in msg")
+                message = message.replace(combostring, '')
+                try:
+                    tmp_reply = message.split('<reply>', 1)
+                    trigger = tmp_reply[0].strip()
+                    reply = tmp_reply[1].strip()
+                    #reply = reply[1].lstrip()
+                except:
+                    return sendMsg(None, 'Incorrect syntax')
+                conn = sqlite3.connect('dbs/reply.db',isolation_level=None)
+                conn.text_factory = str
+                db = conn.cursor()
+                db.execute("INSERT INTO replies (trigger, reply) VALUES (?, ?)",[trigger, reply])
+                db.close()
 
 def addVar(parsed):
     if parsed['event'] == 'privmsg':
