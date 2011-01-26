@@ -90,9 +90,9 @@ def nickPlus(parsed):
         if uname is not None:
             log(uname.group())
             uname = uname.group()
-            log("message: " + message)
-            log("nick: " + nick)
-            log("uname: " + uname)
+            log('nickPlus(): message: ' + message)
+            log('nickPlus(): nick: ' + nick)
+            log('nickPlus(): uname: ' + uname)
             uname = uname.replace('++','').rstrip()
             if uname == nick:
                 return_msg = sendPM(nick, "Plussing yourself is a little sad, is it not?")
@@ -103,16 +103,16 @@ def nickPlus(parsed):
             try:
                 pointnum = int(db.execute("SELECT points FROM nickplus WHERE name=?",[uname]).fetchall()[0][0])
             except:
-                log("Something went wrong!")
+                log('nickPlus(): Something went wrong!')
             if pointnum is not None:
                 return_msg = sendMsg(None, 'incremented by one')
                 pointnum += 1
                 db.execute("UPDATE nickplus SET points=? WHERE name=?",[pointnum,uname])#
-                log("Incremented by 1")
+                log('nickPlus(): Incremented by 1 '+uname)
             elif pointnum == None:
                 return_msg = sendMsg(None, 'Added record')
                 db.execute("INSERT INTO nickplus (name, points) VALUES (?, ?)",[uname,1])
-                log("Incremented by 1")
+                log('nickPlus(): Incremented by 1 '+uname)
             conn.close()
             return return_msg
 
@@ -124,7 +124,7 @@ def queryNick(parsed):
         conn = sqlite3.connect('dbs/points.db',isolation_level=None)
         if combostring in message:
             uname = message.split(combostring)[1].replace('++','')
-            log(uname)
+            log('queryNick(): Querying DB with: 'uname)
             db = conn.cursor()
             try:
                 pointnum = int(db.execute("SELECT points FROM nickplus WHERE name=?",[uname]).fetchall()[0][0])
@@ -139,7 +139,7 @@ def outputTitle(parsed):
         combostring = NICK + ", links"
         if combostring in parsed['event_msg']:
             title = parsed['event_msg'].replace(combostring,'').strip()
-            log(title)
+            log('outputTitle(): Querying DB with: 'title)
             conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
             db = conn.cursor()
             db.execute("SELECT * FROM urls WHERE title LIKE ? OR url LIKE ?",['%'+title+'%', '%'+title+'%'])
@@ -157,7 +157,7 @@ def outputTitle(parsed):
         if combostring in parsed['event_msg']:
             if authUser(parsed['event_nick']) == True:
                 domain = parsed['event_msg'].replace(combostring,'').strip()
-                log(domain)
+                log('outputTitle(): Domain is '+domain)
                 conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
                 db = conn.cursor()
                 derp = db.execute("SELECT * FROM blacklist WHERE domain=?",[domain]).fetchall()
@@ -174,22 +174,22 @@ def outputTitle(parsed):
         if message.rfind("http://") != -1 or message.rfind("https://") != -1:
             umessage = re.search('htt(p|ps)://.*', message)
         if umessage is not None:
-            log(umessage.group())
+            log('outputTitle(): Seen: 'umessage.group())
             if ' ' in umessage.group(0):
                 url = umessage.group(0).split(' ')[0]
             else:
                 url = umessage.group(0)
             domain = url.strip('http://').strip('https://').split('/',1)[0]
-            log(domain)
+            log('outputTitle(): Domain: 'domain)
             conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
             db = conn.cursor()
             derp = db.execute("SELECT * FROM blacklist WHERE domain=?",[domain]).fetchall()
             if len(derp) > 0:
-                log('domain is blacklisted, will not fetch title')
+                log('outputTitle(): Domain is blacklisted, will not fetch title')
                 title = 'BL'
                 return_msg = None
             elif url.endswith(('.jpg','.png','.gif','.txt')):
-                log('url is a pic, will not fetch title')
+                log('outputTitle(): Url is a pic, will not fetch title')
                 title = 'PIC'
                 return_msg = None
             else:
@@ -213,7 +213,7 @@ def outputTitle(parsed):
             test = db.execute("SELECT * FROM urls WHERE url=?",[url]).fetchall()
             if len(test) > 0:
                 conn.close()
-                log('duplicate url found in db')
+                log('outputTitle(): duplicate url found in db')
                 return # return_msg
             else:
                 conn.text_factory = str
@@ -269,7 +269,7 @@ def projectWiz(parsed):
         add_string = add_string.replace(' |','|')
         add_string = add_string.split('|',5)
         if len(add_string) == 6:
-            log('ADDING -> '+str(add_string))
+            log('projectWiz(): ADDING -> '+str(add_string))
             conn = sqlite3.connect('dbs/projects.db')
             db = conn.cursor()
             derp = db.execute("SELECT * FROM projects WHERE name=?",[add_string[0]]).fetchall()
@@ -322,8 +322,8 @@ def quoteIt(parsed):
         combostring = NICK + ", quote "
         if combostring in message:
             message = message.split(combostring)[1]
-            log("Inside the quoting if!")
             quotation = message
+            log('quoteIt(): Trying to insert quote: '+quotation)
             conn = sqlite3.connect('dbs/quotes.db',isolation_level=None)
             db = conn.cursor()
             name = message.split('>')[0].replace('<','')
@@ -384,7 +384,7 @@ def newReply(parsed):
                 #if authUser(parsed['event_nick']) == True:
                 if '->rm' in message:
                     return
-                log("newReply(): <reply> in msg")
+                log('newReply(): <reply> in msg')
                 message = message.replace(combostring, '')
                 try:
                     tmp_reply = message.split('<reply>', 1)
@@ -606,7 +606,7 @@ def Colors(parsed):
         uname = re.search('#([0-9A-Fa-f]{6})(?!\w)', parsed['event_msg'])
         if uname is not None:
             uname = uname.group()
-            log(uname+' seen')
+            log('Colors(): '+uname+' seen')
             uname = uname.strip('#')
             r = int(uname[0:2], 16)
             g = int(uname[2:4], 16)
