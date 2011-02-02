@@ -15,13 +15,14 @@ import signal
 from time import gmtime, strftime
 
 from core_modules import *
-#import functions from modules
+from basic_modules import *
 from addon_modules import *
 from config import *
 from utils import log_raw, log
 
-#ENABLED addon modules/functions separated with comma
-core_modules = [quitNow, userKick, userMode, echoMsg, shoutMsg, helpSystem]
+#ENABLED modules/functions separated with comma
+core_modules = [SetChannel, SetVhost, SetNick, SetUser, Pong]
+basic_modules = [quitNow, userKick, userMode, echoMsg, shoutMsg, helpSystem]
 addon_modules = [nickPlus, queryNick, outputTitle, projectWiz, quoteIt, echoQuote, hackerJargons, newReply, trigReply, rmReply, intoLines, spewLines, Greeting, Colors, addVar, Commits, AutoUpdate]
 #our socket
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,79 +30,48 @@ irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 conn_try = 1
 #some compulsory shit
 connected = False
-registered = False
-identified = False
-joined = False
-initialized = False
-#raw logging enabled/disabled
 
 #### FUNCTIONS ####
 
 def Parse(incoming):
     parsed = {}
     parsed['raw'] = incoming
-    if parsed['raw'].startswith(':'):
-        tmp_vars = parsed['raw'].split(' ',3)
-        parsed['event'] = tmp_vars[1] #.lower()
-        try:
-            parsed['event'] = int(parsed['event'])
-        except:
-            parsed['event'] = parsed['event'].lower()
-        if type(parsed['event']) == int:
-            parsed['event_nick'] = tmp_vars[2]
-            parsed['event_msg'] = tmp_vars[3].lstrip(':')
+    parsed['event_timestamp'] = strftime("%H:%M:%S +0000", gmtime())
+    tmp_vars = parsed['raw'].lstrip(':').split(':',1)
+    if len(tmp_vars) > 1:
+        parsed['event_msg'] = tmp_vars[1]
+        cmd_vars = tmp_vars[0].split()
+        if cmd_vars[0] == 'PING':
+            parsed['event'] = 'PING'
         else:
-            parsed['event_host'] = tmp_vars[0].split('@')[1]
-            parsed['event_user'] = tmp_vars[0].split('@')[0].split('!')[1]
-            parsed['event_nick'] = tmp_vars[0].split('@')[0].split('!')[0].lstrip(':')
-            parsed['event_timestamp'] = strftime("%H:%M:%S +0000", gmtime())
-            if parsed['event'] == 'privmsg':
-                parsed['event_msg'] = tmp_vars[3].lstrip(':').strip()
-            if parsed['event'] == 'nick':
-                parsed['event_msg'] = tmp_vars[2].lstrip(':').strip()
-    elif parsed['raw'].startswith('PING'):
-            parsed['event'] = 'ping'
-            parsed['event_ping'] = incoming.split()[1]
-            irc.send('PONG ' + parsed['event_ping'] + '\r\n')
-            log_raw('PONG ' + parsed['event_ping'] + '\r\n')
+            parsed['event'] = cmd_vars[1]
+            try:
+                parsed['event_host'] = cmd_vars[0].split('@')[1]
+                parsed['event_user'] = cmd_vars[0].split('@')[0].split('!')[1]
+                parsed['event_nick'] = cmd_vars[0].split('@')[0].split('!')[0]
+            except:
+                parsed['event_host'] = cmd_vars[0]
+            if parsed['event'] == 'PRIVMSG':
+                    parsed['event_target'] = cmd_vars[2]
     else:
-        parsed['event'] = None
+        parsed['event'] = 'silly'
     return parsed
 
 def moduleHandler(parsed):
     msg_list=[]
-    msg_list = [f(parsed) for f in core_modules]
-    msg_list.extend([f(parsed) for f in addon_modules])
-    return msg_list
-
-def Register(incoming):
-    global registered, identified, joined, initialized
-    if not registered:
-        irc.send('NICK %s \r\n' % NICK)
-        log(("Nick sent, %s") % (NICK))
-        irc.send('USER bhottu 0 * :bhottu\r\n')
-        log("User sent, bhottu 0 * :bhottu")
-        registered = True
-    if not identified:
-        if ":End of /MOTD command" in incoming:
-            if VHOST == True:
-                irc.send('PRIVMSG nickserv :identify '+NICK_PASS+' \r\n')
-                log('Identified with server')
-                identified = True
+    tmp_list=[]
+    tmp_list = [f(parsed) for f in core_modules]
+    tmp_list.extend([f(parsed) for f in basic_modules])
+    tmp_list.extend([f(parsed) for f in addon_modules])
+    for m in tmp_list:
+        if m is not None:
+            if type(m) == list:
+                for sub in m:
+                    if sub is not None:
+                        msg_list.append(sub)
             else:
-                identified = True
-    if not joined:
-        if VHOST == True:
-            if "Password accepted" in incoming:
-                irc.send('JOIN %s \r\n' % CHANNEL)
-                log('Joined %s' % CHANNEL)
-                joined = True
-        else:
-            irc.send('JOIN %s \r\n' % CHANNEL)
-            log('Joined %s' % CHANNEL)
-            joined = True
-    if registered and identified and joined:
-        initialized = True
+                msg_list.append(m)
+    return msg_list
 
 def sigint_handler(signum,  frame):
     """Handles SIGINT signal (<C-c>). Quits program."""
@@ -113,42 +83,36 @@ def Main():
     # register signal handlers
     # sigint_handler
     signal.signal(signal.SIGINT,  sigint_handler)
-
+    incoming = ""
     connected = False
     while not connected:
-        log(("Trying to connect to server: %s port: %i") % (SERVER, PORT))
+        log(("Main(): Trying to connect to server: %s port: %i") % (SERVER, PORT))
         try:
             irc.connect((SERVER, PORT))
         except:
             if conn_try == 5: break
             connected = False
             conn_try += 1
-            log("Connection failed, trying again in 10 seconds")
+            log("Main(): Connection failed, trying again in 10 seconds")
             time.sleep(10)
             continue
         connected = True
-        log("Connect succesfull")
+        log("Main(): Connect succesfull")
     while connected:
-        incoming = irc.recv(4096)
-        if not incoming:
+        incoming = incoming+irc.recv(1024)
+        raw_lines = incoming.split('\n')
+        incoming = raw_lines.pop()
+        if not raw_lines:
             connected = False
             irc.close()
             break
         else:
-            log_raw(incoming)
-        if not initialized:
-            Register(incoming)
-            continue
-        for m in moduleHandler(Parse(incoming)):
-            if m is not None:
-                if type(m) == list:
-                    for sub in m:
-                        if sub is not None:
-                            irc.send(sub)
-                            log_raw(sub)
-                else:
+            for line in raw_lines:
+                line=line.rstrip()
+                log_raw('<<'+line)
+                for m in moduleHandler(Parse(line)):
+                    log_raw('>>'+m)
                     irc.send(m)
-                    log_raw(m)
 
 #### MAIN ####
 if __name__  == "__main__":

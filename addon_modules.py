@@ -82,7 +82,7 @@ def dbInit():
 #### ADDONS ####
 
 def nickPlus(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         nick = parsed['event_nick']
         uname = re.search('^\w+(?=\+{2})', message)
@@ -116,7 +116,7 @@ def nickPlus(parsed):
             return return_msg
 
 def queryNick(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         nick = parsed['event_nick']
         combostring = NICK + ", tell me about "
@@ -134,7 +134,7 @@ def queryNick(parsed):
                 pass
 
 def outputTitle(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", links"
         if combostring in parsed['event_msg']:
             title = parsed['event_msg'].replace(combostring,'').strip()
@@ -151,7 +151,7 @@ def outputTitle(parsed):
                 for idk in derp:
                     return_list.append(sendMsg(None, idk[0]+' '+idk[1]))
                 return return_list
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", blacklist"
         if combostring in parsed['event_msg']:
             if authUser(parsed['event_nick']) == True:
@@ -167,7 +167,7 @@ def outputTitle(parsed):
                     db.execute("INSERT INTO blacklist (domain) VALUES (?)",[domain])
                     conn.close()
                     return sendMsg(None, domain+' blacklisted')
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         umessage = None
         if message.rfind("http://") != -1 or message.rfind("https://") != -1:
@@ -282,7 +282,7 @@ def projectWiz(parsed):
         else:
             return sendMsg(None, 'Syntax: <name> | <version> | <description> | <lang> | <maintainers> | <status>')
 
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         unick = parsed['event_nick']
         message = parsed['event_msg']
         main_trigger = NICK + ", projects"
@@ -316,7 +316,7 @@ def projectWiz(parsed):
                 return sendMsg(None, 'Proper syntax, learn it!')
 
 def quoteIt(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         combostring = NICK + ", quote "
         if combostring in message:
@@ -331,7 +331,7 @@ def quoteIt(parsed):
             return sendMsg(None, "Quote recorded")
 
 def echoQuote(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         combostring = NICK + ", quotes from "
         if combostring in message:
@@ -346,7 +346,7 @@ def echoQuote(parsed):
             return return_list
 
 def hackerJargons(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         main_trigger = NICK + ", jargon"
         if main_trigger in message:
@@ -374,7 +374,7 @@ def hackerJargons(parsed):
                 return return_list
 
 def newReply(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         nick = parsed['event_nick']
         combostring = NICK + ", "
@@ -399,7 +399,7 @@ def newReply(parsed):
                 db.close()
 
 def addVar(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         combostring = NICK + ", add "
         if combostring in message:
@@ -433,7 +433,7 @@ def trigReply(parsed):
         db.close()
         return internal.replace('$','')
 
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         global that_was
         message = parsed['event_msg']
         nick = parsed['event_nick']
@@ -461,7 +461,7 @@ def trigReply(parsed):
             return
 
 def rmReply(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         nick = parsed['event_nick']
         combostring = NICK + ", "
@@ -485,7 +485,7 @@ def rmReply(parsed):
                 return return_msg
 
 def intoLines(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         nick = parsed['event_nick']
         conn = sqlite3.connect('dbs/lines.db',isolation_level=None)
@@ -495,7 +495,7 @@ def intoLines(parsed):
         db.close()
 
 def spewLines(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         nick = parsed['event_nick']
         combostring = NICK + ", spew like "
@@ -513,7 +513,7 @@ def spewLines(parsed):
             return return_list
 
 def Greeting(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", greet "
         message = parsed['event_msg']
         if combostring in message:
@@ -542,7 +542,7 @@ def Greeting(parsed):
                         return sendMsg(None, 'will do')
                 else:
                     return sendMsg(None, 'I only greet GODS, so..')
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", don't greet "
         message = parsed['event_msg']
         if combostring in message:
@@ -554,7 +554,7 @@ def Greeting(parsed):
                 db.execute("DELETE FROM greetings WHERE nick=?",[name])
                 db.close()
                 return sendMsg(None, 'okay.. ;_;')
-    if parsed['event'] == 'join':
+    if parsed['event'] == 'JOIN':
         if authUser(parsed['event_nick']) == True:
             name = parsed['event_nick']
             conn = sqlite3.connect('dbs/greetings.db',isolation_level=None)
@@ -565,7 +565,7 @@ def Greeting(parsed):
             if len(reply) > 0:
                 time.sleep(2)
                 return sendMsg(name, reply[0][0])
-    if parsed['event'] == 'nick':
+    if parsed['event'] == 'NICK':
         if authUser(parsed['event_msg']) == True:
             name = parsed['event_msg']
             conn = sqlite3.connect('dbs/greetings.db',isolation_level=None)
@@ -578,7 +578,7 @@ def Greeting(parsed):
                 return sendMsg(name, reply[0][0])
 
 def Colors(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", color "
         message = parsed['event_msg']
         if combostring in message:
@@ -633,7 +633,7 @@ def Colors(parsed):
 def Commits(parsed):
     global last_repo_check
     interval = 5 ##Update interval in minutes
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", repo "
         if parsed['event_msg'].startswith(combostring):
             if authUser(parsed['event_nick']) == True:
@@ -651,7 +651,7 @@ def Commits(parsed):
                     return sendMsg(None, 'repo added, 1st update will contain all new msgs, so prepare for spam kthxbai')
                 else:
                     return sendMsg(None,'the fuck, format your msg properly')
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", remove repo "
         if parsed['event_msg'].startswith(combostring):
             if authUser(parsed['event_nick']) == True:
@@ -712,7 +712,7 @@ def Commits(parsed):
         return msg_list
 
 def AutoUpdate(parsed):
-    if parsed['event'] == 'privmsg':
+    if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", it's your birthday"
         if parsed['event_msg'].startswith(combostring):
             if authUser(parsed['event_nick']) == True:
