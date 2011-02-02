@@ -109,9 +109,9 @@ def Main():
         else:
             for line in raw_lines:
                 line=line.rstrip()
-                log_raw('<<'+line)
+                log_raw('<< '+line)
                 for m in moduleHandler(Parse(line)):
-                    log_raw('>>'+m)
+                    log_raw('>> '+m)
                     irc.send(m)
 
 #### MAIN ####

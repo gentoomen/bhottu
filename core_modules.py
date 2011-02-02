@@ -10,7 +10,7 @@ import time
 
 def SetUser(parsed):
     if parsed['event'] == '439':
-        log('SetUser(): Sending USER'+IDENT+' '+MODE+' '+REALNAME)
+        log('SetUser(): Sending USER'+IDENT+' '+str(MODE)+' '+REALNAME)
         return('USER %s %s * :%s\r\n' % (IDENT,MODE,REALNAME))
 
 def SetNick(parsed):
@@ -26,7 +26,7 @@ def SetVhost(parsed):
 
 def SetChannel(parsed):
     if VHOST == True:
-        if parsed['event'] == 'notice':
+        if parsed['event'] == 'NOTICE':
             if 'Password accepted - you are now recognized.' in parsed['event_msg']:
                 log('SetChannel(): Joining '+CHANNEL)
                 return('JOIN %s \r\n' % CHANNEL)
