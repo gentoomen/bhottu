@@ -35,9 +35,20 @@ connected = False
 
 def Parse(incoming):
     parsed = {}
+    tmp_vars = []
+    index = 0
     parsed['raw'] = incoming
     parsed['event_timestamp'] = strftime("%H:%M:%S +0000", gmtime())
-    tmp_vars = parsed['raw'].lstrip(':').split(':',1)
+    for part in parsed['raw'].lstrip(':').split(' '):
+        if part.startswith(':'):
+            tmp_vars.append(parsed['raw'].lstrip(':').split(' ', index)[index].lstrip(':'))
+            break
+        else:
+            tmp_vars.append(part)
+            tmp_vars = [' '.join(tmp_vars)]
+            index += 1
+            continue
+    print tmp_vars
     if len(tmp_vars) > 1:
         parsed['event_msg'] = tmp_vars[1]
         cmd_vars = tmp_vars[0].split()
