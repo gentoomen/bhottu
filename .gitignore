@@ -5,4 +5,4 @@ mod_colors.png
 #ignore all testing dirs
 testing/
 #ignore config.py
-config.py
+#config.py
