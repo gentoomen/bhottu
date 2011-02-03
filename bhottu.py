@@ -48,7 +48,6 @@ def Parse(incoming):
             tmp_vars = [' '.join(tmp_vars)]
             index += 1
             continue
-    print tmp_vars
     if len(tmp_vars) > 1:
         parsed['event_msg'] = tmp_vars[1]
         cmd_vars = tmp_vars[0].split()
