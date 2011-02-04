@@ -261,7 +261,15 @@ def projectWiz(parsed):
             return_list.append("%s|%s|%s|%s|%s|%s" % (mls(row[0], 15), mls(row[1],5), mls(row[2],20), mls(row[3],10), mls(row[4],20), mls(row[5],6)))
         db.close()
         return return_list
-
+    def projectWizDel(what):
+        try:
+            conn = sqlite3.connect('dbs/projects.db',isolation_level=None)
+            db = conn.cursor()
+            db.execute("DELETE FROM replies WHERE reply=?",[what])
+            db.close()
+            return sendMsg(None,'well I deleted something..')
+        except:
+            return sendMsg(None,'nope that didnt work')
     def projectWizAdd(add_string):
         add_string = add_string.replace(' | ','|')
         add_string = add_string.replace('| ','|')
@@ -312,6 +320,13 @@ def projectWiz(parsed):
                     for row in projectWizList(trigger[1]):
                         tmp_list.append(sendPM(parsed['event_nick'],row))
                 return tmp_list
+            elif trigger[0] == 'delete'
+                if authUser(parsed['event_nick']) == True:
+                    if len(trigger) < 2:
+                        return sendMsg(None, 'this is a halp message I supporse, so HALP')
+                    else:
+                        return projectWizDel(trigger[1]):
+                return sendMsg(None, 'GODS only can delete projects')
             else:
                 return sendMsg(None, 'Proper syntax, learn it!')
 
