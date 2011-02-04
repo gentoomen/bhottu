@@ -7,7 +7,6 @@ TODO
 * write a README
 * fix logging
      - raw_log and log with file and stdout options
-* buffer for irc.recv
 * better core modules
 * move db inits inside relevant functions
 * Fully port spewing quotes from file based to DB based
