@@ -256,9 +256,9 @@ def projectWiz(parsed):
         derp = db.fetchall()
         return_list = []
         #header>   title(10)  | version(5)  | description(18) | language(7)  | maintainer{s}(15) | status(6)
-        return_list.append("%s|%s|%s|%s|%s|%s" % (mls("title",10), mls("ver",5), mls("description",18), mls("language",7), mls("maintainer{s}",15), mls("status",6)))
+        return_list.append("%s|%s|%s|%s|%s|%s" % (mls("title",15), mls("ver",5), mls("description",20), mls("language",10), mls("maintainer{s}",20), mls("status",6)))
         for row in derp:
-            return_list.append("%s|%s|%s|%s|%s|%s" % (mls(row[0], 10), mls(row[1],5), mls(row[2],18), mls(row[3],7), mls(row[4],15), mls(row[5],6)))
+            return_list.append("%s|%s|%s|%s|%s|%s" % (mls(row[0], 15), mls(row[1],5), mls(row[2],20), mls(row[3],10), mls(row[4],20), mls(row[5],6)))
         db.close()
         return return_list
 
