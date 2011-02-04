@@ -265,7 +265,7 @@ def projectWiz(parsed):
         try:
             conn = sqlite3.connect('dbs/projects.db',isolation_level=None)
             db = conn.cursor()
-            db.execute("DELETE FROM replies WHERE reply=?",[what])
+            db.execute("DELETE FROM projects WHERE name=?",[what])
             db.close()
             return sendMsg(None,'well I deleted something..')
         except:
@@ -320,7 +320,7 @@ def projectWiz(parsed):
                     for row in projectWizList(trigger[1]):
                         tmp_list.append(sendPM(parsed['event_nick'],row))
                 return tmp_list
-            elif trigger[0] == 'delete'
+            elif trigger[0] == 'delete':
                 if authUser(parsed['event_nick']) == True:
                     if len(trigger) < 2:
                         return sendMsg(None, 'this is a halp message I supporse, so HALP')
