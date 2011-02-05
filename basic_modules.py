@@ -1,32 +1,50 @@
 # -*- coding: UTF-8 -*-
-#core modules for bhottu
-#Filename: core_modules.py
+# ===========================================================================
+#
+#      File Name: basic_modules.py
+#
+#  Creation Date:
+#  Last Modified: Sat 05 Feb 2011 05:48:28 PM CET
+#
+#         Author: gentoomen
+#
+#    Description:
+"""core modules for bhottu
+"""
+# ===========================================================================
+# Copyright (c) gentoomen
+
 from config import *
 from utils import *
-import os
-import string
-import time
+#import os
+# never used
+#import string
+# never used
+#import time
+# never used
 
 
 #### Core Modules ####
 
 def quitNow(parsed):
-    """Tells the robot to kindly leave. Remeber, robots have no feelings, 'cause feelings are gay."""
+    """Tells the robot to kindly leave. Remeber, robots have no feelings,
+    'cause feelings are gay."""
     if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         nick = parsed['event_nick']
         combostring = NICK + ", gtfo"
         if message.startswith(combostring):
             if authUser(nick) == True:
-                log('QUIT by '+nick)
-                return_list =[]
+                log('QUIT by ' + nick)
+                return_list = []
                 return_list.append(sendMsg(None, "Bye :("))
-                #this is instant close now, it does not have time to send PART
-                #+adding a sleep
+                #this is instant close now, it does not have time to send
+                #PART + adding a sleep
                 return_list.append('QUIT :Gone to lunch\n\r')
             else:
                 return sendMsg(nick, '03>implying')
             return return_list
+
 
 def userKick(parsed):
     """Kick specific user. Authorized users only."""
@@ -36,23 +54,28 @@ def userKick(parsed):
         if authUser(nick) == True:
             combostring = NICK + ", kick "
             if message.startswith(combostring):
-                name = message.replace(combostring,'')
-                log('KICK %s %s :%s' % (name, CHANNEL, 'I am a pretty young maiden'))
-                return('KICK %s %s :%s \r\n' % (CHANNEL, name, 'I am a pretty young maiden'))
+                name = message.replace(combostring, '')
+                log('KICK %s %s :%s' % (name, CHANNEL, \
+                        'I am a pretty young maiden'))
+                return('KICK %s %s :%s \r\n' % (CHANNEL, name, \
+                        'I am a pretty young maiden'))
+
 
 def userMode(parsed):
-    """Change user mode. Syntax: mode [name] [mode]. Authorized users only."""
+    """Change user mode. Syntax: mode [name] [mode].
+    Authorized users only."""
     if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         nick = parsed['event_nick']
         if authUser(nick) == True:
             combostring = NICK + ", mode "
             if message.startswith(combostring):
-                message = message.replace(combostring,'')
+                message = message.replace(combostring, '')
                 name = message.split(' ')[0]
                 mode = message.split(' ')[1]
                 log('MODE %s %s %s' % (CHANNEL, mode, name))
                 return('MODE %s %s %s \r\n' % (CHANNEL, name, mode))
+
 
 def echoMsg(parsed):
     """Echo given text."""
@@ -62,8 +85,9 @@ def echoMsg(parsed):
         combostring = NICK + ", say "
         if message.startswith(combostring):
             if authUser(nick) == True:
-                saying = message.replace(combostring,'')
+                saying = message.replace(combostring, '')
                 return sendMsg(None, saying)
+
 
 def shoutMsg(parsed):
     """Shout given text."""
@@ -73,29 +97,30 @@ def shoutMsg(parsed):
         combostring = NICK + ", shout "
         if message.startswith(combostring):
             if authUser(nick) == True:
-                saying = message.replace(combostring,'').upper()
+                saying = message.replace(combostring, '').upper()
                 return sendMsg(None, "" + saying)
 
 
 def helpSystem(parsed):
     """Simple help system."""
     funcnames = {
-            'gtfo':"quitNow",
-            'kick':"userKick",
-            'mode':"userMode",
-            'say':"echoMsg",
-            'shout':"shoutMsg",
-            'help':"helpSystem"
+            'gtfo': "quitNow",
+            'kick': "userKick",
+            'mode': "userMode",
+            'say': "echoMsg",
+            'shout': "shoutMsg",
+            'help': "helpSystem"
             }
     if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
 
         combostring = NICK + ", help"
-        if message  == combostring:
+        if message == combostring:
             helptext = "The following commands are available:"
             for key, value in funcnames.iteritems():
-                helptext = "%s %s," % (helptext, key)
-            helptext = "%s %s" % (helptext, "type help [command] to receive more help.")
+                helptext = "%s %s, " % (helptext, key)
+            helptext = "%s %s" % (helptext, \
+                    "type help [command] to receive more help.")
             return sendMsg(None, helptext)
 
         combostring = NICK + ", help "
