@@ -1,16 +1,38 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-#python ircbot for /g/sicp
-#platform is *nix
-#bhottu v2
+# ===========================================================================
+#
+#      File Name: bhottu.py
+#
+#  Creation Date:
+#  Last Modified: Sat 05 Feb 2011 05:45:49 PM CET
+#
+#         Author: gentoomen
+#
+#         coding: UTF-8
+#
+#    Description:
+""" python ircbot for /g/sicp
+platform is *nix
+bhottu v2
+"""
+# ===========================================================================
+# Copyright (c) gentoomen
+#
+# ___.   .__            __    __
+# \_ |__ |  |__   _____/  |__/  |_ __ __
+#  | __ \|  |  \ /  _ \   __\   __\  |  \
+#  | \_\ \   Y  (  <_> )  |  |  | |  |  /
+#  |___  /___|  /\____/|__|  |__| |____/
+#      \/     \/
 
-import os
+#import os
 import sys
-import re
+#import re
 import socket
-import string
+#import string
 import time
-import datetime
+#import datetime
 import signal
 from time import gmtime, strftime
 
@@ -23,7 +45,25 @@ from utils import log_raw, log
 #ENABLED modules/functions separated with comma
 core_modules = [SetChannel, SetVhost, SetNick, SetUser, Pong]
 basic_modules = [quitNow, userKick, userMode, echoMsg, shoutMsg, helpSystem]
-addon_modules = [nickPlus, queryNick, outputTitle, projectWiz, quoteIt, echoQuote, hackerJargons, newReply, trigReply, rmReply, intoLines, spewLines, Greeting, Colors, addVar, Commits, AutoUpdate]
+addon_modules = [
+        nickPlus,
+        queryNick,
+        outputTitle,
+        projectWiz,
+        quoteIt,
+        echoQuote,
+        hackerJargons,
+        newReply,
+        trigReply,
+        rmReply,
+        intoLines,
+        spewLines,
+        Greeting,
+        Colors,
+        addVar,
+        Commits,
+        AutoUpdate
+        ]
 #our socket
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #connection retries
@@ -33,6 +73,7 @@ connected = False
 
 #### FUNCTIONS ####
 
+
 def Parse(incoming):
     parsed = {}
     tmp_vars = []
@@ -41,7 +82,8 @@ def Parse(incoming):
     parsed['event_timestamp'] = strftime("%H:%M:%S +0000", gmtime())
     for part in parsed['raw'].lstrip(':').split(' '):
         if part.startswith(':'):
-            tmp_vars.append(parsed['raw'].lstrip(':').split(' ', index)[index].lstrip(':'))
+            tmp_vars.append(parsed['raw'].lstrip(':')\
+                    .split(' ', index)[index].lstrip(':'))
             break
         else:
             tmp_vars.append(part)
@@ -67,9 +109,10 @@ def Parse(incoming):
         parsed['event'] = 'silly'
     return parsed
 
+
 def moduleHandler(parsed):
-    msg_list=[]
-    tmp_list=[]
+    msg_list = []
+    tmp_list = []
     tmp_list = [f(parsed) for f in core_modules]
     tmp_list.extend([f(parsed) for f in basic_modules])
     tmp_list.extend([f(parsed) for f in addon_modules])
@@ -83,24 +126,28 @@ def moduleHandler(parsed):
                 msg_list.append(m)
     return msg_list
 
+
 def sigint_handler(signum,  frame):
     """Handles SIGINT signal (<C-c>). Quits program."""
     #raise RuntimeError("Aborted.")
     sys.exit(0)
 
+
 def Main():
     """Program entry point. Execution starts here."""
     # register signal handlers
     # sigint_handler
-    signal.signal(signal.SIGINT,  sigint_handler)
+    signal.signal(signal.SIGINT, sigint_handler)
     incoming = ""
     connected = False
     while not connected:
-        log(("Main(): Trying to connect to server: %s port: %i") % (SERVER, PORT))
+        log(("Main(): Trying to connect to server: %s port: %i") %\
+                (SERVER, PORT))
         try:
             irc.connect((SERVER, PORT))
         except:
-            if conn_try == 5: break
+            if conn_try == 5:
+                break
             connected = False
             conn_try += 1
             log("Main(): Connection failed, trying again in 10 seconds")
@@ -109,7 +156,7 @@ def Main():
         connected = True
         log("Main(): Connect succesfull")
     while connected:
-        incoming = incoming+irc.recv(1024)
+        incoming = incoming + irc.recv(1024)
         raw_lines = incoming.split('\n')
         incoming = raw_lines.pop()
         if not raw_lines:
@@ -118,13 +165,14 @@ def Main():
             break
         else:
             for line in raw_lines:
-                line=line.rstrip()
-                log_raw('<< '+line)
+                line = line.rstrip()
+                log_raw('<< ' + line)
                 for m in moduleHandler(Parse(line)):
-                    log_raw('>> '+m)
+                    log_raw('>> ' + m)
                     irc.send(m)
 
+
 #### MAIN ####
-if __name__  == "__main__":
+if __name__ == "__main__":
     dbInit()
     Main()
