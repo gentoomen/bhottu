@@ -140,6 +140,7 @@ def outputTitle(parsed):
             title = parsed['event_msg'].replace(combostring,'').strip()
             log('outputTitle(): Querying DB with: '+title)
             conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
+            conn.text_factory = str
             db = conn.cursor()
             db.execute("SELECT * FROM urls WHERE title LIKE ? OR url LIKE ?",['%'+title+'%', '%'+title+'%'])
             derp = db.fetchall()
@@ -325,7 +326,7 @@ def projectWiz(parsed):
                     if len(trigger) < 2:
                         return sendMsg(None, 'this is a halp message I supporse, so HALP')
                     else:
-                        return projectWizDel(trigger[1]):
+                        return projectWizDel(trigger[1])
                 return sendMsg(None, 'GODS only can delete projects')
             else:
                 return sendMsg(None, 'Proper syntax, learn it!')
@@ -642,7 +643,7 @@ def Colors(parsed):
                 for result in fout.readlines():
                     return_list.append(result)
                     log('Colors(): '+result)
-                return_list = ''.join(return_list)
+            return_list = ''.join(return_list)
             return sendMsg(None, return_list)
 
 def Commits(parsed):
