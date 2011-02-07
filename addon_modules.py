@@ -176,16 +176,10 @@ def outputTitle(parsed):
     if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", links"
         if combostring in parsed['event_msg']:
-<<<<<<< HEAD:addon_modules.py
             title = parsed['event_msg'].replace(combostring,'').strip()
             log('outputTitle(): Querying DB with: '+title)
             conn = sqlite3.connect('dbs/urls.db',isolation_level=None)
             conn.text_factory = str
-=======
-            title = parsed['event_msg'].replace(combostring, '').strip()
-            log('outputTitle(): Querying DB with: ' + title)
-            conn = sqlite3.connect('dbs/urls.db', isolation_level=None)
->>>>>>> 4a7d6e81cc16af10fb1afdddc18a0cd6f0a94994:addon_modules.py
             db = conn.cursor()
             db.execute("SELECT * FROM urls WHERE title LIKE ? OR url LIKE ?",
                     ['%' + title + '%', '%' + title + '%'])
@@ -771,13 +765,8 @@ def Colors(parsed):
                 return_list.append(' => ')
                 for result in fout.readlines():
                     return_list.append(result)
-<<<<<<< HEAD:addon_modules.py
                     log('Colors(): '+result)
             return_list = ''.join(return_list)
-=======
-                    log('Colors(): ' + result)
-            return_list = ''.join(return_list)
->>>>>>> 4a7d6e81cc16af10fb1afdddc18a0cd6f0a94994:addon_modules.py
             return sendMsg(None, return_list)
 
 
