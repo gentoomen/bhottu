@@ -351,8 +351,7 @@ def projectWiz(parsed):
             db.close()
             return sendMsg(None, 'Project added')
         else:
-            return sendMsg(None, 'Syntax: <name> | <version> | \
-                    <description> | <lang> | <maintainers> | <status>')
+            return sendMsg(None, 'Syntax: <name> | <version> | <description> | <lang> | <maintainers> | <status>')
 
     if parsed['event'] == 'PRIVMSG':
         #unick = parsed['event_nick']
@@ -362,37 +361,34 @@ def projectWiz(parsed):
         if message.startswith(main_trigger):
             trigger = message.replace(main_trigger, '')
             trigger = trigger.split(None, 1)
+            tmp_list = []
             if not trigger:
                 #help msg here in future
                 return sendMsg(None, 'why yes please')
             elif trigger[0] == 'add':
                 if authUser(parsed['event_nick']) == True:
                     if len(trigger) < 2:
-                        return sendMsg(None, 'I should output help messages \
-                                for add, but I wont')
+                        return sendMsg(None, 'I should output help messages for add, but I wont')
                     return projectWizAdd(trigger[1])
                 else:
                     return sendMsg(None, 'GODS only can add new projects')
             elif trigger[0] == 'list':
                 if authUser(parsed['event_nick']) == True:
                     if len(trigger) < 2:
-                        return sendMsg(None, 'Correct syntax: projects list \
-                                [open|closed|lang] ')
-                    tmp_list = []
+                        return sendMsg(None, 'Correct syntax: projects list [open|closed|lang] ')
+
                     for row in projectWizList(trigger[1]):
                         tmp_list.append(sendMsg(None, row))
                 else:
                     if len(trigger) < 2:
-                        return sendPM(parsed['event_nick'], 'Correct \
-                                syntax: projects list [open|closed|lang] ')
+                        return sendPM(parsed['event_nick'], 'Correct syntax: projects list [open|closed|lang] ')
                     for row in projectWizList(trigger[1]):
                         tmp_list.append(sendPM(parsed['event_nick'], row))
                 return tmp_list
             elif trigger[0] == 'delete':
                 if authUser(parsed['event_nick']) == True:
                     if len(trigger) < 2:
-                        return sendMsg(None, 'this is a halp message I \
-                                supporse, so HALP')
+                        return sendMsg(None, 'this is a halp message I suppose, so HALP!!')
                     else:
                         return projectWizDel(trigger[1])
                 return sendMsg(None, 'GODS only can delete projects')
@@ -882,3 +878,11 @@ def AutoUpdate(parsed):
                 else:
                     return_list.append(sendMsg(None, "Hmph, no cake!!"))
                 return return_list
+"""
+#HERE BE OUR POLL FUNCTION
+def Poll(parsed):
+
+
+
+
+"""
