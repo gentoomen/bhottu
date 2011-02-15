@@ -795,8 +795,7 @@ def Commits(parsed):
                     conn.commit()
                     conn.close()
                     return sendMsg(None, \
-                            'repo added, 1st update will contain all new \
-                            msgs, so prepare for spam kthxbai')
+                            'repo added, 1st update will contain all new msgs, so prepare for spam kthxbai')
                 else:
                     return sendMsg(None, \
                             'the fuck, format your msg properly')

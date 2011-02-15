@@ -84,9 +84,9 @@ def echoMsg(parsed):
         nick = parsed['event_nick']
         combostring = NICK + ", say "
         if message.startswith(combostring):
-            if authUser(nick) == True:
-                saying = message.replace(combostring, '')
-                return sendMsg(None, saying)
+            #if authUser(nick) == True:
+            saying = message.replace(combostring, '')
+            return sendMsg(None, saying)
 
 
 def shoutMsg(parsed):
@@ -96,9 +96,9 @@ def shoutMsg(parsed):
         nick = parsed['event_nick']
         combostring = NICK + ", shout "
         if message.startswith(combostring):
-            if authUser(nick) == True:
-                saying = message.replace(combostring, '').upper()
-                return sendMsg(None, "" + saying)
+            #if authUser(nick) == True:
+            saying = message.replace(combostring, '').upper()
+            return sendMsg(None, "" + saying)
 
 
 def helpSystem(parsed):
