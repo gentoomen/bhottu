@@ -105,7 +105,13 @@ def dbInit():
     conn.commit()
     conn.close()
 
-
+    ##Poll()
+    conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
+    db = conn.cursor()
+    db.execute('''create table if not exists polls (title text, status text, voters text)''')
+    db.execute('''create table if not exists items (ident integer, item_index integer, item text, votes integer)''')
+    conn.commit()
+    conn.close()
 #### ADDONS ####
 
 
@@ -878,11 +884,133 @@ def AutoUpdate(parsed):
                 else:
                     return_list.append(sendMsg(None, "Hmph, no cake!!"))
                 return return_list
-"""
+
+
 #HERE BE OUR POLL FUNCTION
 def Poll(parsed):
+    if parsed['event'] == 'PRIVMSG':
+        #our combostrings/triggers
+        trigger_open = NICK + ', open poll'
+        trigger_close = NICK + ', close poll'
+        trigger_vote = NICK + ', vote'
+        trigger_search = NICK + ', search poll'
+        trigger_show = NICK + ', show poll'
+        trigger_delete = NICK + ', delete poll'
+
+        #let's do couple more helper vars
+        message = parsed['event_msg']
+        nick = parsed['event_nick']
+
+        if message.startswith(trigger_open):
+            if authUser(nick) == True:
+                conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
+                db = conn.cursor()
+                result = db.execute("SELECT * FROM polls WHERE status='OPEN'").fetchall()
+                if len(result) > 0:
+                    db.close()
+                    return sendMsg(None, 'Yeah why not start by voting on the already OPEN one..')
+                else:
+                    #we replace the trigger_open string in message with '' = empty and assign the resulting string back to message
+                    title = message.replace(trigger_open, '')
+                    if len(title) < 1:
+                        return sendMsg(None, "What about actually asking something, numbnuts?")
+                    db.execute("INSERT INTO polls (title, status) VALUES (?, ?)", [title, 'OPEN'])
+                    conn.commit()
+                    db.close()
+                    log('Poll(): trigger_open added a poll'+ title)
+                    return sendMsg(None, "Poll started! %s " % (title))
 
 
+        elif message.startswith(trigger_close):
+            if authUser(nick) == True:
+                conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
+                db = conn.cursor()
+                #query needs to be enclosed in ("query") and strings inside query 'string'
+                opencheck = db.execute("SELECT * FROM polls WHERE status='OPEN'").fetchall()
+                if len(opencheck) < 1:
+                    db.close()
+                    return sendMsg(None, "Fun fact: You need to have an already open poll to close it!")
+                else:
+                    db.execute("UPDATE polls SET status='CLOSED' WHERE status='OPEN'")
+                    conn.commit() #this commits the changes to the DB, it's done automagically in db.close but should be used anyway as a good practice
+                    db.close()
+                    return  sendMsg(None, "Pool's closed.")
 
+        elif message.startswith(trigger_vote):
+            args = message.replace(trigger_vote, '')
+            if len(args) < 1: #this checks are there any arguments after stripping the trigger
+                conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
+                db = conn.cursor()
+                opencheck = db.execute("SELECT * FROM polls WHERE status='OPEN'").fetchall()
+                if len(opencheck) < 1:
+                    db.close()
+                    return sendMsg(None, "There's no poll open. Maybe you're seeing things?")
+                else:
+                    title = db.execute("SELECT title FROM polls WHERE status='OPEN'").fetchall()
+                    row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
+                    print title
+                    print row_id
+                    items = db.execute("SELECT * FROM items WHERE ident=? ORDER BY item_index", [int(row_id[0][0])]).fetchall()
+                    db.close()
+                    return_list = [] # initializing a list to hold our return messages
+                    return_list.append(sendMsg(None, title[0][0]))
+                    for item in items:
+                        return_list.append(sendMsg(None, str(item[1]) + '. ' + str(item[2]) + '(' + str(item[3]) + ')'))
+                    return_list.append(sendMsg(None, '0 <item> Add a new poll item'))
 
+                    return return_list
+            elif len(args) > 0:
+                #so now we are here because we now there are some args or a string in there(args)
+                args = args.lstrip()
+                args = args.split(' ', 1)
+                print args
+                try:
+                    args[0] = int(args[0])
+                except:
+                    return sendMsg(None, "Those are some fine letters, pal. I've got some numbers, want to make a trade?")
+                if args[0] == 0:
+                    if len(args) > 1: #doing a len on list will return the number of elements in the list
+                        item_title = args[1]
+                        conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
+                        db = conn.cursor()
+                        row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
+                        nr_items = len(db.execute("SELECT * FROM items WHERE ident=? ORDER BY item_index", [int(row_id[0][0])]).fetchall())
+                        db.execute("INSERT INTO items (ident, item_index, item, votes) VALUES (?, ?, ?, ?)", [int(row_id[0][0]), nr_items+1,item_title, 1])
+                        conn.commit()
+                        db.close()
+                        return sendMsg(None, "Vote added.")
+#                        except:
+#                            return sendMsg(None, "hmm something went wrong")
+                    else:
+                        return sendMsg(None, "define the new item you camelhump")
+                else:
+                    conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
+                    db = conn.cursor()
+                    row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
+                    nr_votes = int(db.execute("SELECT votes FROM items WHERE item_index=?", [args[0]]).fetchall()[0][0])
+                    db.execute("UPDATE items SET votes=? WHERE item_index=?", [nr_votes+1, args[0]])
+                    conn.commit()
+                    db.close()
+                    return sendMsg(None, "Vote casted!!")
+                    #except:
+                    #    return sendMsg(None, "you broke the poll goddam!!!")
+        else:
+            return None
 """
+        elif message.startswith(trigger_search):
+            if authUser(nick) == True:
+
+        elif message.startswith(trigger_show):
+            if authUser(nick) == True:
+        elif message.startswith(trigger_delete):
+            if authUser(nick) == True:
+"""
+
+
+
+
+
+
+
+
+
