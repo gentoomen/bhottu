@@ -928,6 +928,9 @@ def Poll(parsed):
                     db.close()
                     return sendMsg(None, "Fun fact: You need to have an already open poll to close it!")
                 else:
+                    #row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
+                    #winner = db.execute("SELECT * FROM items WHERE ident=? ORDER BY votes DESC LIMIT 1", [int(row_id[0][0])]).fetchall()
+                    #print winner
                     db.execute("UPDATE polls SET status='CLOSED' WHERE status='OPEN'")
                     conn.commit()
                     db.close()
@@ -935,25 +938,23 @@ def Poll(parsed):
 
         elif message.startswith(trigger_vote):
             args = message.replace(trigger_vote, '')
+            conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
+            db = conn.cursor()
+            opencheck = db.execute("SELECT * FROM polls WHERE status='OPEN'").fetchall()
+            if len(opencheck) < 1:
+                db.close()
+                return sendMsg(None, "There's no poll open. Maybe you're seeing things?")
             if len(args) < 1: #this checks are there any arguments after stripping the trigger
-                conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
-                db = conn.cursor()
-                opencheck = db.execute("SELECT * FROM polls WHERE status='OPEN'").fetchall()
-                if len(opencheck) < 1:
-                    db.close()
-                    return sendMsg(None, "There's no poll open. Maybe you're seeing things?")
-                else:
-                    title = db.execute("SELECT title FROM polls WHERE status='OPEN'").fetchall()
-                    row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
-                    items = db.execute("SELECT * FROM items WHERE ident=? ORDER BY item_index", [int(row_id[0][0])]).fetchall()
-                    db.close()
-                    return_list = [] # initializing a list to hold our return messages
-                    return_list.append(sendMsg(None, title[0][0]))
-                    for item in items:
-                        return_list.append(sendMsg(None, str(item[1]) + '. ' + str(item[2]) + ' (' + str(item[3]) + ')'))
-                    return_list.append(sendMsg(None, '0. <item>, Add a new poll item'))
-
-                    return return_list
+                title = db.execute("SELECT title FROM polls WHERE status='OPEN'").fetchall()
+                row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
+                items = db.execute("SELECT * FROM items WHERE ident=? ORDER BY item_index", [int(row_id[0][0])]).fetchall()
+                db.close()
+                return_list = [] # initializing a list to hold our return messages
+                return_list.append(sendMsg(None, title[0][0]))
+                for item in items:
+                    return_list.append(sendMsg(None, str(item[1]) + '. ' + str(item[2]) + ' (' + str(item[3]) + ')'))
+                return_list.append(sendMsg(None, '0. <item>, Add a new poll item'))
+                return return_list
             elif len(args) > 0:
                 args = args.lstrip()
                 args = args.split(' ', 1)
@@ -1011,8 +1012,21 @@ def Poll(parsed):
             return None
 """
         elif message.startswith(trigger_search):
-            if authUser(nick) == True:
-
+            #if authUser(nick) == True:
+            args = message.replace(trigger_search, '').lstrip()
+            conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
+            db = conn.cursor()
+            db.execute("SELECT * FROM polls WHERE title LIKE ?", ['%' + args + '%'])
+            derp = db.fetchall()
+            db.close()
+            if len(derp) > 3:
+                return sendMsg(None, str(len(derp)) + \
+                        ' entries found, refine your search')
+            else:
+                return_list = []
+                for idk in derp:
+                    return_list.append(sendMsg(None, idk[0] + ' ' + idk[1]))
+                return return_list
         elif message.startswith(trigger_show):
             if authUser(nick) == True:
         elif message.startswith(trigger_delete):
