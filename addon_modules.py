@@ -973,7 +973,7 @@ def Poll(parsed):
                             for item in voters:
                                 if nick == item: return sendMsg(nick, 'you have voted already')
                             voters.append(nick)
-                            ' '.join(voters)
+                            voters = ' '.join(voters)
                         else:
                             voters = nick
                         row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
@@ -994,7 +994,7 @@ def Poll(parsed):
                         for item in voters:
                             if nick == item: return sendMsg(nick, 'you have voted already')
                         voters.append(nick)
-                        ' '.join(voters)
+                        voters = ' '.join(voters)
                     else:
                         voters = nick
                     row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
