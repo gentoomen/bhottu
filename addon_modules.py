@@ -850,7 +850,7 @@ def Commits(parsed):
                 if item['title'] == repo[2]:
                     break
                 else:
-                    item_list.append([repo[0], item['title'], item['link']])
+                    item_list.append([repo[0], item['title'], item['link'], item['author']])
                     item_index += 1
             log('Commits(): ' + '[' + repo[0] + '] ' + str(item_index) + \
                     ' new commits found')
@@ -864,7 +864,7 @@ def Commits(parsed):
         msg_list = []
         for commit in item_list:
             msg_list.append(sendMsg(None, '[' + commit[0] + '] ' + \
-                    commit[1] + ' => ' + commit[2]))
+                    '<' + commit[3] + '> ' + commit[1] + ' => ' + commit[2]))
         last_repo_check = datetime.datetime.now()
         return msg_list
 
