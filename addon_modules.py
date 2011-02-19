@@ -434,7 +434,23 @@ def echoQuote(parsed):
                 return_list.append(sendMsg(None, "%s" % (row[0])))
             db.close()
             return return_list
-
+        # This is for returning an entire list of somoene's quotes from the DB via omploader
+        else message.startswith(NICK + ", quotes[*] from "):
+           message = message.split(NICK + ", quotes[*] from ")[1]
+           conn = sqlite3.connect('dbs/quotes.db', isolation_level=None)
+           db = conn.cursor()
+           quotie = db.execute("SELECT quotation FROM quote WHERE name=? \
+                   ORDER BY RANDOM()", [message]).fetchall()
+           return_list = []
+           for row in quotie:
+               return_list.append(row[0])
+           db.close()
+           return_list = "\n".join(return_list)
+           f = open('./quotelist','w')
+           f.write(return_list)
+           f.close()
+           url = os.popen('ompload ./quotelist')
+           return sendMsg(None, url.read())
 
 def hackerJargons(parsed):
     if parsed['event'] == 'PRIVMSG':
