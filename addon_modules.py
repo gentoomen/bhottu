@@ -850,7 +850,7 @@ def Commits(parsed):
                 if item['title'] == repo[2]:
                     break
                 else:
-                    item_list.append([repo[0], item['title'], item['link'], item['author']])
+                    item_list.append([repo[0], item['title'], item['link'], item['author_detail'].name])
                     item_index += 1
             log('Commits(): ' + '[' + repo[0] + '] ' + str(item_index) + \
                     ' new commits found')
