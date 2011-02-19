@@ -435,12 +435,12 @@ def echoQuote(parsed):
             db.close()
             return return_list
         # This is for returning an entire list of somoene's quotes from the DB via omploader
-        else message.startswith(NICK + ", quotes[*] from "):
+        elif message.startswith(NICK + ", quotes[*] from "):
            message = message.split(NICK + ", quotes[*] from ")[1]
            conn = sqlite3.connect('dbs/quotes.db', isolation_level=None)
            db = conn.cursor()
            quotie = db.execute("SELECT quotation FROM quote WHERE name=? \
-                   ORDER BY RANDOM()", [message]).fetchall()
+                ORDER BY RANDOM()", [message]).fetchall()
            return_list = []
            for row in quotie:
                return_list.append(row[0])
