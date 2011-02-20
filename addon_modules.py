@@ -516,7 +516,7 @@ def newReply(parsed):
 def addVar(parsed):
     if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
-        combostring = NICK + ", add "
+        combostring = NICK + ", assign "
         if combostring in message:
             if authUser(parsed['event_nick']) == True:
                 parts = message.replace(combostring, '')
