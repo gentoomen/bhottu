@@ -518,19 +518,19 @@ def addVar(parsed):
         message = parsed['event_msg']
         combostring = NICK + ", assign "
         if combostring in message:
-            if authUser(parsed['event_nick']) == True:
-                parts = message.replace(combostring, '')
-                parts = parts.split(' to ')
-                replacement = parts[0]
-                var = parts[1].upper().replace('$', '')
-                conn = sqlite3.connect('dbs/vars.db', isolation_level=None)
-                conn.text_factory = str
-                db = conn.cursor()
-                replacement = db.execute('INSERT INTO vars (var, replace) \
-                        VALUES (?, ?)', \
-                        [var, replacement])
-                db.close()
-                return sendMsg(None, 'Added.')
+            #if authUser(parsed['event_nick']) == True:
+            parts = message.replace(combostring, '')
+            parts = parts.split(' to ')
+            replacement = parts[0]
+            var = parts[1].upper().replace('$', '')
+            conn = sqlite3.connect('dbs/vars.db', isolation_level=None)
+            conn.text_factory = str
+            db = conn.cursor()
+            replacement = db.execute('INSERT INTO vars (var, replace) \
+                    VALUES (?, ?)', \
+                    [var, replacement])
+            db.close()
+            return sendMsg(None, 'Added.')
 
 
 def trigReply(parsed):
