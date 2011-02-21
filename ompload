@@ -1,0 +1,9 @@
+#!/bin/sh
+#Upload files to ompload
+#by agaric
+#usage: ompload [file]
+for f in $*
+do
+    url=$(curl -s -S -F "file1=@$f" http://ompldr.org/upload | grep "File:" | cut -c 70-94)
+    echo "$url"
+done
