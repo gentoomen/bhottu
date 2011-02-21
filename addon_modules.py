@@ -449,7 +449,7 @@ def echoQuote(parsed):
            f = open('./quotelist','w')
            f.write(return_list)
            f.close()
-           url = os.popen('ompload ./quotelist')
+           url = os.popen('./ompload quotelist')
            return sendMsg(None, url.read())
 
 def hackerJargons(parsed):
