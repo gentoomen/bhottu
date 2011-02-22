@@ -944,13 +944,17 @@ def Poll(parsed):
                     db.close()
                     return sendMsg(None, "Fun fact: You need to have an already open poll to close it!")
                 else:
-                    #row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
-                    #winner = db.execute("SELECT * FROM items WHERE ident=? ORDER BY votes DESC LIMIT 1", [int(row_id[0][0])]).fetchall()
-                    #print winner
+                    row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
+                    winner = db.execute("SELECT * FROM items WHERE ident=? ORDER BY votes DESC", [int(row_id[0][0])]).fetchall()
+                    #for debugging
+                    print winner #msglist.append spew winner when closing poll, also what if tie?
                     db.execute("UPDATE polls SET status='CLOSED' WHERE status='OPEN'")
                     conn.commit()
                     db.close()
-                    return  sendMsg(None, "Pool's closed.")
+                    return_list = []
+                    return_list.append(sendMsg(None, "Pool's closed."))
+                    return_list.append(sendMsg(None, "Aaaand the winner is... "+winner[0][3]))
+                    return sendMsg(None, "Pool's closed.")
 
         elif message.startswith(trigger_vote):
             args = message.replace(trigger_vote, '')
@@ -1024,36 +1028,56 @@ def Poll(parsed):
                     #    return sendMsg(None, "you broke the poll goddam!!!")
             else:
                 return sendMsg(None, "you broke the poll goddam!!!")
-        else:
-            return None
-"""
         elif message.startswith(trigger_search):
             #if authUser(nick) == True:
             args = message.replace(trigger_search, '').lstrip()
             conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
             db = conn.cursor()
-            db.execute("SELECT * FROM polls WHERE title LIKE ?", ['%' + args + '%'])
+            db.execute("SELECT rowid, * FROM polls WHERE title LIKE ?", ['%' + args + '%'])
             derp = db.fetchall()
             db.close()
+            #for debugging
+            print derp
             if len(derp) > 3:
                 return sendMsg(None, str(len(derp)) + \
                         ' entries found, refine your search')
             else:
                 return_list = []
                 for idk in derp:
-                    return_list.append(sendMsg(None, idk[0] + ' ' + idk[1]))
+                    return_list.append(sendMsg(None, str(idk[0]) + ' ' + idk[1]))
                 return return_list
         elif message.startswith(trigger_show):
-            if authUser(nick) == True:
+            #if authUser(nick) == True:
+            args = message.replace(trigger_show, '').lstrip()
+            try:
+                int(args)
+            except:
+                return sendMsg(None, 'you need to give me a index nr. of the poll')
+            conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
+            db = conn.cursor()
+            title = db.execute("SELECT title FROM polls WHERE rowid=?", [args]).fetchall()
+            items = db.execute("SELECT * FROM items WHERE ident=? ORDER BY votes DESC", [args]).fetchall()
+            db.close()
+            nr_votes = 0
+            return_list = []
+            for item in items:
+                nr_votes += int(item[3])
+            return_list.append(sendMsg(None, title[0][0]+' ('+str(nr_votes)+')'))
+            for item in items:
+                    return_list.append(sendMsg(None, str(item[1]) + '. ' + str(item[2]) + ' (' + str(item[3]) + ')'))
+            return return_list
         elif message.startswith(trigger_delete):
             if authUser(nick) == True:
-"""
-
-
-
-
-
-
-
-
-
+                args = message.replace(trigger_delete, '').lstrip()
+                try:
+                    int(args)
+                except:
+                    return sendMsg(None, 'argument needs to be an integer')
+                conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
+                db = conn.cursor()
+                db.execute("DELETE FROM polls WHERE rowid=?", [args])
+                db.execute("DELETE FROM items WHERE ident=?", [args])
+                conn.commit()
+                return sendMsg(None, 'deleted poll ID: '+args)
+        else:
+            return None
