@@ -33,6 +33,8 @@ that_was = None
 be_quiet = None
 #repo_time = None
 last_repo_check = None
+poll_timestamp = None
+poll_timer = 0
 #### DATABASE INITS ####
 
 
@@ -904,6 +906,8 @@ def AutoUpdate(parsed):
 
 #HERE BE OUR POLL FUNCTION
 def Poll(parsed):
+    global poll_timestamp
+    global poll_timer
     if parsed['event'] == 'PRIVMSG':
         #our combostrings/triggers
         trigger_open = NICK + ', open poll'
@@ -912,8 +916,8 @@ def Poll(parsed):
         trigger_search = NICK + ', search poll'
         trigger_show = NICK + ', show poll'
         trigger_delete = NICK + ', delete poll'
+        trigger_timer = NICK + ', poll timer'
 
-        #let's do couple more helper vars
         message = parsed['event_msg']
         nick = parsed['event_nick']
 
@@ -947,13 +951,15 @@ def Poll(parsed):
                     row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
                     winner = db.execute("SELECT * FROM items WHERE ident=? ORDER BY votes DESC", [int(row_id[0][0])]).fetchall()
                     #for debugging
-                    print winner #msglist.append spew winner when closing poll, also what if tie?
+                    print winner
                     db.execute("UPDATE polls SET status='CLOSED' WHERE status='OPEN'")
                     conn.commit()
                     db.close()
+                    poll_timer = 0
                     return_list = []
                     return_list.append(sendMsg(None, "Pool's closed."))
-                    return_list.append(sendMsg(None, "Aaaand the winner is... "+winner[0][3]))
+                    if len(winner) > 0:
+                        return_list.append(sendMsg(None, "Aaaand the winner is... "+winner[0][2]))
                     return sendMsg(None, "Pool's closed.")
 
         elif message.startswith(trigger_vote):
@@ -1079,5 +1085,40 @@ def Poll(parsed):
                 db.execute("DELETE FROM items WHERE ident=?", [args])
                 conn.commit()
                 return sendMsg(None, 'deleted poll ID: '+args)
+        elif message.startswith(trigger_timer):
+            if authUser(nick) == True:
+                conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
+                db = conn.cursor()
+                result = db.execute("SELECT * FROM polls WHERE status='OPEN'").fetchall()
+                db.close()
+                if len(result) < 1:
+                    return sendMsg(None, 'you can only set a timer for a OPEN poll')
+                else:
+                    poll_timer = message.replace(trigger_timer, '').lstrip()
+                    try:
+                        int(poll_timer)
+                    except:
+                        return sendMsg(None, 'interval needs to be an integer and in hours')
+                    poll_timestamp = datetime.datetime.now()
+                    return sendMsg(None, 'Poll timer started and set to: '+poll_timer+' minutes')
         else:
             return None
+    if int(poll_timer) > 0:
+        if datetime.datetime.now() - poll_timestamp > datetime.timedelta(minutes=int(poll_timer)):
+            conn = sqlite3.connect('dbs/poll.db', isolation_level=None)
+            db = conn.cursor()
+            row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
+            winner = db.execute("SELECT * FROM items WHERE ident=? ORDER BY votes DESC", [int(row_id[0][0])]).fetchall()
+            #for debugging
+            print winner
+            db.execute("UPDATE polls SET status='CLOSED' WHERE status='OPEN'")
+            conn.commit()
+            db.close()
+            poll_timer = 0
+            return_list = []
+            return_list.append(sendMsg(None, "Pool's closed."))
+            if len(winner) > 0:
+                return_list.append(sendMsg(None, "Aaaand the winner is... "+winner[0][2]))
+            return return_list
+
+
