@@ -628,32 +628,6 @@ def intoLines(parsed):
                 [nick, message])
         db.close()
 
-
-def top10(parsed):
-    def topEver(parsed):
-        conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
-        conn.text_factory = str
-        db = conn.cursor()
-        reply = db.execute("SELECT DISTINCT name FROM lines").fetchall()
-        top10 = []
-        for line in reply:
-            print line
-            count = db.execute("SELECT COUNT(*) FROM lines WHERE name=?",\
-                               [line[0]]).fetchall()
-            top10.append([line,count])
-        listhing = sorted(top10, key=lambda listed: listed[1], reverse=True)
-        count = 0
-        top10reply = ''
-        while count != 10:
-            top10reply = top10reply + str(count+1)+". "+\
-                        str(listhing[count][0][0])+" ["+str(listhing[count][1][0][0])+"] "
-            count+=1
-            print top10reply
-            print count
-        return top10reply
-    if parsed['event'] == "PRIVMSG":
-        if parsed['event_msg'] == NICK+", top10ever":
-            return sendMsg(None, topEver(parsed))
 def spewLines(parsed):
     if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
@@ -1170,4 +1144,48 @@ def Poll(parsed):
                 return_list.append(sendMsg(None, "Aaaand the winner is... "+winner[0][2]))
             return return_list
 
+def Statistics(parsed):
+    #funcs
+    def top10Ever(parsed):
+        conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
+        conn.text_factory = str
+        db = conn.cursor()
+        reply = db.execute("SELECT DISTINCT name FROM lines").fetchall()
+        top10 = []
+        for line in reply:
+            print line
+            count = db.execute("SELECT COUNT(*) FROM lines WHERE name=?",\
+                               [line[0]]).fetchall()
+            top10.append([line,count])
+        db.close()
+        listhing = sorted(top10, key=lambda listed: listed[1], reverse=True)
+        print listhing[0:10]
+        count = 0
+        top10reply = ''
+        while count != 10:
+            top10reply = top10reply + str(count+1)+". "+\
+                        str(listhing[count][0][0])+" ["+str(listhing[count][1][0][0])+"] "
+            count+=1
+            print top10reply
+            print count
+        return top10reply
 
+    def Ppm():
+        diffdate = datetime.datetime.now() - datetime.datetime(2010, 12, 17, 00, 24, 42)
+        conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
+        conn.text_factory = str
+        db = conn.cursor()
+        reply = db.execute("SELECT COUNT(*) FROM lines").fetchall()
+        db.close()
+        print reply
+        ppm = (( diffdate.days * 24 * 60 ) + ( diffdate.seconds / 60 )) / float(reply[0][0])
+        print ppm
+        return ppm
+
+    #triggers
+    if parsed['event'] == "PRIVMSG":
+        if parsed['event_msg'] == NICK+", top10ever":
+            return sendMsg(None, top10Ever(parsed))
+    if parsed['event'] == "PRIVMSG":
+        if parsed['event_msg'] == NICK+", ppm":
+            return sendMsg(None, str(Ppm())+' posts per minute')
