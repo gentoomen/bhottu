@@ -1176,7 +1176,7 @@ def Statistics(parsed):
         db.close()
         mpm = (( diffdate.days * 24 * 60 ) + ( diffdate.seconds / 60 )) / float(reply[0][0])
         log('Statistics(): messages per minute '+str(mpm))
-        return ppm
+        return mpm
 
     #triggers
     if parsed['event'] == "PRIVMSG":
