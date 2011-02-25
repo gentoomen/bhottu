@@ -629,6 +629,31 @@ def intoLines(parsed):
         db.close()
 
 
+def top10(parsed):
+    def topEver(parsed):
+        conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
+        conn.text_factory = str
+        db = conn.cursor()
+        reply = db.execute("SELECT DISTINCT name FROM lines").fetchall()
+        top10 = []
+        for line in reply:
+            print line
+            count = db.execute("SELECT COUNT(*) FROM lines WHERE name=?",\
+                               [line[0]]).fetchall()
+            top10.append([line,count])
+        listhing = sorted(top10, key=lambda listed: listed[1], reverse=True)
+        count = 0
+        top10reply = ''
+        while count != 10:
+            top10reply = top10reply + str(count+1)+". "+\
+                        str(listhing[count][0][0])+" ["+str(listhing[count][1][0][0])+"] "
+            count+=1
+            print top10reply
+            print count
+        return top10reply
+    if parsed['event'] == "PRIVMSG":
+        if parsed['event_msg'] == NICK+", top10ever":
+            return sendMsg(None, topEver(parsed))
 def spewLines(parsed):
     if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
