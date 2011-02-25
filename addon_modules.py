@@ -1153,21 +1153,18 @@ def Statistics(parsed):
         reply = db.execute("SELECT DISTINCT name FROM lines").fetchall()
         top10 = []
         for line in reply:
-            print line
             count = db.execute("SELECT COUNT(*) FROM lines WHERE name=?",\
                                [line[0]]).fetchall()
             top10.append([line,count])
         db.close()
         listhing = sorted(top10, key=lambda listed: listed[1], reverse=True)
-        print listhing[0:10]
         count = 0
         top10reply = ''
         while count != 10:
             top10reply = top10reply + str(count+1)+". "+\
                         str(listhing[count][0][0])+" ["+str(listhing[count][1][0][0])+"] "
             count+=1
-            print top10reply
-            print count
+        log('Statistics(): top 10 chatters')
         return top10reply
 
     def Mpm():
@@ -1177,9 +1174,8 @@ def Statistics(parsed):
         db = conn.cursor()
         reply = db.execute("SELECT COUNT(*) FROM lines").fetchall()
         db.close()
-        print reply
-        ppm = (( diffdate.days * 24 * 60 ) + ( diffdate.seconds / 60 )) / float(reply[0][0])
-        print ppm
+        mpm = (( diffdate.days * 24 * 60 ) + ( diffdate.seconds / 60 )) / float(reply[0][0])
+        log('Statistics(): messages per minute '+str(mpm))
         return ppm
 
     #triggers
@@ -1187,5 +1183,5 @@ def Statistics(parsed):
         if parsed['event_msg'] == NICK+", top10ever":
             return sendMsg(None, top10Ever(parsed))
     if parsed['event'] == "PRIVMSG":
-        if parsed['event_msg'] == NICK+", ppm":
+        if parsed['event_msg'] == NICK+", mpm":
             return sendMsg(None, str(Mpm())+' messages per minute')
