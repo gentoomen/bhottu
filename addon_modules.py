@@ -20,7 +20,7 @@ from utils import *
 
 import os
 import re
-#import string
+import random
 import time
 import datetime
 import urllib2
@@ -549,7 +549,7 @@ def trigReply(parsed):
                         var=? ORDER BY RANDOM() LIMIT 1', \
                         [var.upper()]).fetchall()
                 try:
-                    internal = internal.replace(var, replacement[0][0])
+                    internal = internal.replace(var, replacement[0][0], 1)
                 except:
                     internal = internal.replace(var, '[X]')
         db.close()
@@ -577,7 +577,7 @@ def trigReply(parsed):
             for row in reply:
                 return_list.append(sendMsg(None, "%s" % \
                         (row[0].replace('$nick', nick))))
-                returned = row[0].replace('$NICK', nick)
+                returned = row[0].replace('$NICK', parsed['event_nick'])
                 returned = row[0].replace('$TIME', parsed['event_timestamp'])
             db.close()
             that_was = '"' + returned + '" triggered by "' + message + '"'
@@ -648,6 +648,20 @@ def spewLines(parsed):
                 return_list.append(sendMsg(None, "%s" % (row[0])))
             db.close()
             return return_list
+        elif message.startswith(NICK+', spew improv'):
+            conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
+            conn.text_factory = str
+            db = conn.cursor()
+            branch = db.execute("SELECT message FROM lines \
+                    ORDER BY RANDOM() LIMIT 1").fetchall()[0][0]
+            log("Branch is "+branch)
+            limit = random.randint(1,4)
+            itercount = 0
+            while itercount < limit:
+                branch = branch + db.execute("SELECT message FROM lines \
+                    ORDER BY RANDOM() LIMIT 1").fetchall()[0][0]
+                itercount+=1
+            return sendMsg(None, branch)
 
 
 def Greeting(parsed):
