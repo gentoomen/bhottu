@@ -950,7 +950,7 @@ def Poll(parsed):
                     db.execute("INSERT INTO polls (title, status) VALUES (?, ?)", [title, 'OPEN'])
                     conn.commit()
                     db.close()
-                    log('Poll(): trigger_open added a poll'+ title)
+                    log('Poll(): New poll opened'+ title)
                     return sendMsg(None, "Poll started! %s" % (title))
 
         elif message.startswith(trigger_close):
@@ -969,6 +969,7 @@ def Poll(parsed):
                     db.execute("UPDATE polls SET status='CLOSED' WHERE status='OPEN'")
                     conn.commit()
                     db.close()
+                    log('Poll(): Open poll closed')
                     poll_timer = 0
                     return_list = []
                     return_list.append(sendMsg(None, "Pool's closed."))
@@ -989,6 +990,7 @@ def Poll(parsed):
                 row_id = db.execute("SELECT rowid FROM polls WHERE status='OPEN'").fetchall()
                 items = db.execute("SELECT * FROM items WHERE ident=? ORDER BY item_index", [int(row_id[0][0])]).fetchall()
                 db.close()
+                log('Poll(): Listing open poll and items')
                 return_list = [] # initializing a list to hold our return messages
                 return_list.append(sendMsg(None, title[0][0]))
                 for item in items:
@@ -1022,6 +1024,7 @@ def Poll(parsed):
                         db.execute("UPDATE polls SET voters=? WHERE status='OPEN'", [voters])
                         conn.commit()
                         db.close()
+                        log('Poll(): Adding new item to open poll '+item_title)
                         return sendMsg(None, "Vote added.")
                     else:
                         return sendMsg(None, "define the new item you camelhump")
@@ -1032,7 +1035,9 @@ def Poll(parsed):
                     if voters is not None:
                         voters = voters.split()
                         for item in voters:
-                            if nick == item: return sendMsg(nick, 'you have voted already')
+                            if nick == item:
+                                log('Poll(): Dupe vote on open poll by'+nick)
+                                return sendMsg(nick, 'you have voted already')
                         voters.append(nick)
                         voters = ' '.join(voters)
                     else:
@@ -1043,6 +1048,7 @@ def Poll(parsed):
                     db.execute("UPDATE polls SET voters=? WHERE status='OPEN'", [voters])
                     conn.commit()
                     db.close()
+                    log('Poll(): '+nick+' voted on poll')
                     return sendMsg(None, "Vote casted!!")
                     #except:
                     #    return sendMsg(None, "you broke the poll goddam!!!")
@@ -1056,6 +1062,7 @@ def Poll(parsed):
             db.execute("SELECT rowid, * FROM polls WHERE title LIKE ?", ['%' + args + '%'])
             derp = db.fetchall()
             db.close()
+            log('Poll(): searching poll titles from db')
             #for debugging
             print derp
             if len(derp) > 3:
@@ -1098,6 +1105,7 @@ def Poll(parsed):
                 db.execute("DELETE FROM polls WHERE rowid=?", [args])
                 db.execute("DELETE FROM items WHERE ident=?", [args])
                 conn.commit()
+                log('Poll(): deleted poll ID: '+args)
                 return sendMsg(None, 'deleted poll ID: '+args)
         elif message.startswith(trigger_timer):
             if authUser(nick) == True:
@@ -1114,6 +1122,7 @@ def Poll(parsed):
                     except:
                         return sendMsg(None, 'interval needs to be an integer and in hours')
                     poll_timestamp = datetime.datetime.now()
+                    log('Poll(): Timer set on open poll: '+poll_timer+' hours')
                     return sendMsg(None, 'Poll timer started and set to: '+poll_timer+' minutes')
         else:
             return None
@@ -1128,6 +1137,7 @@ def Poll(parsed):
             db.execute("UPDATE polls SET status='CLOSED' WHERE status='OPEN'")
             conn.commit()
             db.close()
+            log('Poll(): Timer closed open poll')
             poll_timer = 0
             return_list = []
             return_list.append(sendMsg(None, "Pool's closed."))
