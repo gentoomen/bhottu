@@ -1170,7 +1170,7 @@ def Statistics(parsed):
             print count
         return top10reply
 
-    def Ppm():
+    def Mpm():
         diffdate = datetime.datetime.now() - datetime.datetime(2010, 12, 17, 00, 24, 42)
         conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
         conn.text_factory = str
@@ -1188,4 +1188,4 @@ def Statistics(parsed):
             return sendMsg(None, top10Ever(parsed))
     if parsed['event'] == "PRIVMSG":
         if parsed['event_msg'] == NICK+", ppm":
-            return sendMsg(None, str(Ppm())+' posts per minute')
+            return sendMsg(None, str(Mpm())+' messages per minute')
