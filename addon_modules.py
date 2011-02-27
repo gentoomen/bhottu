@@ -1187,3 +1187,10 @@ def Statistics(parsed):
     if parsed['event'] == "PRIVMSG":
         if parsed['event_msg'] == NICK+", mpm":
             return sendMsg(None, str(Mpm())+' messages per minute')
+def Roulette(parsed):
+    if parsed['event'] == 'PRIVMSG':
+        if parsed['event_msg'] == 'roulette':
+            if random.randrange(0, 6) == 6:
+                return('KICK %s %s :%s \r\n' % (CHANNEL, parsed['event_nick'], 'YOU WIN!!!'))
+            else:
+                return sendMsg(None, "You get to live for now")

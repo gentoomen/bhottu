@@ -64,7 +64,8 @@ addon_modules = [
         Commits,
         AutoUpdate,
         Poll,
-        Statistics
+        Statistics,
+        Roulette
         ]
 #our socket
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
