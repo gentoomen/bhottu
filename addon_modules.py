@@ -219,64 +219,66 @@ def outputTitle(parsed):
                             [domain])
                     conn.close()
                     return sendMsg(None, domain + ' blacklisted')
+
     if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
         umessage = None
         if message.rfind("http://") != -1 or message.rfind("https://") != -1:
             umessage = re.search('htt(p|ps)://.*', message)
         if umessage is not None:
-            log('outputTitle(): Seen: ' + umessage.group())
             if ' ' in umessage.group(0):
                 url = umessage.group(0).split(' ')[0]
             else:
                 url = umessage.group(0)
+            log('outputTitle(): Url seen on chan: ' + url)
             domain = url.strip('http://').strip('https://').split('/', 1)[0]
             log('outputTitle(): Domain: ' + domain)
             conn = sqlite3.connect('dbs/urls.db', isolation_level=None)
+            conn.text_factory = str
             db = conn.cursor()
-            derp = db.execute("SELECT * FROM blacklist WHERE domain = ?", \
+            dupe_url = db.execute("SELECT * FROM urls WHERE url=? LIMIT 1", \
+                    [url]).fetchall()
+            blacklist = db.execute("SELECT * FROM blacklist WHERE domain = ?", \
                     [domain]).fetchall()
-            if len(derp) > 0:
-                log('outputTitle(): Domain is blacklisted, \
-                        will not fetch title')
-                title = 'BL'
-                return_msg = None
-            elif url.endswith(('.jpg', '.png', '.gif', '.txt')):
-                log('outputTitle(): Url is a pic, will not fetch title')
-                title = 'PIC'
-                return_msg = None
+            if len(dupe_url) > 0:
+                conn.close()
+                log('outputTitle(): Found dupe from DB: ' + url)
+                if len(blacklist) > 0:
+                    log('outputTitle(): Domain is blacklisted, \
+                        will not output title')
+                    return None
+                else:
+                    return sendMsg(None, 'Site title: '+ str(dupe_url[0][1]))
             else:
                 try:
                     response = urllib2.urlopen(url)
-                    html = response.read()
-                    response.close()
-                    title = re.search('<title>.*<\/title>', html, \
-                            re.I | re.S)
-                    title = title.group(0)
-                    title = ' '.join(title.split())
-                    html = title.split('>')[1]
-                    html = html.split('<')[0]
-                    html = html.replace('\n', '').lstrip()
-                    html = html.replace('\r', '').rstrip()
-                    return_msg = sendMsg(None, "Site title: %s" % (html))
-                    title = html
+                    if response.info().gettype() == "text/html":
+                        html = response.read(5000)
+                        response.close()
+                        title = re.search('<title>.*<\/title>', html, re.I | re.S)
+                        title = title.group(0)
+                        title = ' '.join(title.split())
+                        title = title.split('>')[1]
+                        title = title.split('<')[0]
+                        title = title.replace('\n', '').lstrip()
+                        title = title.replace('\r', '').rstrip()
+                    else:
+                        title = response.info().gettype()
                 except:
-                    return_msg = sendMsg(None, 'Cannot find site title')
-                    title = 'NONE'
-            conn.text_factory = str
-            test = db.execute("SELECT * FROM urls WHERE url=?", \
-                    [url]).fetchall()
-            if len(test) > 0:
-                conn.close()
-                log('outputTitle(): duplicate url found in db')
-                return  # return_msg
-            else:
-                conn.text_factory = str
+                    conn.close()
+                    log('outputTitle(): Failed to fetch ' + url)
+                    return sendMsg(None, 'Failed to fetch url')
+
                 db.execute("INSERT INTO urls (url, title, time) \
                         VALUES (?, ?, ?)", \
                         [url, title, datetime.datetime.now()])
                 conn.close()
-                return return_msg
+                if len(blacklist) > 0:
+                    log('outputTitle(): Domain is blacklisted, \
+                        will not output title')
+                    return None
+                else:
+                    return sendMsg(None, "Site title: %s" % (title))
 
 
 def projectWiz(parsed):
