@@ -656,7 +656,7 @@ def spewLines(parsed):
             branch = db.execute("SELECT message FROM lines \
                     ORDER BY RANDOM() LIMIT 1").fetchall()[0][0]
             branch = random.choice(branch.split(random.choice\
-            (branch.split(' '))))
+            (branch.split(' ')))).lstrip()
             log("Branch is "+branch)
             limit = random.randint(2,4)
             itercount = 0
@@ -664,7 +664,7 @@ def spewLines(parsed):
                stem = db.execute("SELECT message FROM lines\
                     ORDER BY RANDOM() LIMIT 1").fetchall()[0][0]
                root = random.choice(stem.split(' '))
-               flower = random.choice(stem.split(root))
+               flower = random.choice(stem.split(root)).lstrip()
                branch = branch + " " + flower
                itercount+=1
             return sendMsg(None, branch)
