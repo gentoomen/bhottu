@@ -655,13 +655,18 @@ def spewLines(parsed):
             db = conn.cursor()
             branch = db.execute("SELECT message FROM lines \
                     ORDER BY RANDOM() LIMIT 1").fetchall()[0][0]
+            branch = random.choice(branch.split(random.choice\
+            (branch.split(' '))))
             log("Branch is "+branch)
-            limit = random.randint(1,4)
+            limit = random.randint(2,4)
             itercount = 0
             while itercount < limit:
-                branch = branch + db.execute("SELECT message FROM lines \
+               stem = db.execute("SELECT message FROM lines\
                     ORDER BY RANDOM() LIMIT 1").fetchall()[0][0]
-                itercount+=1
+               root = random.choice(stem.split(' '))
+               flower = random.choice(stem.split(root))
+               branch = branch + " " + flower
+               itercount+=1
             return sendMsg(None, branch)
 
 
