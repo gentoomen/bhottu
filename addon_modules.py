@@ -35,8 +35,8 @@ be_quiet = None
 last_repo_check = None
 poll_timestamp = None
 poll_timer = 0
-#### DATABASE INITS ####
 
+#### DATABASE INITS ####
 
 def dbInit():
     #Projects
@@ -114,8 +114,8 @@ def dbInit():
     db.execute('''create table if not exists items (ident integer, item_index integer, item text, votes integer)''')
     conn.commit()
     conn.close()
-#### ADDONS ####
 
+#### ADDONS ####
 
 def nickPlus(parsed):
     if parsed['event'] == 'PRIVMSG':
@@ -244,8 +244,8 @@ def outputTitle(parsed):
                 conn.close()
                 log('outputTitle(): Found dupe from DB: ' + url)
                 if len(blacklist) > 0:
-                    log('outputTitle(): Domain is blacklisted, \
-                        will not output title')
+                    log('outputTitle(): Domain is blacklisted, ' + \
+                            'will not output title')
                     return None
                 else:
                     return sendMsg(None, 'Site title: '+ str(dupe_url[0][1]))
@@ -919,7 +919,6 @@ def AutoUpdate(parsed):
                 return return_list
 
 
-#HERE BE OUR POLL FUNCTION
 def Poll(parsed):
     global poll_timestamp
     global poll_timer
@@ -1190,7 +1189,16 @@ def Statistics(parsed):
 def Roulette(parsed):
     if parsed['event'] == 'PRIVMSG':
         if parsed['event_msg'] == 'roulette':
-            if random.randrange(0, 6) == 6:
+            if random.randrange(0, 6) == 5:
                 return('KICK %s %s :%s \r\n' % (CHANNEL, parsed['event_nick'], 'YOU WIN!!!'))
             else:
                 return sendMsg(None, "You get to live for now")
+"""
+def Clo(parsed):
+
+
+    if parsed['event'] == 'PRIVMSG':
+
+
+
+"""
