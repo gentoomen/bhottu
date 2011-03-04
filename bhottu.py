@@ -36,9 +36,9 @@ import time
 import signal
 from time import gmtime, strftime
 
-from core_modules import *
-from basic_modules import *
-from addon_modules import *
+from modules.core_modules import *
+from modules.basic_modules import *
+from modules.addon_modules import *
 from config import *
 from utils import log_raw, log
 

@@ -251,7 +251,10 @@ def outputTitle(parsed):
                     return sendMsg(None, 'Site title: '+ str(dupe_url[0][1]))
             else:
                 try:
-                    response = urllib2.urlopen(url)
+                    headers = { 'User-Agent' : 'JustUs/0.8 (compatible;) urllib2' }
+                    req = urllib2.Request(url, None, headers)
+                    response = urllib2.urlopen(req)
+                    print response #debug print
                     if response.info().gettype() == "text/html":
                         html = response.read(5000)
                         response.close()
@@ -264,10 +267,14 @@ def outputTitle(parsed):
                         title = title.replace('\r', '').rstrip()
                     else:
                         title = response.info().gettype()
-                except:
+                    #print title
+                except urllib2.URLError, e:
                     conn.close()
-                    log('outputTitle(): Failed to fetch ' + url)
-                    return sendMsg(None, 'Failed to fetch url')
+                    if hasattr(e, 'reason'): error = e.reason
+                    elif hasattr(e, 'code'): error = e.code
+                    else: error = 'beyond who the fuck knows'
+                    log('outputTitle(): Failed to fetch url ' + url + ' reason: ' + str(error))
+                    return sendMsg(None, 'Failed to fetch url, reason '+ str(error))
 
                 db.execute("INSERT INTO urls (url, title, time) \
                         VALUES (?, ?, ?)", \
