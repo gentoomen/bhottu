@@ -47,9 +47,13 @@ def sendPM(unick, message):
 def authUser(unick):
     return unick in GODS
 
+import xml.sax.saxutils
 def unescape(s):
-    s = s.replace("&lt;", "<")
-    s = s.replace("&gt;", ">")
-    # this has to be last:
-    s = s.replace("&amp;", "&")
-    return s
+    return xml.sax.saxutils.unescape(s)
+
+#def unescape(s):
+#    s = s.replace("&lt;", "<")
+#    s = s.replace("&gt;", ">")
+#    # this has to be last:
+#    s = s.replace("&amp;", "&")
+#    return s
