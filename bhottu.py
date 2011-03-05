@@ -40,7 +40,7 @@ from modules.core_modules import *
 from modules.basic_modules import *
 from modules.addon_modules import *
 from config import *
-from utils import log_raw, log, unescape
+from utils import log_raw, log, unescape # is this really necessary?
 
 #ENABLED modules/functions separated with comma
 core_modules = [SetChannel, SetVhost, SetNick, SetUser, Pong]
