@@ -248,7 +248,7 @@ def outputTitle(parsed):
                             'will not output title')
                     return None
                 else:
-                    return sendMsg(None, 'Site title: '+ str(dupe_url[0][1]))
+                    return sendMsg(None, 'Site title: '+ unescape(str(dupe_url[0][1])))
             else:
                 try:
                     headers = { 'User-Agent' : 'JustUs/0.8 (compatible;) urllib2' }
