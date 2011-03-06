@@ -546,7 +546,10 @@ def addVar(parsed):
 
 
 def trigReply(parsed):
-    def replaceVar(message):
+    def replaceVar(message,parsed):
+        nick = parsed['event_nick']
+        time = parsed['event_timestamp']
+        print parsed
         trigger = message.split(' ')
         internal = message
         conn = sqlite3.connect('dbs/vars.db', isolation_level=None)
@@ -559,7 +562,13 @@ def trigReply(parsed):
                         var=? ORDER BY RANDOM() LIMIT 1', \
                         [var.upper()]).fetchall()
                 try:
-                    internal = internal.replace(var, replacement[0][0], 1)
+                    print "Line is:"+line
+                    if line == "$NICK":
+                        internal = internal.replace(line, nick, 1)
+                    elif line == "$TIMESTAMP":
+                        internal = internal.replace(line, time, 1)
+                    else:
+				        internal = internal.replace(var, replacement[0][0], 1)
                 except:
                     internal = internal.replace(var, '[X]')
         db.close()
@@ -578,21 +587,15 @@ def trigReply(parsed):
         conn = sqlite3.connect('dbs/reply.db', isolation_level=None)
         conn.text_factory = str
         db = conn.cursor()
-        returned = ''
         reply = db.execute("SELECT reply FROM replies WHERE trigger=? ORDER \
                 BY RANDOM() LIMIT 1", \
                 [message]).fetchall()
         if len(reply) > 0:
-            return_list = []
-            for row in reply:
-                return_list.append(sendMsg(None, "%s" % \
-                        (row[0].replace('$nick', nick))))
-                returned = row[0].replace('$NICK', parsed['event_nick'])
-                returned = row[0].replace('$TIME', parsed['event_timestamp'])
             db.close()
-            that_was = '"' + returned + '" triggered by "' + message + '"'
-            return sendMsg(None, replaceVar(returned))
+            that_was = '"' + reply[0][0] + '" triggered by "' + message + '"'
+            return sendMsg(None, replaceVar(reply[0][0], parsed))
         else:
+            db.close()
             return
 
 
