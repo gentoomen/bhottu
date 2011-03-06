@@ -265,6 +265,7 @@ def outputTitle(parsed):
                         title = title.split('<')[0]
                         title = title.replace('\n', '').lstrip()
                         title = title.replace('\r', '').rstrip()
+                        title = unescape(title) #internal helper
                     else:
                         title = response.info().gettype()
                     #print title
@@ -285,7 +286,7 @@ def outputTitle(parsed):
                         will not output title')
                     return None
                 else:
-                    return sendMsg(None, "Site title: %s" % (unescape(title)))
+                    return sendMsg(None, "Site title: %s" % (title))
 
 
 def projectWiz(parsed):
