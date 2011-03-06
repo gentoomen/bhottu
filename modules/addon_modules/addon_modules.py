@@ -285,7 +285,7 @@ def outputTitle(parsed):
                         will not output title')
                     return None
                 else:
-                    return sendMsg(None, "Site title: %s" % (title))
+                    return sendMsg(None, "Site title: %s" % (unescape(title)))
 
 
 def projectWiz(parsed):
