@@ -544,8 +544,10 @@ def addVar(parsed):
             db.close()
             return sendMsg(None, 'Added.')
 
-
 def trigReply(parsed):
+    #=====replaceVar=====#
+    #replaceVar replaces a placeholder with the var#
+    #it represents from the db#
     def replaceVar(message,parsed):
         nick = parsed['event_nick']
         time = parsed['event_timestamp']
@@ -574,112 +576,121 @@ def trigReply(parsed):
         db.close()
         return internal.replace('$', '')
 
-    if parsed['event'] == 'PRIVMSG':
-        global that_was
-        message = parsed['event_msg']
-        nick = parsed['event_nick']
-        what_trigger = NICK + ", what was that?"
-        if what_trigger in message:
-            if that_was is not None:
-                return sendMsg(None, that_was)
+    #=====outputReply=====#
+    #outputReply simply converts a reply using replaceVar and#
+    #outputs it into the channel#
+    def outputReply(parsed):
+        if parsed['event'] == 'PRIVMSG':
+            global that_was
+            message = parsed['event_msg']
+            nick = parsed['event_nick']
+            what_trigger = NICK + ", what was that?"
+            if what_trigger in message:
+                if that_was is not None:
+                    return sendMsg(None, that_was)
+                else:
+                    return sendMsg(None, 'what was what?')
+            conn = sqlite3.connect('dbs/reply.db', isolation_level=None)
+            conn.text_factory = str
+            db = conn.cursor()
+            reply = db.execute("SELECT reply FROM replies WHERE trigger=? ORDER \
+                    BY RANDOM() LIMIT 1", \
+                    [message]).fetchall()
+            if len(reply) > 0:
+                db.close()
+                that_was = '"' + reply[0][0] + '" triggered by "' + message + '"'
+                return sendMsg(None, replaceVar(reply[0][0], parsed))
             else:
-                return sendMsg(None, 'what was what?')
-        conn = sqlite3.connect('dbs/reply.db', isolation_level=None)
-        conn.text_factory = str
-        db = conn.cursor()
-        reply = db.execute("SELECT reply FROM replies WHERE trigger=? ORDER \
-                BY RANDOM() LIMIT 1", \
-                [message]).fetchall()
-        if len(reply) > 0:
-            db.close()
-            that_was = '"' + reply[0][0] + '" triggered by "' + message + '"'
-            return sendMsg(None, replaceVar(reply[0][0], parsed))
-        else:
-            db.close()
-            return
+                db.close()
+                return
 
+    #=====rmReply=====#
+    #rmReply removes a reply from the db#
+    def rmReply(parsed):
+        if parsed['event'] == 'PRIVMSG':
+            message = parsed['event_msg']
+            nick = parsed['event_nick']
+            combostring = NICK + ", "
+            if combostring in message:
+                if '->rm' in message:
+                    try:
+                        reply = message.split('->rm')[1].lstrip()
+                    except:
+                        return sendMsg(None, 'Incorrect syntax')
+                    conn = sqlite3.connect('dbs/reply.db', isolation_level=None)
+                    conn.text_factory = str
+                    db = conn.cursor()
+                    if authUser(nick) == True:
+                        db.execute("DELETE FROM replies WHERE reply=?", [reply])
+                        return_msg = sendMsg(None, "Total records deleted: " + \
+                                str(conn.total_changes))
+                        log('rmReply(): Deleted ' + reply)
+                    else:
+                        return_msg = sendMsg(None, "03>Lol nice try faggot")
+                        log('rmReply(): ' + nick + \
+                                ' UNAUTHORIZED delete attempt of' + reply)
+                    db.close()
+                    return return_msg
+    return outputReply(parsed)
+    return rmReply(parsed)
 
-def rmReply(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        message = parsed['event_msg']
-        nick = parsed['event_nick']
-        combostring = NICK + ", "
-        if combostring in message:
-            if '->rm' in message:
-                try:
-                    reply = message.split('->rm')[1].lstrip()
-                except:
-                    return sendMsg(None, 'Incorrect syntax')
-                conn = sqlite3.connect('dbs/reply.db', isolation_level=None)
+def spewContainer(parsed):
+    def intoLines(parsed):
+        if parsed['event'] == 'PRIVMSG':
+            message = parsed['event_msg']
+            nick = parsed['event_nick']
+            conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
+            conn.text_factory = str
+            db = conn.cursor()
+            #reply = db.execute("INSERT INTO lines (name, message) \
+                    # VALUES (?, ?)", \
+                    # [nick, message])
+            # never used
+            db.execute("INSERT INTO lines (name, message) VALUES (?, ?)", \
+                    [nick, message])
+            db.close()
+
+    def spewLines(parsed):
+        if parsed['event'] == 'PRIVMSG':
+            message = parsed['event_msg']
+            #nick = parsed['event_nick']
+            # never used
+            combostring = NICK + ", spew like "
+            if combostring in message:
+                name = message.replace(combostring, '')
+                name = name.strip()
+                conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
                 conn.text_factory = str
                 db = conn.cursor()
-                if authUser(nick) == True:
-                    db.execute("DELETE FROM replies WHERE reply=?", [reply])
-                    return_msg = sendMsg(None, "Total records deleted: " + \
-                            str(conn.total_changes))
-                    log('rmReply(): Deleted ' + reply)
-                else:
-                    return_msg = sendMsg(None, "03>Lol nice try faggot")
-                    log('rmReply(): ' + nick + \
-                            ' UNAUTHORIZED delete attempt of' + reply)
+                reply = db.execute("SELECT message FROM lines WHERE name=? \
+                        ORDER BY RANDOM() LIMIT 1", [name]).fetchall()
+                return_list = []
+                for row in reply:
+                    return_list.append(sendMsg(None, "%s" % (row[0])))
                 db.close()
-                return return_msg
+                return return_list
+            elif message.startswith(NICK+', spew improv'):
+                conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
+                conn.text_factory = str
+                db = conn.cursor()
+                branch = db.execute("SELECT message FROM lines \
+                        ORDER BY RANDOM() LIMIT 1").fetchall()[0][0]
+                branch = random.choice(branch.split(random.choice\
+                (branch.split(' ')))).lstrip()
+                log("Branch is "+branch)
+                limit = random.randint(2,4)
+                itercount = 0
+                while itercount < limit:
+                   stem = db.execute("SELECT message FROM lines\
+                        ORDER BY RANDOM() LIMIT 1").fetchall()[0][0]
+                   root = random.choice(stem.split(' '))
+                   flower = random.choice(stem.split(root)).lstrip()
+                   branch = branch + " " + flower
+                   itercount+=1
+                return sendMsg(None, branch)
 
-
-def intoLines(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        message = parsed['event_msg']
-        nick = parsed['event_nick']
-        conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
-        conn.text_factory = str
-        db = conn.cursor()
-        #reply = db.execute("INSERT INTO lines (name, message) \
-                # VALUES (?, ?)", \
-                # [nick, message])
-        # never used
-        db.execute("INSERT INTO lines (name, message) VALUES (?, ?)", \
-                [nick, message])
-        db.close()
-
-def spewLines(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        message = parsed['event_msg']
-        #nick = parsed['event_nick']
-        # never used
-        combostring = NICK + ", spew like "
-        if combostring in message:
-            name = message.replace(combostring, '')
-            name = name.strip()
-            conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
-            conn.text_factory = str
-            db = conn.cursor()
-            reply = db.execute("SELECT message FROM lines WHERE name=? \
-                    ORDER BY RANDOM() LIMIT 1", [name]).fetchall()
-            return_list = []
-            for row in reply:
-                return_list.append(sendMsg(None, "%s" % (row[0])))
-            db.close()
-            return return_list
-        elif message.startswith(NICK+', spew improv'):
-            conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
-            conn.text_factory = str
-            db = conn.cursor()
-            branch = db.execute("SELECT message FROM lines \
-                    ORDER BY RANDOM() LIMIT 1").fetchall()[0][0]
-            branch = random.choice(branch.split(random.choice\
-            (branch.split(' ')))).lstrip()
-            log("Branch is "+branch)
-            limit = random.randint(2,4)
-            itercount = 0
-            while itercount < limit:
-               stem = db.execute("SELECT message FROM lines\
-                    ORDER BY RANDOM() LIMIT 1").fetchall()[0][0]
-               root = random.choice(stem.split(' '))
-               flower = random.choice(stem.split(root)).lstrip()
-               branch = branch + " " + flower
-               itercount+=1
-            return sendMsg(None, branch)
-
+    return intoLines(parsed)
+    return spewLines(parsed)
 
 def Greeting(parsed):
     if parsed['event'] == 'PRIVMSG':
@@ -1195,13 +1206,29 @@ def Statistics(parsed):
         log('Statistics(): messages per minute '+str(mpm))
         return mpm
 
+    def lineAvg(parsed):
+        message = parsed['event_msg']
+        nick = message.split(NICK+", line average of")[1].lstrip().rstrip()
+        conn = sqlite3.connect('dbs/lines.db', isolation_level=None)
+        conn.text_factory = str
+        db = conn.cursor()
+        L = db.execute("SELECT message FROM lines WHERE name=?",\
+                        [nick]).fetchall()[0::]
+        total_len = 0
+        for s in L:
+            total_len += len(s[0])
+        avg = total_len / len(L)
+        return "%s's line length average is %s" % (nick, str(avg))
+
     #triggers
     if parsed['event'] == "PRIVMSG":
         if parsed['event_msg'] == NICK+", top10ever":
             return sendMsg(None, top10Ever(parsed))
-    if parsed['event'] == "PRIVMSG":
         if parsed['event_msg'] == NICK+", mpm":
             return sendMsg(None, str(Mpm())+' messages per minute')
+        if parsed['event_msg'].startswith(NICK+", line average of "):
+            return sendMsg(None, lineAvg(parsed))
+
 def Roulette(parsed):
     if parsed['event'] == 'PRIVMSG':
         if parsed['event_msg'] == 'roulette':
