@@ -496,56 +496,50 @@ def hackerJargons(parsed):
                 return return_list
 
 
-def newReply(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        message = parsed['event_msg']
-        #nick = parsed['event_nick']
-        # never used
-        combostring = NICK + ", "
-        if combostring in message:
-            if '<reply>' in message:
-                #if authUser(parsed['event_nick']) == True:
-                if '->rm' in message:
-                    return
-                log('newReply(): <reply> in msg')
-                message = message.replace(combostring, '')
-                try:
-                    tmp_reply = message.split('<reply>', 1)
-                    trigger = tmp_reply[0].strip()
-                    reply = tmp_reply[1].strip()
-                    #reply = reply[1].lstrip()
-                except:
-                    return sendMsg(None, 'Incorrect syntax')
-                conn = sqlite3.connect('dbs/reply.db', isolation_level=None)
-                conn.text_factory = str
-                db = conn.cursor()
-                db.execute("INSERT INTO replies (trigger, reply) VALUES \
-                        (?, ?)", \
-                        [trigger, reply])
-                db.close()
 
 
-def addVar(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        message = parsed['event_msg']
-        combostring = NICK + ", assign "
-        if combostring in message:
-            #if authUser(parsed['event_nick']) == True:
-            parts = message.replace(combostring, '')
-            parts = parts.split(' to ')
-            replacement = parts[0]
-            var = parts[1].upper().replace('$', '')
-            conn = sqlite3.connect('dbs/vars.db', isolation_level=None)
-            conn.text_factory = str
-            db = conn.cursor()
-            replacement = db.execute('INSERT INTO vars (var, replace) \
-                    VALUES (?, ?)', \
-                    [var, replacement])
-            db.close()
-            return sendMsg(None, 'Added.')
 
 def trigReply(parsed):
+    def newReply(parsed):
+        message = parsed['event_msg']
+        combostring = NICK + ", "
+        log('newReply(): <reply> in msg')
+        message = message.replace(combostring, '')
+        try:
+            tmp_reply = message.split('<reply>', 1)
+            trigger = tmp_reply[0].strip()
+            reply = tmp_reply[1].strip()
+            #reply = reply[1].lstrip()
+        except:
+            return sendMsg(None, 'Incorrect syntax')
+        conn = sqlite3.connect('dbs/reply.db', isolation_level=None)
+        conn.text_factory = str
+        db = conn.cursor()
+        db.execute("INSERT INTO replies (trigger, reply) VALUES \
+                (?, ?)", \
+                [trigger, reply])
+        db.close()
+        return sendMsg(None, 'Trigger added')
+
+    def addVar(parsed):
+        message = parsed['event_msg']
+        combostring = NICK + ", assign "
+        #if authUser(parsed['event_nick']) == True:
+        parts = message.replace(combostring, '')
+        parts = parts.split(' to ')
+        replacement = parts[0]
+        var = parts[1].upper().replace('$', '')
+        conn = sqlite3.connect('dbs/vars.db', isolation_level=None)
+        conn.text_factory = str
+        db = conn.cursor()
+        replacement = db.execute('INSERT INTO vars (var, replace) \
+                VALUES (?, ?)', \
+                [var, replacement])
+        db.close()
+        return sendMsg(None, 'Added.')
+
     #=====replaceVar=====#
+    #INTERNAL#
     #replaceVar replaces a placeholder with the var#
     #it represents from the db#
     def replaceVar(message,parsed):
@@ -607,32 +601,36 @@ def trigReply(parsed):
     #=====rmReply=====#
     #rmReply removes a reply from the db#
     def rmReply(parsed):
-        if parsed['event'] == 'PRIVMSG':
-            message = parsed['event_msg']
-            nick = parsed['event_nick']
-            combostring = NICK + ", "
-            if combostring in message:
-                if '->rm' in message:
-                    try:
-                        reply = message.split('->rm')[1].lstrip()
-                    except:
-                        return sendMsg(None, 'Incorrect syntax')
-                    conn = sqlite3.connect('dbs/reply.db', isolation_level=None)
-                    conn.text_factory = str
-                    db = conn.cursor()
-                    if authUser(nick) == True:
-                        db.execute("DELETE FROM replies WHERE reply=?", [reply])
-                        return_msg = sendMsg(None, "Total records deleted: " + \
-                                str(conn.total_changes))
-                        log('rmReply(): Deleted ' + reply)
-                    else:
-                        return_msg = sendMsg(None, "03>Lol nice try faggot")
-                        log('rmReply(): ' + nick + \
-                                ' UNAUTHORIZED delete attempt of' + reply)
-                    db.close()
-                    return return_msg
-    return outputReply(parsed)
-    return rmReply(parsed)
+        message = parsed['event_msg']
+        nick = parsed['event_nick']
+        try:
+            reply = message.split('->rm')[1].lstrip()
+        except:
+            return sendMsg(None, 'Incorrect syntax')
+        conn = sqlite3.connect('dbs/reply.db', isolation_level=None)
+        conn.text_factory = str
+        db = conn.cursor()
+        if authUser(nick) == True:
+            db.execute("DELETE FROM replies WHERE reply=?", [reply])
+            return_msg = sendMsg(None, "Total records deleted: " + \
+                    str(conn.total_changes))
+            log('rmReply(): Deleted ' + reply)
+        else:
+            return_msg = sendMsg(None, "03>Lol nice try faggot")
+            log('rmReply(): ' + nick + \
+                    ' UNAUTHORIZED delete attempt of' + reply)
+        db.close()
+        return return_msg
+
+    if parsed['event'] == 'PRIVMSG':
+        if parsed['event_msg'].startswith(NICK + ", "):
+            if '<reply>' in parsed['event_msg']:
+                return newReply(parsed)
+            if parsed['event_msg'].startswith(NICK + ", assign "):
+                return addVar(parsed)
+            if '->rm' in parsed['event_msg']:
+                return rmReply(parsed)
+        return outputReply(parsed)
 
 def spewContainer(parsed):
     def intoLines(parsed):
@@ -689,7 +687,7 @@ def spewContainer(parsed):
                    itercount+=1
                 return sendMsg(None, branch)
 
-    return intoLines(parsed)
+    intoLines(parsed)
     return spewLines(parsed)
 
 def Greeting(parsed):
@@ -1214,6 +1212,7 @@ def Statistics(parsed):
         db = conn.cursor()
         L = db.execute("SELECT message FROM lines WHERE name=?",\
                         [nick]).fetchall()[0::]
+        if len(L) < 1: return "division by zero"
         total_len = 0
         for s in L:
             total_len += len(s[0])
