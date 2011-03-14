@@ -259,13 +259,16 @@ def outputTitle(parsed):
                         html = response.read(5000)
                         response.close()
                         title = re.search('<title>.*<\/title>', html, re.I | re.S)
-                        title = title.group(0)
-                        title = ' '.join(title.split())
-                        title = title.split('>')[1]
-                        title = title.split('<')[0]
-                        title = title.replace('\n', '').lstrip()
-                        title = title.replace('\r', '').rstrip()
-                        title = unescape(title) #internal helper
+                        if title is None:
+                            title = response.info().gettype()
+                        else:
+                            title = title.group(0)
+                            title = ' '.join(title.split())
+                            title = title.split('>')[1]
+                            title = title.split('<')[0]
+                            title = title.replace('\n', '').lstrip()
+                            title = title.replace('\r', '').rstrip()
+                            title = unescape(title) #internal helper
                     else:
                         title = response.info().gettype()
                     #print title
@@ -674,7 +677,7 @@ def spewContainer(parsed):
                 branch = db.execute("SELECT message FROM lines \
                         ORDER BY RANDOM() LIMIT 1").fetchall()[0][0]
                 branch = random.choice(branch.split(random.choice\
-                (branch.split(' ')))).lstrip()
+                (branch.split(' ')))).lstrip().rstrip()
                 log("Branch is "+branch)
                 limit = random.randint(2,4)
                 itercount = 0
@@ -682,7 +685,7 @@ def spewContainer(parsed):
                    stem = db.execute("SELECT message FROM lines\
                         ORDER BY RANDOM() LIMIT 1").fetchall()[0][0]
                    root = random.choice(stem.split(' '))
-                   flower = random.choice(stem.split(root)).lstrip()
+                   flower = random.choice(stem.split(root)).lstrip().rstrip()
                    branch = branch + " " + flower
                    itercount+=1
                 return sendMsg(None, branch)
