@@ -740,18 +740,18 @@ def Greeting(parsed):
                 db.close()
                 return sendMsg(None, 'okay.. ;_;')
     if parsed['event'] == 'JOIN':
-        if authUser(parsed['event_nick']) == True:
-            name = parsed['event_nick']
-            conn = sqlite3.connect('dbs/greetings.db', isolation_level=None)
-            conn.text_factory = str
-            db = conn.cursor()
-            reply = db.execute(\
-                    "SELECT greeting FROM greetings WHERE nick=?", \
-                    [name]).fetchall()
-            db.close()
-            if len(reply) > 0:
-                time.sleep(2)
-                return sendMsg(name, reply[0][0])
+        #if authUser(parsed['event_nick']) == True:
+        name = parsed['event_nick']
+        conn = sqlite3.connect('dbs/greetings.db', isolation_level=None)
+        conn.text_factory = str
+        db = conn.cursor()
+        reply = db.execute(\
+                "SELECT greeting FROM greetings WHERE nick=?", \
+                [name]).fetchall()
+        db.close()
+        if len(reply) > 0:
+            time.sleep(2)
+            return sendMsg(name, reply[0][0])
     if parsed['event'] == 'NICK':
         if authUser(parsed['event_msg']) == True:
             name = parsed['event_msg']
