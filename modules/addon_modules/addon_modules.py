@@ -709,26 +709,23 @@ def Greeting(parsed):
                     msg = message.replace(combostring, '').split(' ', 1)[1]
                 except:
                     return sendMsg(None, 'how?')
-                if authUser(name) == True:
-                    conn = sqlite3.connect('dbs/greetings.db', \
-                            isolation_level=None)
-                    conn.text_factory = str
-                    db = conn.cursor()
-                    reply = db.execute(\
-                            "SELECT greeting FROM greetings WHERE nick=?", \
-                            [name]).fetchall()
-                    if len(reply) > 0:
-                        db.close()
-                        return sendMsg(None, 'I already greet ' + name + ' \
-                                with, ' + reply[0][0])
-                    else:
-                        db.execute("INSERT INTO greetings (nick, greeting) \
-                                VALUES (?, ?)", \
-                                [name, msg])
-                        db.close()
-                        return sendMsg(None, 'will do')
+                conn = sqlite3.connect('dbs/greetings.db', \
+                        isolation_level=None)
+                conn.text_factory = str
+                db = conn.cursor()
+                reply = db.execute(\
+                        "SELECT greeting FROM greetings WHERE nick=?", \
+                        [name]).fetchall()
+                if len(reply) > 0:
+                    db.close()
+                    return sendMsg(None, 'I already greet ' + name + ' \
+                            with, ' + reply[0][0])
                 else:
-                    return sendMsg(None, 'I only greet GODS, so..')
+                    db.execute("INSERT INTO greetings (nick, greeting) \
+                            VALUES (?, ?)", \
+                            [name, msg])
+                    db.close()
+                    return sendMsg(None, 'will do')
     if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", don't greet "
         message = parsed['event_msg']
