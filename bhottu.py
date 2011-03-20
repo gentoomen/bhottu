@@ -44,7 +44,7 @@ from utils import log_raw, log, unescape # is this really necessary?
 
 #ENABLED modules/functions separated with comma
 core_modules = [SetChannel, SetVhost, SetNick, SetUser, Pong]
-basic_modules = [quitNow, userKick, userMode, echoMsg, shoutMsg, helpSystem]
+basic_modules = [quitNow, userKick, userMode, echoMsg, shoutMsg, helpSystem, FloodControl]
 addon_modules = [
         nickPlus,
         queryNick,

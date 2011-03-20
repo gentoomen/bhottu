@@ -24,6 +24,7 @@ from utils import *
 # never used
 
 flood_time = ""
+flood_counter = 0
 #### Core Modules ####
 
 def quitNow(parsed):
@@ -102,21 +103,26 @@ def shoutMsg(parsed):
 
 def FloodControl(parsed):
     """Flood control for channel"""
-    global flood_time
+    global flood_time, flood_counter
     mode = '+m'
-    if flood_time == parsed['event_timestamp']:
-        flood_counter = flood_counter + 1
-    else:
-        flood_time = parsed['event_timestamp']
-        flood_counter = 0
+    print flood_counter
+    if 'event_target' in parsed:
+        if flood_time == parsed['event_timestamp']:
+            flood_counter = flood_counter + 1
+        else:
+            flood_time = parsed['event_timestamp']
+            flood_counter = 0
 
-    if flood_counter > 5:
-        return_list = []
-        return_list.append(sendMsg(None, "Pool's closed."))
-        return_list.append('MODE %s %s \r\n' % (CHANNEL, mode))
-        return return_list
+        if flood_counter > 5:
+            return_list = []
+            return_list.append(sendMsg(None, "Pool's closed."))
+            return_list.append('MODE %s %s \r\n' % (CHANNEL, mode))
+            return return_list
+        else:
+            return None
     else:
         return None
+
 def helpSystem(parsed):
     """Simple help system."""
     funcnames = {
