@@ -416,7 +416,6 @@ def projectWiz(parsed):
             else:
                 return sendMsg(None, 'Proper syntax, learn it!')
 
-
 def quoteIt(parsed):
     if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
@@ -425,9 +424,12 @@ def quoteIt(parsed):
             message = message.split(combostring)[1]
             quotation = message
             log('quoteIt(): Trying to insert quote: ' + quotation)
+            name = message.split('>')[0].replace('<', '')
+			event_nick = parsed ['event_nick']
+			if event_nick = NICK
+				return sendMsg (event_nick+", you just got cockblocked.")
             conn = sqlite3.connect('dbs/quotes.db', isolation_level=None)
             db = conn.cursor()
-            name = message.split('>')[0].replace('<', '')
             db.execute("INSERT INTO quote (name, quotation) VALUES (?, ?)", \
                     [name, quotation])
             conn.close()
