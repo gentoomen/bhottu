@@ -426,7 +426,7 @@ def quoteIt(parsed):
             log('quoteIt(): Trying to insert quote: ' + quotation)
             name = message.split('>')[0].replace('<', '')
             if parsed['event_nick'] == name:
-                return sendMsg(event_nick, "you just got cockblocked.")
+                return sendMsg(parsed['event_nick'], "you just got cockblocked.")
             conn = sqlite3.connect('dbs/quotes.db', isolation_level=None)
             db = conn.cursor()
             db.execute("INSERT INTO quote (name, quotation) VALUES (?, ?)", \
