@@ -491,11 +491,11 @@ def hackerJargons(parsed):
 
                     out[2] = out[2].replace('   ', '').replace('\r', '')
                     j_list = out[2].split('\n')
-                    return_list.append(sendMsg(None, out[0] + ', ' + out[1] \
+                    return_list.append(sendPM(parsed['event_nick'], out[0] + ', ' + out[1] \
                             + ' : '))
                     for r in j_list:
                         if len(r) > 0:
-                            return_list.append(sendMsg(None, r))
+                            return_list.append(sendPM(parsed['event_nick'], r))
                 db.close()
                 return return_list
 
