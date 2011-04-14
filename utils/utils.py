@@ -41,7 +41,7 @@ def sendMsg(unick, message):
 
 
 def sendPM(unick, message):
-    return'PRIVMSG ' + str(unick) + ' :' + str(message) + '\r\n'
+    return 'PRIVMSG ' + str(unick) + ' :' + str(message) + '\r\n'
 
 
 def authUser(unick):
