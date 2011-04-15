@@ -65,7 +65,7 @@ def dbInit():
     conn = sqlite3.connect('dbs/reply.db', isolation_level=None)
     db = conn.cursor()
     db.execute('''create table if not exists replies \
-            (trigger text, reply text)''')
+            (trigger text, reply text, usageCount integer)''')
     conn.commit()
     conn.close()
     ##lines
@@ -519,9 +519,9 @@ def trigReply(parsed):
         conn = sqlite3.connect('dbs/reply.db', isolation_level=None)
         conn.text_factory = str
         db = conn.cursor()
-        db.execute("INSERT INTO replies (trigger, reply) VALUES \
-                (?, ?)", \
-                [trigger, reply])
+        db.execute("INSERT INTO replies (trigger, reply, usageCount) VALUES \
+                (?, ?, ?)", \
+                [trigger, reply, 0])
         db.close()
         return sendMsg(None, 'Trigger added')
 
@@ -591,13 +591,24 @@ def trigReply(parsed):
             conn = sqlite3.connect('dbs/reply.db', isolation_level=None)
             conn.text_factory = str
             db = conn.cursor()
-            reply = db.execute("SELECT reply FROM replies WHERE trigger=? ORDER \
-                    BY RANDOM() LIMIT 1", \
+            reply = db.execute('SELECT ROWID, reply, usageCount FROM replies WHERE trigger=? ORDER \
+                    BY RANDOM() LIMIT 1', \
                     [message]).fetchall()
             if len(reply) > 0:
-                db.close()
-                that_was = '"' + reply[0][0] + '" triggered by "' + message + '"'
-                return sendMsg(None, replaceVar(reply[0][0], parsed))
+                rowid = int(reply[0][0])
+                usage = int(reply[0][2])
+                if random.randrange(max(usage ** 2, 1)) == 0:
+                    usage = usage + 1
+                    if usage >= 10:
+                        log('trigReply/outputReply(): deleting old reply "' + reply[0][1] + "'")
+                        db.execute('DELETE FROM replies WHERE ROWID = ?', [rowid])
+                    else:
+                        db.execute('UPDATE replies SET usageCount = ? WHERE ROWID = ?', [usage, rowid])
+                    db.close()
+                    that_was = '"' + reply[0][1] + '" triggered by "' + message + '"'
+                    return sendMsg(None, replaceVar(reply[0][1], parsed))
+                else:
+                    db.close()
             else:
                 db.close()
                 return
