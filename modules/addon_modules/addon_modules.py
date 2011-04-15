@@ -531,6 +531,7 @@ def trigReply(parsed):
         #if authUser(parsed['event_nick']) == True:
         parts = message.replace(combostring, '')
         parts = parts.split(' to ')
+        if len(parts) != 2: return sendMsg(None, 'Syntax, learn it.')
         replacement = parts[0]
         var = parts[1].upper().replace('$', '')
         conn = sqlite3.connect('dbs/vars.db', isolation_level=None)
