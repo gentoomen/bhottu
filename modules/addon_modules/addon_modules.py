@@ -909,6 +909,7 @@ def Commits(parsed):
         item_list = []  # we append all msg for all repos
         for repo in repos:
             item_index = 0
+            first_item = ""
             try:
                 feed = feedparser.parse(repo[1])
             except:
