@@ -1247,6 +1247,8 @@ def Roulette(parsed):
         if parsed['event_msg'] == 'roulette':
             if random.randrange(0, 6) == 5:
                 return('KICK %s %s :%s \r\n' % (CHANNEL, parsed['event_nick'], 'CONGRATULATIONS, YOU WON THE GRAND PRIZE!'))
+            elif parsed['event_nick'] == 'learningcode':
+                return('KICK %s %s :%s \r\n' % (CHANNEL, parsed['event_nick'], 'TOUHOU<333 ;3 KAWAII'))
             else:
                 return sendMsg(None, "You get to live for now")
 """
