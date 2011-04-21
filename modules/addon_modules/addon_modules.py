@@ -237,11 +237,11 @@ def outputTitle(parsed):
             if authUser(parsed['event_nick']) == True:
                 domain = parsed['event_msg'].replace(combostring, '').strip()
                 log('outputTitle(): Domain is ' + domain)
-                derp = dbQuery('SELECT domain FROM blacklist WHERE domain=%s', [domain])
+                derp = dbQuery('SELECT domain FROM blacklists WHERE domain=%s', [domain])
                 if len(derp) > 0:
                     return sendMsg(None, 'domain already blacklisted')
                 else:
-                    dbExecute('INSERT INTO blacklist (domain) VALUES (%s)', [domain])
+                    dbExecute('INSERT INTO blacklists (domain) VALUES (%s)', [domain])
                     return sendMsg(None, domain + ' blacklisted')
 
     if parsed['event'] == 'PRIVMSG':
@@ -258,7 +258,7 @@ def outputTitle(parsed):
             domain = url.strip('http://').strip('https://').split('/', 1)[0]
             log('outputTitle(): Domain: ' + domain)
             dupe_url = dbQuery('SELECT url, title FROM urls WHERE url=%s LIMIT 1', [url])
-            blacklist = dbQuery('SELECT domain FROM blacklist WHERE domain=%s', [domain])
+            blacklist = dbQuery('SELECT domain FROM blacklists WHERE domain=%s', [domain])
             if len(dupe_url) > 0:
                 log('outputTitle(): Found dupe from DB: ' + url)
                 if len(blacklist) > 0:
