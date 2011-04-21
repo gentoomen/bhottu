@@ -113,7 +113,7 @@ def FloodControl(parsed):
             flood_time = parsed['event_timestamp']
             flood_counter = 0
 
-        if flood_counter > 5:
+        if flood_counter > 3:
             return_list = []
             return_list.append(sendMsg(None, "Pool's closed."))
             return_list.append('MODE %s %s \r\n' % (CHANNEL, mode))
