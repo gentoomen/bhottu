@@ -118,7 +118,7 @@ def dbInit():
               urlID int auto_increment primary key,
               url varchar(255),
               title text,
-              time int )''')
+              unique(url) )''')
     dbExecute('''create table if not exists blacklists (
               blacklistID int auto_increment primary key,
               domain varchar(255),
@@ -297,8 +297,8 @@ def outputTitle(parsed):
                     log('outputTitle(): Failed to fetch url ' + url + ' reason: ' + str(error))
                     return sendMsg(None, 'Failed to fetch url, reason '+ str(error))
 
-                dbExecute('INSERT INTO urls (url, title, time) VALUES (%s, %s, %s)', \
-                        [url, title, int(time.time())])
+                dbExecute('INSERT INTO urls (url, title) VALUES (%s, %s)', \
+                        [url, title])
                 if len(blacklist) > 0:
                     log('outputTitle(): Domain is blacklisted, \
                         will not output title')
