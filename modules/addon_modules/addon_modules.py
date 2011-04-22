@@ -937,7 +937,7 @@ def Poll(parsed):
                         voters = ' '.join(voters)
                     else:
                         voters = nick
-                    item = dbQuery('SELECT itemID, votes FROM items WHERE pollID=%s AND item_index=%d', [pollID, args[0]])[0]
+                    item = dbQuery('SELECT itemID, votes FROM items WHERE pollID=%s AND item_index=%s', [pollID, args[0]])[0]
                     nr_votes = int(item[1])
                     dbExecute("UPDATE items SET votes=%s WHERE itemID=%s", [nr_votes+1, int(item[0])])
                     dbExecute("UPDATE polls SET voters=%s WHERE pollID=%s", [voters, pollID])
