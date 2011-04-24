@@ -2,9 +2,9 @@
 #filename: ./config.py
 
 #Connection options
-SERVER = 'irc.rizon.net'
+SERVER = 'irc.lolipower.org'
 PORT = 6667
-NICK ='bhottu'
+NICK ='bhottutestan'
 REALNAME = 'bhottu'
 IDENT = 'bhottu'
 CHANNEL = '#/g/sicp_area51'
@@ -19,3 +19,9 @@ RAW_LOGGING = True
 LOG_TO_STDOUT = True
 LOG_TO_FILE = False
 LOG_FILE = 'bhottu_log'
+
+#Database connection
+DB_HOSTNAME = 'localhost'
+DB_USERNAME = 'root'
+DB_PASSWORD = 'slaska66'
+DB_DATABASE = 'bhottu'
