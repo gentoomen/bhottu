@@ -2,7 +2,7 @@
 #filename: ./config.py
 
 #Connection options
-SERVER = 'irc.rizon.net'
+SERVER = 'irc.lolipower.org'
 PORT = 6667
 NICK ='SICPBot'
 REALNAME = 'bhottu'

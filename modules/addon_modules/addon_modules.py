@@ -18,6 +18,7 @@
 from config import *
 from utils import *
 
+import subprocess
 import os
 import re
 import random
@@ -962,7 +963,7 @@ def Poll(parsed):
                         voters = ' '.join(voters)
                     else:
                         voters = nick
-                    item = dbQuery('SELECT itemID, votes FROM items WHERE pollID=%s AND item_index=%d', [pollID, args[0]])[0]
+                    item = dbQuery('SELECT itemID, votes FROM items WHERE pollID=%s AND item_index=%s', [pollID, args[0]])[0]
                     nr_votes = int(item[1])
                     dbExecute("UPDATE items SET votes=%s WHERE itemID=%s", [nr_votes+1, int(item[0])])
                     dbExecute("UPDATE polls SET voters=%s WHERE pollID=%s", [voters, pollID])
@@ -1098,10 +1099,15 @@ def Roulette(parsed):
         if parsed['event_msg'] == 'roulette':
             if random.randrange(0, 6) == 5:
                 return('KICK %s %s :%s \r\n' % (CHANNEL, parsed['event_nick'], 'CONGRATULATIONS, YOU WON THE GRAND PRIZE!'))
-            elif parsed['event_nick'] == 'learningcode':
-                return('KICK %s %s :%s \r\n' % (CHANNEL, parsed['event_nick'], 'CONGRATULATIONS, YOU WON THE GRAND PRIZE!'))
             else:
-                return sendMsg(None, "You get to live for now")
+                return sendMsg(None, "You get to live for now.")
+                
+def Load(parsed):
+    if parsed['event'] == 'PRIVMSG':
+        if parsed['event_msg'] == NICK+', load average':
+            load = os.popen('cat /proc/loadavg').read()
+            return sendMsg(None, '%s' % (load))
+        
 """
 def Clo(parsed):
 
