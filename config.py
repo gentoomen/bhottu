@@ -4,12 +4,12 @@
 #Connection options
 SERVER = 'irc.rizon.net'
 PORT = 6667
-NICK ='bhottu'
+NICK ='SICPBot'
 REALNAME = 'bhottu'
 IDENT = 'bhottu'
-CHANNEL = '#/g/sicp_area51'
+CHANNEL = '#/g/sicp'
 MODE = 0 #This is a bitmask for user mode
-VHOST = False
+VHOST = True
 NICK_PASS = ''
 #Authed users
 GODS = []
@@ -19,3 +19,9 @@ RAW_LOGGING = True
 LOG_TO_STDOUT = True
 LOG_TO_FILE = False
 LOG_FILE = 'bhottu_log'
+
+#Database connection
+DB_HOSTNAME = ''
+DB_USERNAME = ''
+DB_PASSWORD = ''
+DB_DATABASE = ''
