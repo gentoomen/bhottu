@@ -18,6 +18,7 @@
 from config import *
 from utils import *
 
+import subprocess
 import os
 import re
 import random
@@ -1073,10 +1074,15 @@ def Roulette(parsed):
         if parsed['event_msg'] == 'roulette':
             if random.randrange(0, 6) == 5:
                 return('KICK %s %s :%s \r\n' % (CHANNEL, parsed['event_nick'], 'CONGRATULATIONS, YOU WON THE GRAND PRIZE!'))
-            elif parsed['event_nick'] == 'learningcode':
-                return('KICK %s %s :%s \r\n' % (CHANNEL, parsed['event_nick'], 'CONGRATULATIONS, YOU WON THE GRAND PRIZE!'))
             else:
-                return sendMsg(None, "You get to live for now")
+                return sendMsg(None, "You get to live for now.")
+                
+def Load(parsed):
+    if parsed['event'] == 'PRIVMSG':
+        if parsed['event_msg'] == NICK+', load average':
+            load = os.popen('cat /proc/loadavg').read()
+            return sendMsg(None, '%s' % (load))
+        
 """
 def Clo(parsed):
 
