@@ -237,7 +237,7 @@ def outputTitle(parsed):
         if combostring in parsed['event_msg']:
             if authUser(parsed['event_nick']) == True:
                 domain = parsed['event_msg'].replace(combostring, '').strip()
-                if len(domain) == 1:
+                if len(domain) < 3:
                     derp = dbQuery('SELECT * FROM blacklists')
                     return_list = []
                     for row in derp:
