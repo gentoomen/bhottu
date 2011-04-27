@@ -246,7 +246,7 @@ def outputTitle(parsed):
                     f = open('./blacklist','w')
                     f.write(return_list)
                     f.close()
-                    url = os.popen('./ompload quotelist')
+                    url = os.popen('./ompload blacklist')
                     return sendMsg(None, url.read())
                 log('outputTitle(): Domain is ' + domain)
                 derp = dbQuery('SELECT domain FROM blacklists WHERE domain=%s', [domain])
@@ -1101,13 +1101,13 @@ def Roulette(parsed):
                 return('KICK %s %s :%s \r\n' % (CHANNEL, parsed['event_nick'], 'CONGRATULATIONS, YOU WON THE GRAND PRIZE!'))
             else:
                 return sendMsg(None, "You get to live for now.")
-                
+
 def Load(parsed):
     if parsed['event'] == 'PRIVMSG':
         if parsed['event_msg'] == NICK+', load average':
             load = os.popen('cat /proc/loadavg').read()
             return sendMsg(None, '%s' % (load))
-        
+
 """
 def Clo(parsed):
 
