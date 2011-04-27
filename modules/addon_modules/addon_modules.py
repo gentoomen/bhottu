@@ -280,7 +280,7 @@ def outputTitle(parsed):
                 url = umessage.group(0)
             log('outputTitle(): Url seen on chan: ' + url)
             domain = url.strip('http://').strip('https://').split('/', 1)[0].split('.')#[0]
-            if len(domain) > 1: domain = ".".join(domain[-2:]
+            if len(domain) > 1: domain = ".".join(domain[-2:])
             else: domain = domain[0] #Someone broke the internet
             log('outputTitle(): Domain: ' + domain)
             dupe_url = dbQuery('SELECT url, title FROM urls WHERE url=%s LIMIT 1', [url])
