@@ -263,7 +263,7 @@ def outputTitle(parsed):
                 domain = parsed['event_msg'].replace(combostring, '').strip()
                 if len(domain) == 0: return sendMsg(None, 'The whole list? Yeah right..')
                 try:
-                    dbExecute('DELETE FROM projects WHERE name=%s', [domain])
+                    dbExecute('DELETE FROM blacklists WHERE name=%s', [domain])
                     return sendMsg(None, 'domain removed from blacklist')
                 except:
                     return sendMsg(None, 'nope that didnt work')
