@@ -241,7 +241,7 @@ def outputTitle(parsed):
                     derp = dbQuery('SELECT * FROM blacklists')
                     return_list = []
                     for row in derp:
-                        return_list.append(row[0])
+                        return_list.append(row[1])
                     return_list = "\n".join(return_list)
                     f = open('./blacklist','w')
                     f.write(return_list)
