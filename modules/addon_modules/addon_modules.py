@@ -237,6 +237,17 @@ def outputTitle(parsed):
         if combostring in parsed['event_msg']:
             if authUser(parsed['event_nick']) == True:
                 domain = parsed['event_msg'].replace(combostring, '').strip()
+                if len(domain) == 1:
+                    derp = dbQuery('SELECT * FROM blacklists')
+                    return_list = []
+                    for row in derp:
+                        return_list.append(row[0])
+                    return_list = "\n".join(return_list)
+                    f = open('./blacklist','w')
+                    f.write(return_list)
+                    f.close()
+                    url = os.popen('./ompload blacklist')
+                    return sendMsg(None, url.read())
                 log('outputTitle(): Domain is ' + domain)
                 derp = dbQuery('SELECT domain FROM blacklists WHERE domain=%s', [domain])
                 if len(derp) > 0:
@@ -244,6 +255,18 @@ def outputTitle(parsed):
                 else:
                     dbExecute('INSERT INTO blacklists (domain) VALUES (%s)', [domain])
                     return sendMsg(None, domain + ' blacklisted')
+
+    if parsed['event'] == 'PRIVMSG':
+        combostring = NICK + ", remove blacklist"
+        if combostring in parsed['event_msg']:
+            if authUser(parsed['event_nick']) == True:
+                domain = parsed['event_msg'].replace(combostring, '').strip()
+                if len(domain) == 0: return sendMsg(None, 'The whole list? Yeah right..')
+                try:
+                    dbExecute('DELETE FROM projects WHERE name=%s', [domain])
+                    return sendMsg(None, 'domain removed from blacklist')
+                except:
+                    return sendMsg(None, 'nope that didnt work')
 
     if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
@@ -256,7 +279,9 @@ def outputTitle(parsed):
             else:
                 url = umessage.group(0)
             log('outputTitle(): Url seen on chan: ' + url)
-            domain = url.strip('http://').strip('https://').split('/', 1)[0]
+            domain = url.strip('http://').strip('https://').split('/', 1)[0].split('.')#[0]
+            if len(domain) > 1: domain = ".".join(domain[-2:]
+            else: domain = domain[0] #Someone broke the internet
             log('outputTitle(): Domain: ' + domain)
             dupe_url = dbQuery('SELECT url, title FROM urls WHERE url=%s LIMIT 1', [url])
             blacklist = dbQuery('SELECT domain FROM blacklists WHERE domain=%s', [domain])
@@ -1076,13 +1101,13 @@ def Roulette(parsed):
                 return('KICK %s %s :%s \r\n' % (CHANNEL, parsed['event_nick'], 'CONGRATULATIONS, YOU WON THE GRAND PRIZE!'))
             else:
                 return sendMsg(None, "You get to live for now.")
-                
+
 def Load(parsed):
     if parsed['event'] == 'PRIVMSG':
         if parsed['event_msg'] == NICK+', load average':
             load = os.popen('cat /proc/loadavg').read()
             return sendMsg(None, '%s' % (load))
-        
+
 """
 def Clo(parsed):
 
