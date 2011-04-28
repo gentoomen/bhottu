@@ -62,7 +62,8 @@ addon_modules = [
         Poll,
         Statistics,
         Roulette,
-        Load
+        Load,
+	Interjection
         ]
 #our socket
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
