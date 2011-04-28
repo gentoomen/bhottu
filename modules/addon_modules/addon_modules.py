@@ -1108,6 +1108,12 @@ def Load(parsed):
             load = os.popen('cat /proc/loadavg').read()
             return sendMsg(None, '%s' % (load))
 
+def Interjection(parsed):
+    if parsed['event'] == 'PRIVMSG':
+        if re.search('linux(?!\w)', parsed['event_msg'], re.IGNORECASE):
+            return sendMsg(None, "I would just like to interject for a moment, what you know as Linux is in fact, GNU/Linux or as I have taken to calling it, Unity.")
+
+
 """
 def Clo(parsed):
 
