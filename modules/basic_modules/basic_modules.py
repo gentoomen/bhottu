@@ -87,8 +87,11 @@ def echoMsg(parsed):
         if message.startswith(combostring):
             #if authUser(nick) == True:
             saying = message.replace(combostring, '')
-            return sendMsg(None, saying)
-
+            if message.startswith('.') and authUser(nick) == False:
+                saying = message.replace('.', '')
+                return sendMsg(None, saying)
+            else:
+	        return sendMsg(None, saying)
 
 def shoutMsg(parsed):
     """Shout given text."""
