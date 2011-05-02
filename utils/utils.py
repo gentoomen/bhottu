@@ -29,6 +29,19 @@ def log_raw(msg):
         for m in msg.splitlines():
             print('[' + time.strftime("%Y-%m-%dT%H:%M:%SZ", \
                     time.gmtime()) + '] [RAW] ' + m)
+					
+def sanitizeMsg(msg):
+	# forbid messages that will make the bot do things we don't want to it to
+	# this includes CTCP, DCC et cetera.
+	
+	# create a range of disallowed characters, which are ASCII/Unicode numbers 1 'til 0x19 
+	numbers = range(1, 0x19);
+	# with the exception of 3, which is used for colour codes
+	numbers.remove(3);
+	disallowed_chars = [chr(i) for i in numbers];
+	
+	# strip them out of the message
+	return msg.strip(''.join(disallowed_chars));
 
 
 def sendMsg(unick, message):
