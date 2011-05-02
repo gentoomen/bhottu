@@ -91,7 +91,7 @@ def Parse(incoming):
             index += 1
             continue
     if len(tmp_vars) > 1:
-        parsed['event_msg'] = sanitizeMsg(tmp_vars[1])
+        parsed['event_msg'] = tmp_vars[1]
         cmd_vars = tmp_vars[0].split()
         if cmd_vars[0] == 'PING':
             parsed['event'] = 'PING'

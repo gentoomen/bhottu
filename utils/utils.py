@@ -44,13 +44,19 @@ def sanitizeMsg(msg):
 	return msg.strip(''.join(disallowed_chars));
 
 
-def sendMsg(unick, message):
+def sendMsg(unick, message, sanitize = True):
     if unick:
         unick += ', '
     else:
         unick = ''
-    return 'PRIVMSG ' + str(CHANNEL) + ' :' + str(unick) + str(message) + \
-            '\r\n'
+	
+	if(sanitize):
+		message = sanitizeMsg(str(message));
+	else:
+		message = str(message);
+		
+	return 'PRIVMSG ' + str(CHANNEL) + ' :' + str(unick) + message + \
+			'\r\n'
 
 
 def sendPM(unick, message):
