@@ -88,7 +88,7 @@ def echoMsg(parsed):
             #if authUser(nick) == True:
             saying = message.replace(combostring, '')
             if saying.startswith('.') and authUser(nick) == False:
-                saying = message.replace('.', '', 1)
+                saying = saying.replace('.', '', 1)
             return sendMsg(None, saying)
 
 def shoutMsg(parsed):
@@ -101,7 +101,7 @@ def shoutMsg(parsed):
             saying = message.replace(combostring, '').upper()
             #if authUser(nick) == True:
             if saying.startswith('.') and authUser(nick) == False:
-                saying = message.replace('.', '', 1)
+                saying = saying.replace('.', '', 1)
             return sendMsg(None, "" + saying)
 
 def FloodControl(parsed):
