@@ -30,12 +30,20 @@ def log_raw(msg):
             print('[' + time.strftime("%Y-%m-%dT%H:%M:%SZ", \
                     time.gmtime()) + '] [RAW] ' + m)
 					
+def triggerTest(msg,trig):
+    if msg.startswith(NICK+", "+msg):
+        return True
+    elif msg.startswith(NICK+": "+msg):
+        return True
+    else:
+        return False
+
 def sanitizeMsg(msg):
 	# forbid messages that will make the bot do things we don't want to it to
 	# this includes CTCP, DCC et cetera.
 	
 	# create a range of disallowed characters, which are ASCII/Unicode numbers 1 'til 0x19 
-	numbers = range(1, 0x19);
+	numbers = range(1, 32);
 	# allowed characters
 	numbers.remove(2)	# Bold
 	numbers.remove(3)	# Colour
