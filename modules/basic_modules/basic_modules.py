@@ -87,8 +87,9 @@ def echoMsg(parsed):
         if message.startswith(combostring):
             #if authUser(nick) == True:
             saying = message.replace(combostring, '')
+            if message.startswith('.') and authUser(nick) == False:
+                saying = message.replace('.', '')
             return sendMsg(None, saying)
-
 
 def shoutMsg(parsed):
     """Shout given text."""
@@ -97,8 +98,10 @@ def shoutMsg(parsed):
         nick = parsed['event_nick']
         combostring = NICK + ", shout "
         if message.startswith(combostring):
-            #if authUser(nick) == True:
             saying = message.replace(combostring, '').upper()
+            #if authUser(nick) == True:
+            if message.startswith('.') and authUser(nick) == False:
+                saying = message.replace('.', '')
             return sendMsg(None, "" + saying)
 
 def FloodControl(parsed):
