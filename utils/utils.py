@@ -36,8 +36,13 @@ def sanitizeMsg(msg):
 	
 	# create a range of disallowed characters, which are ASCII/Unicode numbers 1 'til 0x19 
 	numbers = range(1, 0x19);
-	# with the exception of 3, which is used for colour codes
-	numbers.remove(3);
+	# allowed characters
+	numbers.remove(2)	# Bold
+	numbers.remove(3)	# Colour
+	numbers.remove(15)	# Reset
+	numbers.remove(22)	# Invert
+	numbers.remove(31)	# Underline
+	
 	disallowed_chars = [chr(i) for i in numbers];
 	
 	# strip them out of the message
