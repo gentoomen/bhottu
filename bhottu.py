@@ -40,7 +40,7 @@ from modules.core_modules import *
 from modules.basic_modules import *
 from modules.addon_modules import *
 from config import *
-from utils import log_raw, log, unescape # is this really necessary?
+from utils import log_raw, log, unescape, sanitizeMsg # is unescape really necessary?
 
 #ENABLED modules/functions separated with comma
 core_modules = [SetChannel, SetVhost, SetNick, SetUser, Pong]
@@ -91,7 +91,7 @@ def Parse(incoming):
             index += 1
             continue
     if len(tmp_vars) > 1:
-        parsed['event_msg'] = tmp_vars[1]
+        parsed['event_msg'] = sanitizeMsg(tmp_vars[1])
         cmd_vars = tmp_vars[0].split()
         if cmd_vars[0] == 'PING':
             parsed['event'] = 'PING'
