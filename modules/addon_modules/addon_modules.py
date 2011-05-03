@@ -704,6 +704,7 @@ def Greeting(parsed):
             reply = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [name])
             if len(reply) > 0:
                 print reply[0][0]
+                print name
                 print sendMsg(None, reply[0][0])
                 time.sleep(2)
                 return sendMsg(name, reply[0][0])
