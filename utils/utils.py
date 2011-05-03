@@ -58,20 +58,15 @@ def sanitizeMsg(msg):
 
 
 def sendMsg(unick, message, sanitize = True):
-    print unick
+
     if unick:
         unick += ', '
     else:
         unick = ''
 
-	if(sanitize):
-		message = sanitizeMsg(str(message));
-	else:
-		message = str(message);
+    if(sanitize): message = sanitizeMsg(str(message));
 
-	return 'PRIVMSG ' + str(CHANNEL) + ' :' + str(unick) + message + \
-			'\r\n'
-
+    return 'PRIVMSG ' + str(CHANNEL) + ' :' + str(unick) + str(message) + '\r\n'
 
 def sendPM(unick, message):
     return 'PRIVMSG ' + str(unick) + ' :' + str(message) + '\r\n'
