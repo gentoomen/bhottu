@@ -316,7 +316,7 @@ def outputTitle(parsed):
                     else:
                         title = response.info().gettype()
                     #print title
-                except urllib2.URLError, e:
+                except Exception as e:
                     if hasattr(e, 'reason'): error = e.reason
                     elif hasattr(e, 'code'): error = e.code
                     else: error = 'beyond who the fuck knows'
