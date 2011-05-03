@@ -705,6 +705,8 @@ def Greeting(parsed):
             if len(reply) > 0:
                 print reply[0][0]
                 print name
+                print sendMsg('herp', reply[0][0])
+                print sendMsg(name, reply[0][0])
                 print sendMsg(None, reply[0][0])
                 time.sleep(2)
                 return sendMsg(name, reply[0][0])
