@@ -694,6 +694,7 @@ def Greeting(parsed):
         name = parsed['event_nick']
         reply = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [name])
         if len(reply) > 0:
+            print reply
             time.sleep(2)
             return sendMsg(name, reply[0][0])
     if parsed['event'] == 'NICK':
@@ -701,6 +702,7 @@ def Greeting(parsed):
             name = parsed['event_msg']
             reply = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [name])
             if len(reply) > 0:
+                print reply
                 time.sleep(2)
                 return sendMsg(name, reply[0][0])
 
