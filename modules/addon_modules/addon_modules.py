@@ -279,7 +279,7 @@ def outputTitle(parsed):
             else:
                 url = umessage.group(0)
             log('outputTitle(): Url seen on chan: ' + url)
-            domain = url.strip('http://').strip('https://').split('/', 1)[0].split('.')#[0]
+            domain = url.replace('http://','').replace('https://','').split('/', 1)[0].split('.')#[0]
             if len(domain) > 1: domain = ".".join(domain[-2:])
             else: domain = domain[0] #Someone broke the internet
             log('outputTitle(): Domain: ' + domain)
