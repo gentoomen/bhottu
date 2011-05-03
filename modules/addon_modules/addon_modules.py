@@ -694,17 +694,17 @@ def Greeting(parsed):
         name = parsed['event_nick']
         reply = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [name])
         if len(reply) > 0:
-            print reply
+            print reply[0][0]
             time.sleep(2)
-            return sendMsg(name, reply[0][0])
+            return sendMsg(name, reply[0][0], False)
     if parsed['event'] == 'NICK':
         if authUser(parsed['event_msg']) == True:
             name = parsed['event_msg']
             reply = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [name])
             if len(reply) > 0:
-                print reply
+                print reply[0][0]
                 time.sleep(2)
-                return sendMsg(name, reply[0][0])
+                return sendMsg(name, reply[0][0], False)
 
 
 def Colors(parsed):
