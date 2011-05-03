@@ -29,7 +29,7 @@ def log_raw(msg):
         for m in msg.splitlines():
             print('[' + time.strftime("%Y-%m-%dT%H:%M:%SZ", \
                     time.gmtime()) + '] [RAW] ' + m)
-					
+
 def triggerTest(msg,trig):
     if msg.startswith(NICK+", "+msg):
         return True
@@ -41,8 +41,8 @@ def triggerTest(msg,trig):
 def sanitizeMsg(msg):
 	# forbid messages that will make the bot do things we don't want to it to
 	# this includes CTCP, DCC et cetera.
-	
-	# create a range of disallowed characters, which are ASCII/Unicode numbers 1 'til 0x19 
+
+	# create a range of disallowed characters, which are ASCII/Unicode numbers 1 'til 0x19
 	numbers = range(1, 32);
 	# allowed characters
 	numbers.remove(2)	# Bold
@@ -50,24 +50,25 @@ def sanitizeMsg(msg):
 	numbers.remove(15)	# Reset
 	numbers.remove(22)	# Invert
 	numbers.remove(31)	# Underline
-	
+
 	disallowed_chars = [chr(i) for i in numbers];
-	
+
 	# strip them out of the message
 	return msg.strip(''.join(disallowed_chars));
 
 
 def sendMsg(unick, message, sanitize = True):
+    print unick
     if unick:
         unick += ', '
     else:
         unick = ''
-	
+
 	if(sanitize):
 		message = sanitizeMsg(str(message));
 	else:
 		message = str(message);
-		
+
 	return 'PRIVMSG ' + str(CHANNEL) + ' :' + str(unick) + message + \
 			'\r\n'
 
