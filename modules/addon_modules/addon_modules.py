@@ -917,7 +917,7 @@ def Poll(parsed):
                 return_list = [] # initializing a list to hold our return messages
                 return_list.append(sendMsg(None, title))
                 for item in items:
-                    return_list.append(sendMsg(None, str(item[1]) + '. ' + str(item[2]) + ' (' + str(item[3]) + ')'))
+                    return_list.append(sendMsg(None, str(item[0]) + '. ' + str(item[1]) + ' (' + str(item[2]) + ')'))
                 return_list.append(sendMsg(None, '0. <item>, Add a new poll item'))
                 return return_list
             elif len(args) > 0:
