@@ -446,7 +446,7 @@ def quoteIt(parsed):
             message = message.split(combostring)[1]
             quotation = message
             log('quoteIt(): Trying to insert quote: ' + quotation)
-            name = message.split('>')[0].replace('<', '')
+            name = message.split('>')[0].replace('<', '').lstrip('~&@%+')
             if parsed['event_nick'] == name:
                 return sendMsg(parsed['event_nick'], "you just got cockblocked.")
             dbExecute('INSERT INTO quote (name, quotation) VALUES (%s, %s)', \
