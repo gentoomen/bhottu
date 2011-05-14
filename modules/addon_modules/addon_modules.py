@@ -997,6 +997,8 @@ def Poll(parsed):
                 return sendMsg(None, 'you need to give me a index nr. of the poll')
             title = dbQuery("SELECT title FROM polls WHERE pollID=%s", [args])
             items = dbQuery("SELECT item_index, item, votes FROM items WHERE pollID=%s ORDER BY votes DESC", [args])
+            if len(title) == 0:
+                return sendMsg(None, 'Poll %s not found.' % args)
             nr_votes = 0
             return_list = []
             for item in items:
