@@ -1,5 +1,3 @@
-from addon_modules import *
-
 from core import Core
 
 from quit import Quit
@@ -22,3 +20,4 @@ from poll import Poll
 from statistics import Statistics
 from roulette import Roulette
 from loadaverage import LoadAverage
+from interjection import Interjection
