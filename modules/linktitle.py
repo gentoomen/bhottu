@@ -1,5 +1,6 @@
 from config import *
 from utils import *
+import os
 import re
 import urllib2
 
