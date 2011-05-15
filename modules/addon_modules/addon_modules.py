@@ -39,13 +39,6 @@ poll_timer = 0
 
 #### DATABASE INITS ####
 def bhottu_init():
-    ##Quotes
-    dbExecute('''create table if not exists quote (
-              quoteID int auto_increment primary key,
-              name varchar(255),
-              quotation text,
-              index(name) )''')
-
     ##Reply
     dbExecute('''create table if not exists replies (
               replyID int auto_increment primary key,
@@ -109,47 +102,6 @@ def bhottu_init():
     # The jargon database structure is missing at the moment, because I do not have it at hand.
 
 #### ADDONS ####
-
-def quoteIt(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        message = parsed['event_msg']
-        combostring = NICK + ", quote "
-        if combostring in message:
-            message = message.split(combostring)[1]
-            quotation = message
-            log('quoteIt(): Trying to insert quote: ' + quotation)
-            name = message.split('>')[0].replace('<', '').lstrip('~&@%+')
-            if parsed['event_nick'] == name:
-                return sendMsg(parsed['event_nick'], "you shouldn't quote your lonely self.")
-            dbExecute('INSERT INTO quote (name, quotation) VALUES (%s, %s)', \
-                [name, quotation])
-            return sendMsg(None, "Quote recorded")
-
-
-def echoQuote(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        message = parsed['event_msg']
-        combostring = NICK + ", quotes from "
-        if combostring in message:
-            message = message.split(combostring)[1]
-            quotie = dbQuery('SELECT quotation FROM quote WHERE name=%s ORDER BY RAND() LIMIT 1', [message])
-            return_list = []
-            for row in quotie:
-                return_list.append(sendMsg(None, "%s" % (row[0])))
-            return return_list
-        # This is for returning an entire list of somoene's quotes from the DB via omploader
-        elif message.startswith(NICK + ", quotes[*] from "):
-           message = message.split(NICK + ", quotes[*] from ")[1]
-           quotie = dbQuery('SELECT quotation FROM quote WHERE name=%s ORDER BY RAND() LIMIT 1', [message])
-           return_list = []
-           for row in quotie:
-               return_list.append(row[0])
-           return_list = "\n".join(return_list)
-           f = open('./quotelist','w')
-           f.write(return_list)
-           f.close()
-           url = os.popen('./ompload quotelist')
-           return sendMsg(None, url.read())
 
 def hackerJargons(parsed):
     if parsed['event'] == 'PRIVMSG':

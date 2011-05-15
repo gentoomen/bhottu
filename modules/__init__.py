@@ -11,3 +11,4 @@ from floodcontrol import FloodControl
 from nickscore import NickScore
 from linktitle import LinkTitle
 from projectwiz import ProjectWiz
+from quotes import Quotes
