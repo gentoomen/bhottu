@@ -41,7 +41,7 @@ ENABLED_MODULES = [
     'Quotes',
     'Reply',
     'Spew',
-    'Greeting',
+    'Greetings',
     'Colors',
     'Commits',
     'AutoUpdate',
