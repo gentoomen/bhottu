@@ -1052,7 +1052,7 @@ def Poll(parsed):
 def Statistics(parsed):
     #funcs
     def top10Ever(parsed):
-        reply = dbQuery("SELECT DISTINCT name FROM `lines`")
+        reply = dbQuery("SELECT DISTINCT name FROM `lines` WHERE name<>`learningcode`")
         top10 = []
         for line in reply:
             count = dbQuery("SELECT COUNT(*) FROM `lines` WHERE name=%s",\
