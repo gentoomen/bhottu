@@ -31,8 +31,7 @@ ENABLED_MODULES = [
     
     'Quit',
     'UserManagement',
-    'echoMsg',
-    'shoutMsg',
+    'Echo',
     'helpSystem',
     'FloodControl',
     

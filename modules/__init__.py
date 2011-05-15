@@ -5,3 +5,4 @@ from core import Core
 
 from quit import Quit
 from usermanagement import UserManagement
+from echo import Echo
