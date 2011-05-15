@@ -27,11 +27,7 @@ DB_PASSWORD = ''
 DB_DATABASE = ''
 
 ENABLED_MODULES = [
-    'SetChannel',
-    'SetVhost',
-    'SetNick',
-    'SetUser',
-    'Pong',
+    'Core',
     
     'quitNow',
     'userKick',

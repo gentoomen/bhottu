@@ -85,3 +85,14 @@ def unescape(s):
 #    # this has to be last:
 #    s = s.replace("&amp;", "&")
 #    return s
+
+
+def runModules(message, *modules):
+    output = []
+    for module in modules:
+        result = module(message)
+        if type(result) == list:
+            output.extend(result)
+        elif result != None:
+            output.append(result)
+    return output

@@ -1,28 +1,5 @@
-# -*- coding: UTF-8 -*-
-# ===========================================================================
-#
-#      File Name: core_modules.py
-#
-#  Creation Date:
-#  Last Modified: Sat 05 Feb 2011 05:46:28 PM CET
-#
-#         Author: gentoomen
-#
-#    Description:
-""" core modules for bhottu
-"""
-# ===========================================================================
-# Copyright (c) gentoomen
-
 from config import *
 from utils import *
-#import os
-# never used
-#import string
-# never used
-#import time
-# never used
-
 
 def SetUser(parsed):
     if parsed['event'] == '439':
@@ -60,3 +37,7 @@ def Pong(parsed):
     if parsed['event'] == 'PING':
         log('Pong(): PONG')
         return'PONG :' + parsed['event_msg'] + '\r\n'
+
+
+def Core(parsed):
+    return runModules(parsed, SetUser, SetNick, SetVhost, SetChannel, Pong)
