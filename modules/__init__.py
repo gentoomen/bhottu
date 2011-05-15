@@ -16,3 +16,4 @@ from reply import Reply
 from spew import Spew
 from greetings import Greetings
 from colors import Colors
+from commits import Commits
