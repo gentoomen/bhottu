@@ -40,7 +40,7 @@ ENABLED_MODULES = [
     'ProjectWiz',
     'Quotes',
     'Reply',
-    'spewContainer',
+    'Spew',
     'Greeting',
     'Colors',
     'Commits',
