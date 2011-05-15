@@ -25,3 +25,37 @@ DB_HOSTNAME = ''
 DB_USERNAME = ''
 DB_PASSWORD = ''
 DB_DATABASE = ''
+
+ENABLED_MODULES = [
+    'SetChannel',
+    'SetVhost',
+    'SetNick',
+    'SetUser',
+    'Pong',
+    
+    'quitNow',
+    'userKick',
+    'userMode',
+    'echoMsg',
+    'shoutMsg',
+    'helpSystem',
+    'FloodControl',
+    
+    'nickPlus',
+    'queryNick',
+    'outputTitle',
+    'projectWiz',
+    'quoteIt',
+    'echoQuote',
+    'hackerJargons',
+    'trigReply',
+    'spewContainer',
+    'Greeting',
+    'Colors',
+    'Commits',
+    'AutoUpdate',
+    'Poll',
+    'Statistics',
+    'Roulette',
+    'Load',
+]

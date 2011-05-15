@@ -42,34 +42,14 @@ from modules.core_modules import *
 from modules.basic_modules import *
 from modules.addon_modules import *
 
-#ENABLED modules/functions separated with comma
-core_modules = [SetChannel, SetVhost, SetNick, SetUser, Pong]
-basic_modules = [quitNow, userKick, userMode, echoMsg, shoutMsg, helpSystem, FloodControl]
-addon_modules = [
-        nickPlus,
-        queryNick,
-        outputTitle,
-        projectWiz,
-        quoteIt,
-        echoQuote,
-        hackerJargons,
-        trigReply,
-        spewContainer,
-        Greeting,
-        Colors,
-        Commits,
-        AutoUpdate,
-        Poll,
-        Statistics,
-        Roulette,
-        Load
-        ]
 #our socket
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #connection retries
 conn_try = 1
 #some compulsory shit
 connected = False
+
+enabled_modules = [globals()[name] for name in ENABLED_MODULES]
 
 #### FUNCTIONS ####
 
@@ -111,10 +91,7 @@ def Parse(incoming):
 
 def moduleHandler(parsed):
     msg_list = []
-    tmp_list = []
-    tmp_list = [f(parsed) for f in core_modules]
-    tmp_list.extend([f(parsed) for f in basic_modules])
-    tmp_list.extend([f(parsed) for f in addon_modules])
+    tmp_list = [f(parsed) for f in enabled_modules]
     for m in tmp_list:
         if m is not None:
             if type(m) == list:
@@ -169,7 +146,6 @@ def Main():
                 for m in moduleHandler(Parse(line)):
                     log_raw('>> ' + m)
                     irc.send(m)
-
 
 #### MAIN ####
 if __name__ == "__main__":
