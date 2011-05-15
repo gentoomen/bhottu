@@ -103,36 +103,6 @@ def bhottu_init():
 
 #### ADDONS ####
 
-def hackerJargons(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        message = parsed['event_msg']
-        main_trigger = NICK + ", jargon"
-        if main_trigger in message:
-            if authUser(parsed['event_nick']) == True:
-
-                trigger = message.replace(main_trigger, '')
-                trigger = trigger.split(None, 1)
-                dbQuery("SELECT * FROM jargons ORDER BY RAND() LIMIT 1")
-                return_list = []
-                for row in jargon:
-                    out = list(row)
-                    out[0] = out[0].encode("utf-8", "replace")
-                    out[1] = out[1].encode("utf-8", "replace")
-                    out[2] = out[2].encode("utf-8", "replace")
-
-                    out[2] = out[2].replace('   ', '').replace('\r', '')
-                    j_list = out[2].split('\n')
-                    return_list.append(sendPM(parsed['event_nick'], out[0] + ', ' + out[1] \
-                            + ' : '))
-                    for r in j_list:
-                        if len(r) > 0:
-                            return_list.append(sendPM(parsed['event_nick'], r))
-                return return_list
-
-
-
-
-
 def trigReply(parsed):
     def newReply(parsed):
         message = parsed['event_msg']
