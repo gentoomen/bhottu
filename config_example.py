@@ -29,7 +29,7 @@ DB_DATABASE = ''
 ENABLED_MODULES = [
     'Core',
     
-    'quitNow',
+    'Quit',
     'userKick',
     'userMode',
     'echoMsg',
