@@ -38,9 +38,7 @@ from time import gmtime, strftime
 
 from config import *
 from utils import *
-from modules.core_modules import *
-from modules.basic_modules import *
-from modules.addon_modules import *
+from modules import *
 
 #our socket
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
