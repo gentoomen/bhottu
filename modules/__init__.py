@@ -9,3 +9,4 @@ from help import Help
 from floodcontrol import FloodControl
 
 from nickscore import NickScore
+from linktitle import LinkTitle

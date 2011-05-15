@@ -36,7 +36,7 @@ ENABLED_MODULES = [
     'FloodControl',
     
     'NickScore',
-    'outputTitle',
+    'LinkTitle',
     'projectWiz',
     'quoteIt',
     'echoQuote',
