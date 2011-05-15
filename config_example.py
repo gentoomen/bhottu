@@ -30,8 +30,7 @@ ENABLED_MODULES = [
     'Core',
     
     'Quit',
-    'userKick',
-    'userMode',
+    'UserManagement',
     'echoMsg',
     'shoutMsg',
     'helpSystem',
