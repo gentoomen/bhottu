@@ -8,7 +8,6 @@ def FloodControl(parsed):
     """Flood control for channel"""
     global flood_time, flood_counter
     mode = '+m'
-    print flood_counter
     if 'event_target' in parsed:
         if flood_time == parsed['event_timestamp']:
             flood_counter = flood_counter + 1
