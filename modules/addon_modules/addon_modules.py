@@ -28,7 +28,6 @@ import urllib2
 import sqlite3
 import feedparser
 import subprocess
-import MySQLdb
 #### VARIABLES ####
 
 that_was = None
@@ -38,34 +37,8 @@ last_repo_check = None
 poll_timestamp = None
 poll_timer = 0
 
-databaseConnection = None
-
 #### DATABASE INITS ####
-def db():
-    global databaseConnection
-    return databaseConnection
-
-def dbQuery(sql, arguments=[]):
-    cursor = db().cursor()
-    cursor.execute(sql, arguments)
-    result = cursor.fetchall()
-    cursor.close()
-    return result
-
-def dbExecute(sql, arguments=[]):
-    cursor = db().cursor()
-    affected = cursor.execute(sql, arguments)
-    cursor.close()
-    return affected
-
 def dbInit():
-    global DB_HOSTNAME
-    global DB_USERNAME
-    global DB_PASSWORD
-    global DB_DATABASE
-    global databaseConnection
-    databaseConnection = MySQLdb.connect(host = DB_HOSTNAME, user = DB_USERNAME, passwd = DB_PASSWORD, db = DB_DATABASE)
-
     ##Projects
     dbExecute('''create table if not exists projects (
               projectID int auto_increment primary key,
@@ -316,7 +289,7 @@ def outputTitle(parsed):
                     else:
                         title = response.info().gettype()
                     #print title
-                except Exception as e:
+                except Exception, e:
                     if hasattr(e, 'reason'): error = e.reason
                     elif hasattr(e, 'code'): error = e.code
                     else: error = 'beyond who the fuck knows'

@@ -36,11 +36,11 @@ import time
 import signal
 from time import gmtime, strftime
 
+from config import *
+from utils import *
 from modules.core_modules import *
 from modules.basic_modules import *
 from modules.addon_modules import *
-from config import *
-from utils import log_raw, log, unescape, sanitizeMsg # is unescape really necessary?
 
 #ENABLED modules/functions separated with comma
 core_modules = [SetChannel, SetVhost, SetNick, SetUser, Pong]
@@ -174,5 +174,6 @@ def Main():
 
 #### MAIN ####
 if __name__ == "__main__":
+    dbConnect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE)
     dbInit()
     Main()
