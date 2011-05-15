@@ -38,7 +38,7 @@ poll_timestamp = None
 poll_timer = 0
 
 #### DATABASE INITS ####
-def dbInit():
+def bhottu_init():
     ##Projects
     dbExecute('''create table if not exists projects (
               projectID int auto_increment primary key,

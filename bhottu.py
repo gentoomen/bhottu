@@ -73,7 +73,6 @@ connected = False
 
 #### FUNCTIONS ####
 
-
 def Parse(incoming):
     parsed = {}
     tmp_vars = []
@@ -175,5 +174,6 @@ def Main():
 #### MAIN ####
 if __name__ == "__main__":
     dbConnect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE)
-    dbInit()
+    for initFunction in set([module.bhottu_init for module in sys.modules.values() if hasattr(module, 'bhottu_init')]):
+        initFunction()
     Main()
