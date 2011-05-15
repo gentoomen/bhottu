@@ -56,8 +56,6 @@ def Poll(parsed):
                 else:
                     pollID = int(poll[0][0])
                     winner = dbQuery("SELECT itemID, pollID, item FROM items WHERE pollID=%s ORDER BY votes DESC", [pollID])
-                    #for debugging
-                    print winner
                     dbExecute("UPDATE polls SET status='CLOSED' WHERE pollID=%s", [pollID])
                     log('Poll(): Open poll closed')
                     poll_timer = 0
@@ -113,9 +111,8 @@ def Poll(parsed):
                     else:
                         return sendMsg(None, "define the new item you camelhump")
                 else:
-                    poll = dbQuery("SELECT pollID, title, status, voters FROM polls WHERE status='OPEN'")[0]
-                    pollID = int(poll[0])
-                    voters = poll[3]
+                    pollID = int(poll[0][0])
+                    voters = poll[0][3]
                     if voters is not None:
                         voters = voters.split()
                         for item in voters:
@@ -126,14 +123,14 @@ def Poll(parsed):
                         voters = ' '.join(voters)
                     else:
                         voters = nick
-                    item = dbQuery('SELECT itemID, votes FROM items WHERE pollID=%s AND item_index=%s', [pollID, args[0]])[0]
-                    nr_votes = int(item[1])
-                    dbExecute("UPDATE items SET votes=%s WHERE itemID=%s", [nr_votes+1, int(item[0])])
+                    item = dbQuery('SELECT itemID, votes FROM items WHERE pollID=%s AND item_index=%s', [pollID, args[0]])
+                    if len(item) == 0:
+                        return sendMsg(None, ">implying item #%s exists" % args[0])
+                    nr_votes = int(item[0][1])
+                    dbExecute("UPDATE items SET votes=%s WHERE itemID=%s", [nr_votes+1, int(item[0][0])])
                     dbExecute("UPDATE polls SET voters=%s WHERE pollID=%s", [voters, pollID])
                     log('Poll(): '+nick+' voted on poll')
                     return sendMsg(None, "Vote casted!!")
-                    #except:
-                    #    return sendMsg(None, "you broke the poll goddam!!!")
             else:
                 return sendMsg(None, "you broke the poll goddam!!!")
         elif message.startswith(trigger_search):
