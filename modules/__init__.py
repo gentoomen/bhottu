@@ -18,3 +18,4 @@ from greetings import Greetings
 from colors import Colors
 from commits import Commits
 from autoupdate import AutoUpdate
+from poll import Poll
