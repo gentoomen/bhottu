@@ -12,3 +12,4 @@ from nickscore import NickScore
 from linktitle import LinkTitle
 from projectwiz import ProjectWiz
 from quotes import Quotes
+from reply import Reply

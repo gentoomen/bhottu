@@ -39,7 +39,7 @@ ENABLED_MODULES = [
     'LinkTitle',
     'ProjectWiz',
     'Quotes',
-    'trigReply',
+    'Reply',
     'spewContainer',
     'Greeting',
     'Colors',
