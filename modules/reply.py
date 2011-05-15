@@ -12,6 +12,11 @@ def bhottu_init():
               reply varchar(255),
               usageCount int,
               index(`trigger`) )''')
+    dbExecute('''create table if not exists vars (
+              varID int auto_increment primary key,
+              var varchar(255),
+              replacement varchar(255),
+              index(var) )''')
 
 def Reply(parsed):
     def newReply(parsed):

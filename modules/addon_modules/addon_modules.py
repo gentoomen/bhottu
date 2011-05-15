@@ -38,13 +38,6 @@ poll_timer = 0
 
 #### DATABASE INITS ####
 def bhottu_init():
-    ##Vars
-    dbExecute('''create table if not exists vars (
-              varID int auto_increment primary key,
-              var varchar(255),
-              replacement varchar(255),
-              index(var) )''')
-
     ##Repositories
     dbExecute('''create table if not exists repos (
               repoID int auto_increment primary key,
