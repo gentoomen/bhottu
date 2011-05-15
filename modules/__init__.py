@@ -21,3 +21,4 @@ from autoupdate import AutoUpdate
 from poll import Poll
 from statistics import Statistics
 from roulette import Roulette
+from loadaverage import LoadAverage

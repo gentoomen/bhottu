@@ -34,12 +34,6 @@ be_quiet = None
 #repo_time = None
 
 #### ADDONS ####
-def Load(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        if parsed['event_msg'] == NICK+', load average':
-            load = os.popen('cat /proc/loadavg').read()
-            return sendMsg(None, '%s' % (load))
-
 def Interjection(parsed):
     if parsed['event'] == 'PRIVMSG':
         if re.search('\slinux(?!\w)', parsed['event_msg'], re.IGNORECASE):

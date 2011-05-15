@@ -48,5 +48,5 @@ ENABLED_MODULES = [
     'Poll',
     'Statistics',
     'Roulette',
-    'Load',
+    'LoadAverage',
 ]
