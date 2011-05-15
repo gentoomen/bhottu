@@ -32,7 +32,7 @@ ENABLED_MODULES = [
     'Quit',
     'UserManagement',
     'Echo',
-    'helpSystem',
+    'Help',
     'FloodControl',
     
     'nickPlus',
