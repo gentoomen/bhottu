@@ -7,3 +7,5 @@ from usermanagement import UserManagement
 from echo import Echo
 from help import Help
 from floodcontrol import FloodControl
+
+from nickscore import NickScore

@@ -35,8 +35,7 @@ ENABLED_MODULES = [
     'Help',
     'FloodControl',
     
-    'nickPlus',
-    'queryNick',
+    'NickScore',
     'outputTitle',
     'projectWiz',
     'quoteIt',
