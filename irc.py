@@ -1,3 +1,4 @@
+from utils import *
 import socket
 
 connection = None
@@ -20,9 +21,10 @@ def readCommand():
     while True:
         pos = readbuffer.find('\n')
         if pos >= 0:
-            output = readbuffer[:pos+1]
+            output = readbuffer[:pos+1].rstrip('\r\n')
             readbuffer = readbuffer[pos+1:]
-            return output.rstrip('\r\n')
+            log_raw('<< ' + output)
+            return output
         data = connection.recv(1024)
         if len(data) == 0:
             return None
@@ -30,5 +32,6 @@ def readCommand():
 
 def sendCommand(command):
     global connection
-    command = command.rstrip('\r\n')[:510] + '\r\n'
-    connection.sendall(command)
+    command = command.rstrip('\r\n')[:510]
+    log_raw('>> ' + command)
+    connection.sendall(command + '\r\n')

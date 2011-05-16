@@ -100,44 +100,37 @@ def sigint_handler(signum,  frame):
     #raise RuntimeError("Aborted.")
     sys.exit(0)
 
+def makeConnection():
+    tries = 0
+    try:
+        log("Connecting to server %s:%i..." % (SERVER, PORT))
+        irc.connect(SERVER, PORT)
+    except:
+        if tries == 12:
+            log("Failed to establish a connection, giving up")
+            return False
+        timeout = pow(2, tries)
+        log("Connection failed, trying again in %i seconds", timeout)
+        time.sleep(timeout)
+        tries += 1
+    log("Success!")
+    return True
 
-def Main():
-    """Program entry point. Execution starts here."""
-    # register signal handlers
-    # sigint_handler
-    signal.signal(signal.SIGINT, sigint_handler)
-    incoming = ""
-    connected = False
-    conn_try = 0
-    while not connected:
-        log(("Main(): Trying to connect to server: %s port: %i") %\
-                (SERVER, PORT))
-        try:
-            irc.connect(SERVER, PORT)
-        except:
-            if conn_try == 5:
-                break
-            connected = False
-            conn_try += 1
-            log("Main(): Connection failed, trying again in 10 seconds")
-            time.sleep(10)
-            continue
-        connected = True
-        log("Main(): Connect succesfull")
-    while connected:
-        line = irc.readCommand()
-        if line == None:
-            connected = False
-            irc.disconnect()
+def main():
+    while True:
+        if not makeConnection():
             break
-        log_raw('<< ' + line)
-        for m in moduleHandler(Parse(line)):
-            log_raw('>> ' + m)
-            irc.sendCommand(m)
+        while True:
+            command = irc.readCommand()
+            if command == None:
+                break
+            for m in moduleHandler(Parse(command)):
+                irc.sendCommand(m)
+        log("Lost connection, reconnecting...")
 
-#### MAIN ####
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, sigint_handler)
     dbConnect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE)
     for initFunction in set([module.bhottu_init for module in sys.modules.values() if hasattr(module, 'bhottu_init')]):
         initFunction()
-    Main()
+    main()
