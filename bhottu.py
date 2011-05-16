@@ -39,13 +39,7 @@ from time import gmtime, strftime
 from config import *
 from utils import *
 from modules import *
-
-#our socket
-irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#connection retries
-conn_try = 1
-#some compulsory shit
-connected = False
+import irc
 
 enabled_modules = [globals()[name] for name in ENABLED_MODULES]
 
@@ -114,11 +108,12 @@ def Main():
     signal.signal(signal.SIGINT, sigint_handler)
     incoming = ""
     connected = False
+    conn_try = 0
     while not connected:
         log(("Main(): Trying to connect to server: %s port: %i") %\
                 (SERVER, PORT))
         try:
-            irc.connect((SERVER, PORT))
+            irc.connect(SERVER, PORT)
         except:
             if conn_try == 5:
                 break
@@ -130,20 +125,15 @@ def Main():
         connected = True
         log("Main(): Connect succesfull")
     while connected:
-        incoming = incoming + irc.recv(1024)
-        raw_lines = incoming.split('\n')
-        incoming = raw_lines.pop()
-        if not raw_lines:
+        line = irc.readCommand()
+        if line == None:
             connected = False
-            irc.close()
+            irc.disconnect()
             break
-        else:
-            for line in raw_lines:
-                line = line.rstrip()
-                log_raw('<< ' + line)
-                for m in moduleHandler(Parse(line)):
-                    log_raw('>> ' + m)
-                    irc.send(m)
+        log_raw('<< ' + line)
+        for m in moduleHandler(Parse(line)):
+            log_raw('>> ' + m)
+            irc.sendCommand(m)
 
 #### MAIN ####
 if __name__ == "__main__":
