@@ -26,8 +26,11 @@ def userMode(parsed):
             combostring = NICK + ", mode "
             if message.startswith(combostring):
                 message = message.replace(combostring, '')
-                name = message.split(' ')[0]
-                mode = message.split(' ')[1]
+                parts = message.split(' ')
+                if len(parts) != 2:
+                    return sendMsg(None, 'dat syntax')
+                name = parts[0]
+                mode = parts[1]
                 log('MODE %s %s %s' % (CHANNEL, mode, name))
                 return('MODE %s %s %s \r\n' % (CHANNEL, name, mode))
 
