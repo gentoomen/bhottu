@@ -1,5 +1,6 @@
 from config import *
 from utils import *
+from irc import *
 
 def bhottu_init():
     dbExecute('''create table if not exists projects (
@@ -31,16 +32,11 @@ def ProjectWiz(parsed):
             derp = dbQuery("SELECT name, version, description, maintainers, language, status FROM projects")
         elif what[0] == 'lang':
             if len(what) < 2:
-                return sendMsg(None, 'Syntax: lang [lang]')
-            #query = "SELECT * FROM projects WHERE language="'\'' \
-                    # + what[1] + '\''
+                return ['Syntax: lang [lang]']
             derp = dbQuery("SELECT name, version, description, maintainers, language, status FROM projects WHERE language=%s", [what[1]])
         else:
-            return sendMsg(None, 'Syntax: list [ open, closed, all, \
-                    lang [lang] ]')
+            return ['Syntax: list [ open, closed, all, lang [lang] ]']
         return_list = []
-        #header>   title(10)  | version(5)  | description(18) | language(7) \
-                #| maintainer{s}(15) | status(6)
         return_list.append("%s|%s|%s|%s|%s|%s" % (mls("title", 15), \
                 mls("ver", 5), mls("description", 20), mls("language", 10), \
                 mls("maintainer{s}", 20), mls("status", 6)))
@@ -53,9 +49,9 @@ def ProjectWiz(parsed):
     def projectWizDel(what):
         try:
             dbExecute('DELETE FROM projects WHERE name=%s', [what])
-            return sendMsg(None, 'well I deleted something..')
+            sendMessage(CHANNEL, 'well I deleted something..')
         except:
-            return sendMsg(None, 'nope that didnt work')
+            sendMessage(CHANNEL, 'nope that didnt work')
 
     def projectWizAdd(add_string):
         add_string = add_string.replace(' | ', '|')
@@ -68,12 +64,12 @@ def ProjectWiz(parsed):
             derp = dbQuery('SELECT name, version, description, maintainers, language, status FROM projects WHERE name=%s',
 	        [add_string[0]])
             if len(derp) > 0:
-                return sendMsg(None, 'Project is already added')
-            dbExecute('INSERT INTO projects VALUES (%s, %s, %s, %s, %s, %s)', \
-                    add_string)
-            return sendMsg(None, 'Project added')
+                sendMessage(CHANNEL, 'Project is already added')
+            else:
+                dbExecute('INSERT INTO projects VALUES (%s, %s, %s, %s, %s, %s)', add_string)
+                sendMessage(CHANNEL, 'Project added')
         else:
-            return sendMsg(None, 'Syntax: <name> | <version> | <description> | <lang> | <maintainers> | <status>')
+            sendMessage(CHANNEL, 'Syntax: <name> | <version> | <description> | <lang> | <maintainers> | <status>')
 
     if parsed['event'] == 'PRIVMSG':
         #unick = parsed['event_nick']
@@ -86,33 +82,34 @@ def ProjectWiz(parsed):
             tmp_list = []
             if not trigger:
                 #help msg here in future
-                return sendMsg(None, 'why yes please')
+                sendMessage(CHANNEL, 'why yes please')
             elif trigger[0] == 'add':
                 if authUser(parsed['event_nick']) == True:
                     if len(trigger) < 2:
-                        return sendMsg(None, 'I should output help messages for add, but I wont')
-                    return projectWizAdd(trigger[1])
+                        sendMessage(CHANNEL, 'I should output help messages for add, but I wont')
+                    else:
+                        projectWizAdd(trigger[1])
                 else:
-                    return sendMsg(None, 'GODS only can add new projects')
+                    sendMessage(CHANNEL, 'GODS only can add new projects')
             elif trigger[0] == 'list':
                 if authUser(parsed['event_nick']) == True:
                     if len(trigger) < 2:
-                        return sendMsg(None, 'Correct syntax: projects list [open|closed|lang] ')
-
-                    for row in projectWizList(trigger[1]):
-                        tmp_list.append(sendMsg(None, row))
+                        sendMessage(CHANNEL, 'Correct syntax: projects list [open|closed|lang]')
+                    else:
+                        for row in projectWizList(trigger[1]):
+                            sendMessage(CHANNEL, row)
                 else:
                     if len(trigger) < 2:
-                        return sendPM(parsed['event_nick'], 'Correct syntax: projects list [open|closed|lang] ')
+                        sendMessage(parsed['event_nick'], 'Correct syntax: projects list [open|closed|lang]')
                     for row in projectWizList(trigger[1]):
-                        tmp_list.append(sendPM(parsed['event_nick'], row))
-                return tmp_list
+                        sendMessage(parsed['event_nick'], row)
             elif trigger[0] == 'delete':
                 if authUser(parsed['event_nick']) == True:
                     if len(trigger) < 2:
-                        return sendMsg(None, 'this is a halp message I suppose, so HALP!!')
+                        sendMessage(CHANNEL, 'this is a halp message I suppose, so HALP!!')
                     else:
-                        return projectWizDel(trigger[1])
-                return sendMsg(None, 'GODS only can delete projects')
+                        projectWizDel(trigger[1])
+                else:
+                    sendMessage(CHANNEL, 'GODS only can delete projects')
             else:
-                return sendMsg(None, 'Proper syntax, learn it!')
+                sendMessage(CHANNEL, 'Proper syntax, learn it!')

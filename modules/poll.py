@@ -1,5 +1,6 @@
 from config import *
 from utils import *
+from irc import *
 import datetime
 
 poll_timestamp = None
@@ -39,55 +40,53 @@ def Poll(parsed):
             if authUser(nick) == True:
                 result = dbQuery("SELECT * FROM polls WHERE status='OPEN'")
                 if len(result) > 0:
-                    return sendMsg(None, 'Yeah why not start by voting on the already OPEN one..')
+                    sendMessage(CHANNEL, 'Yeah why not start by voting on the already OPEN one..')
                 else:
                     title = message.replace(trigger_open, '').lstrip()
                     if len(title) < 1:
-                        return sendMsg(None, "What about actually asking something, numbnuts?")
+                        sendMessage(CHANNEL, "What about actually asking something, numbnuts?")
+                        return
                     dbExecute("INSERT INTO polls (title, status) VALUES (%s, %s)", [title, 'OPEN'])
                     log('Poll(): New poll opened'+ title)
-                    return sendMsg(None, "Poll started! %s" % (title))
+                    sendMessage(CHANNEL, "Poll started! %s" % (title))
 
         elif message.startswith(trigger_close):
             if authUser(nick) == True:
                 poll = dbQuery("SELECT pollID, title, status, voters FROM polls WHERE status='OPEN'")
                 if len(poll) < 1:
-                    return sendMsg(None, "Fun fact: You need to have an already open poll to close it!")
+                    sendMessage(CHANNEL, "Fun fact: You need to have an already open poll to close it!")
                 else:
                     pollID = int(poll[0][0])
                     winner = dbQuery("SELECT itemID, pollID, item FROM items WHERE pollID=%s ORDER BY votes DESC", [pollID])
                     dbExecute("UPDATE polls SET status='CLOSED' WHERE pollID=%s", [pollID])
                     log('Poll(): Open poll closed')
                     poll_timer = 0
-                    return_list = []
-                    return_list.append(sendMsg(None, "Pool's closed."))
+                    sendMessage(CHANNEL, "Pool's closed.")
                     if len(winner) > 0:
-                        return_list.append(sendMsg(None, "Aaaand the winner is... "+winner[0][2]))
-                    return sendMsg(None, "Pool's closed.")
+                        sendMessage(CHANNEL, "Aaaand the winner is... %s" % winner[0][2])
 
         elif message.startswith(trigger_vote):
             args = message.replace(trigger_vote, '')
             poll = dbQuery("SELECT pollID, title, status, voters FROM polls WHERE status='OPEN'")
             if len(poll) < 1:
-                return sendMsg(None, "There's no poll open. Maybe you're seeing things?")
-            if len(args) < 1: #this checks are there any arguments after stripping the trigger
+                sendMessage(CHANNEL, "There's no poll open. Maybe you're seeing things?")
+            elif len(args) < 1: #this checks are there any arguments after stripping the trigger
                 pollID = int(poll[0][0])
                 title = poll[0][1]
                 items = dbQuery("SELECT item_index, item, votes FROM items WHERE pollID=%s ORDER BY item_index", [pollID])
                 log('Poll(): Listing open poll and items')
-                return_list = [] # initializing a list to hold our return messages
-                return_list.append(sendMsg(None, title))
+                sendMessage(CHANNEL, title)
                 for item in items:
-                    return_list.append(sendMsg(None, str(item[0]) + '. ' + str(item[1]) + ' (' + str(item[2]) + ')'))
-                return_list.append(sendMsg(None, '0. <item>, Add a new poll item'))
-                return return_list
+                    sendMessage(CHANNEL, "%s. %s (%s)" % (item[0], item[1], item[2]))
+                sendMessage(CHANNEL, "0. <item>, Add a new poll item")
             elif len(args) > 0:
                 args = args.lstrip()
                 args = args.split(' ', 1)
                 try:
                     args[0] = int(args[0])
                 except:
-                    return sendMsg(None, "Those are some fine letters, pal. I've got some numbers, want to make a trade?")
+                    sendMessage(CHANNEL, "Those are some fine letters, pal. I've got some numbers, want to make a trade?")
+                    return
                 if args[0] == 0:
                     if len(args) > 1: #doing a len on list will return the number of elements in the list
                         item_title = args[1]
@@ -97,7 +96,9 @@ def Poll(parsed):
                         if voters is not None:
                             voters = voters.split()
                             for item in voters:
-                                if nick == item: return sendMsg(nick, 'you have voted already')
+                                if nick == item:
+                                    sendMessage(CHANNEL, '%s, you have voted already' % nick)
+                                    return
                             voters.append(nick)
                             voters = ' '.join(voters)
                         else:
@@ -107,9 +108,9 @@ def Poll(parsed):
                             [pollID, nr_items+1, item_title, 1])
                         dbExecute("UPDATE polls SET voters=%s WHERE pollID=%s", [voters, pollID])
                         log('Poll(): Adding new item to open poll '+item_title)
-                        return sendMsg(None, "Vote added.")
+                        sendMessage(CHANNEL, "Vote added.")
                     else:
-                        return sendMsg(None, "define the new item you camelhump")
+                        sendMessage(CHANNEL, "define the new item you camelhump")
                 else:
                     pollID = int(poll[0][0])
                     voters = poll[0][3]
@@ -118,21 +119,23 @@ def Poll(parsed):
                         for item in voters:
                             if nick == item:
                                 log('Poll(): Dupe vote on open poll by'+nick)
-                                return sendMsg(nick, 'you have voted already')
+                                sendMessage(CHANNEL, '%s, you have voted already' % nick)
+                                return
                         voters.append(nick)
                         voters = ' '.join(voters)
                     else:
                         voters = nick
                     item = dbQuery('SELECT itemID, votes FROM items WHERE pollID=%s AND item_index=%s', [pollID, args[0]])
                     if len(item) == 0:
-                        return sendMsg(None, ">implying item #%s exists" % args[0])
+                        sendMessage(CHANNEL, '>implying item #%s exists' % args[0])
+                        return
                     nr_votes = int(item[0][1])
                     dbExecute("UPDATE items SET votes=%s WHERE itemID=%s", [nr_votes+1, int(item[0][0])])
                     dbExecute("UPDATE polls SET voters=%s WHERE pollID=%s", [voters, pollID])
                     log('Poll(): '+nick+' voted on poll')
-                    return sendMsg(None, "Vote casted!!")
+                    sendMessage(CHANNEL, "Vote casted!!")
             else:
-                return sendMsg(None, "you broke the poll goddam!!!")
+                sendMessage(CHANNEL, "you broke the poll goddam!!!")
         elif message.startswith(trigger_search):
             #if authUser(nick) == True:
             args = message.replace(trigger_search, '').lstrip()
@@ -141,59 +144,56 @@ def Poll(parsed):
             #for debugging
             print derp
             if len(derp) > 3:
-                return sendMsg(None, str(len(derp)) + \
-                        ' entries found, refine your search')
+                sendMessage('%s entries found, refine your search' % len(derp))
             else:
-                return_list = []
                 for idk in derp:
-                    return_list.append(sendMsg(None, str(idk[0]) + ' ' + idk[1]))
-                return return_list
+                    sendMessage(CHANNEL, '%s %s' % (idk[0], idk[1]))
         elif message.startswith(trigger_show):
             #if authUser(nick) == True:
             args = message.replace(trigger_show, '').lstrip()
             try:
                 int(args)
             except:
-                return sendMsg(None, 'you need to give me a index nr. of the poll')
+                sendMessage(CHANNEL, 'you need to give me a index nr. of the poll')
+                return
             title = dbQuery("SELECT title FROM polls WHERE pollID=%s", [args])
             items = dbQuery("SELECT item_index, item, votes FROM items WHERE pollID=%s ORDER BY votes DESC", [args])
             if len(title) == 0:
-                return sendMsg(None, 'Poll %s not found.' % args)
+                sendMessage(CHANNEL, 'Poll %s not found.' % args)
+                return
             nr_votes = 0
-            return_list = []
             for item in items:
                 nr_votes += int(item[2])
-            return_list.append(sendMsg(None, title[0][0]+' ('+str(nr_votes)+')'))
+            sendMessage(CHANNEL, '%s (%s)' % (title[0][0], nr_votes))
             for item in items:
-                    return_list.append(sendMsg(None, str(item[0]) + '. ' + str(item[1]) + ' (' + str(item[2]) + ')'))
-            return return_list
+                sendMessage(CHANNEL, '%s. %s (%s)' % (item[0], item[1], item[2]))
         elif message.startswith(trigger_delete):
             if authUser(nick) == True:
                 args = message.replace(trigger_delete, '').lstrip()
                 try:
                     int(args)
                 except:
-                    return sendMsg(None, 'argument needs to be an integer')
+                    sendMessage(CHANNEL, 'argument needs to be an integer')
+                    return
                 dbExecute("DELETE FROM polls WHERE pollID=%s", [args])
                 dbExecute("DELETE FROM items WHERE pollID=%s", [args])
                 log('Poll(): deleted poll ID: '+args)
-                return sendMsg(None, 'deleted poll ID: '+args)
+                sendMessage(CHANNEL, 'deleted poll ID: %s' % args)
         elif message.startswith(trigger_timer):
             if authUser(nick) == True:
                 result = dbQuery("SELECT * FROM polls WHERE status='OPEN'")
                 if len(result) < 1:
-                    return sendMsg(None, 'you can only set a timer for a OPEN poll')
+                    sendMessage(CHANNEL, 'you can only set a timer for a OPEN poll')
                 else:
                     poll_timer = message.replace(trigger_timer, '').lstrip()
                     try:
                         int(poll_timer)
                     except:
-                        return sendMsg(None, 'interval needs to be an integer and in hours')
+                        sendMessage(CHANNEL, 'interval needs to be an integer and in hours')
+                        return
                     poll_timestamp = datetime.datetime.now()
                     log('Poll(): Timer set on open poll: '+poll_timer+' hours')
-                    return sendMsg(None, 'Poll timer started and set to: '+poll_timer+' minutes')
-        else:
-            return None
+                    sendMessage(CHANNEL, 'Poll timer started and set to %s minutes' % poll_timer)
     if int(poll_timer) > 0:
         if datetime.datetime.now() - poll_timestamp > datetime.timedelta(minutes=int(poll_timer)):
             pollID = int(dbQuery("SELECT pollID FROM polls WHERE status='OPEN'")[0][0])
@@ -203,8 +203,6 @@ def Poll(parsed):
             dbExecute("UPDATE polls SET status='CLOSED' WHERE pollID=%s", [pollID])
             log('Poll(): Timer closed open poll')
             poll_timer = 0
-            return_list = []
-            return_list.append(sendMsg(None, "Pool's closed."))
+            sendMessage(CHANNEL, "Pool's closed.")
             if len(winner) > 0:
-                return_list.append(sendMsg(None, "Aaaand the winner is... "+winner[0][0]))
-            return return_list
+                sendMessage(CHANNEL, "Aaaand the winner is... %s" % winner[0][0])

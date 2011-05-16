@@ -1,5 +1,6 @@
 from config import *
 from utils import *
+from irc import *
 
 flood_time = ""
 flood_counter = 0
@@ -16,12 +17,5 @@ def FloodControl(parsed):
             flood_counter = 0
 
         if flood_counter > 3:
-            return_list = []
-            return_list.append(sendMsg(None, "Pool's closed."))
-            return_list.append('MODE %s %s \r\n' % (CHANNEL, mode))
-            return return_list
-        else:
-            return None
-    else:
-        return None
-
+            sendMessage(CHANNEL, "Pool's closed.")
+            sendCommand('MODE %s %s' % (CHANNEL, mode))

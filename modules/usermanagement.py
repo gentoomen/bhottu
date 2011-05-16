@@ -1,5 +1,6 @@
 from config import *
 from utils import *
+from irc import *
 
 def userKick(parsed):
     """Kick specific user. Authorized users only."""
@@ -10,10 +11,8 @@ def userKick(parsed):
             combostring = NICK + ", kick "
             if message.startswith(combostring):
                 name = message.replace(combostring, '')
-                log('KICK %s %s :%s' % (name, CHANNEL, \
-                        'I am a pretty young maiden'))
-                return('KICK %s %s :%s \r\n' % (CHANNEL, name, \
-                        'I am a pretty young maiden'))
+                log('KICK %s %s :%s' % (name, CHANNEL, 'I am a pretty young maiden'))
+                sendKick(CHANNEL, name, 'I am a pretty young maiden')
 
 
 def userMode(parsed):
@@ -28,12 +27,14 @@ def userMode(parsed):
                 message = message.replace(combostring, '')
                 parts = message.split(' ')
                 if len(parts) != 2:
-                    return sendMsg(None, 'dat syntax')
+                    sendMessage(CHANNEL, 'dat syntax')
+                    return
                 name = parts[0]
                 mode = parts[1]
                 log('MODE %s %s %s' % (CHANNEL, mode, name))
-                return('MODE %s %s %s \r\n' % (CHANNEL, name, mode))
+                sendCommand('MODE %s %s %s'% (CHANNEL, name, mode))
 
 
 def UserManagement(parsed):
-    return runModules(parsed, userKick, userMode)
+    userKick(parsed)
+    userMode(parsed)

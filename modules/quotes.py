@@ -1,5 +1,6 @@
 from config import *
 from utils import *
+from irc import *
 
 def bhottu_init():
     dbExecute('''create table if not exists quote (
@@ -18,10 +19,10 @@ def quoteIt(parsed):
             log('quoteIt(): Trying to insert quote: ' + quotation)
             name = message.split('>')[0].replace('<', '').lstrip('~&@%+')
             if parsed['event_nick'] == name:
-                return sendMsg(parsed['event_nick'], "you shouldn't quote your lonely self.")
-            dbExecute('INSERT INTO quote (name, quotation) VALUES (%s, %s)', \
-                [name, quotation])
-            return sendMsg(None, "Quote recorded")
+                sendMessage(CHANNEL, "%s, you shouldn't quote your lonely self." % parsed['event_nick'])
+                return
+            dbExecute('INSERT INTO quote (name, quotation) VALUES (%s, %s)', [name, quotation])
+            sendMessage(CHANNEL, "Quote recorded")
 
 
 def echoQuote(parsed):
@@ -31,10 +32,8 @@ def echoQuote(parsed):
         if combostring in message:
             message = message.split(combostring)[1]
             quotie = dbQuery('SELECT quotation FROM quote WHERE name=%s ORDER BY RAND() LIMIT 1', [message])
-            return_list = []
             for row in quotie:
-                return_list.append(sendMsg(None, "%s" % (row[0])))
-            return return_list
+                sendMessage(CHANNEL, row[0])
         # This is for returning an entire list of somoene's quotes from the DB via omploader
         elif message.startswith(NICK + ", quotes[*] from "):
            message = message.split(NICK + ", quotes[*] from ")[1]
@@ -47,7 +46,8 @@ def echoQuote(parsed):
            f.write(return_list)
            f.close()
            url = os.popen('./ompload quotelist')
-           return sendMsg(None, url.read())
+           sendMessage(CHANNEL, url.read())
 
 def Quotes(parsed):
-    return runModules(parsed, quoteIt, echoQuote)
+    quoteIt(parsed)
+    echoQuote(parsed)

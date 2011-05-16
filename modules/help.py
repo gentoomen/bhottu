@@ -1,5 +1,6 @@
 from config import *
 from utils import *
+from irc import *
 
 from echo import *
 from usermanagement import *
@@ -25,7 +26,8 @@ def Help(parsed):
                 helptext = "%s %s, " % (helptext, key)
             helptext = "%s %s" % (helptext, \
                     "type help [command] to receive more help.")
-            return sendMsg(None, helptext)
+            sendMessage(CHANNEL, helptext)
+            return
 
         combostring = NICK + ", help "
         if message.startswith(combostring):
@@ -34,4 +36,4 @@ def Help(parsed):
                 helptext = globals()[funcnames[messageitems[2]]].__doc__
             except:
                 helptext = "I ain't got help for that, dude."
-            return sendMsg(None, helptext)
+            sendMessage(CHANNEL, helptext)

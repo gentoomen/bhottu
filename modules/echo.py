@@ -2,6 +2,7 @@
 
 from config import *
 from utils import *
+from irc import *
 
 def echoMsg(parsed):
     """Echo given text."""
@@ -14,7 +15,7 @@ def echoMsg(parsed):
             saying = message.replace(combostring, '')
             if saying.startswith('.') and authUser(nick) == False:
                 saying = saying.replace('.', '', 1)
-            return sendMsg(None, saying)
+            sendMessage(CHANNEL, saying)
 
 
 def shoutMsg(parsed):
@@ -28,8 +29,9 @@ def shoutMsg(parsed):
             #if authUser(nick) == True:
             if saying.startswith('.') and authUser(nick) == False:
                 saying = saying.replace('.', '', 1)
-            return sendMsg(None, chr(2) + saying)
+            sendMessage(CHANNEL, chr(2) + saying)
 
 
 def Echo(parsed):
-    return runModules(parsed, echoMsg, shoutMsg)
+    echoMsg(parsed)
+    shoutMsg(parsed)

@@ -2,6 +2,7 @@
 
 from config import *
 from utils import *
+from irc import *
 
 that_was = None
 
@@ -30,9 +31,10 @@ def Reply(parsed):
             reply = tmp_reply[1].strip()
             #reply = reply[1].lstrip()
         except:
-            return sendMsg(None, 'Incorrect syntax')
+            sendMessage(CHANNEL, 'Incorrect syntax')
+            return
         dbExecute('INSERT INTO replies (`trigger`, reply, usageCount) VALUES (%s, %s, %s)', [trigger, reply, 0])
-        return sendMsg(None, 'Trigger added')
+        sendMessage(CHANNEL, 'Trigger added')
 
     def addVar(parsed):
         message = parsed['event_msg']
@@ -40,11 +42,13 @@ def Reply(parsed):
         #if authUser(parsed['event_nick']) == True:
         parts = message.replace(combostring, '')
         parts = parts.split(' to ')
-        if len(parts) != 2: return sendMsg(None, 'Syntax, learn it.')
+        if len(parts) != 2:
+            sendMessage(CHANNEL, 'Syntax, learn it.')
+            return
         replacement = parts[0]
         var = parts[1].upper().replace('$', '')
         replacement = dbExecute('INSERT INTO vars (var, replacement) VALUES (%s, %s)', [var, replacement])
-        return sendMsg(None, 'Added.')
+        sendMessage(CHANNEL, 'Added.')
 
     #=====replaceVar=====#
     #INTERNAL#
@@ -53,7 +57,6 @@ def Reply(parsed):
     def replaceVar(message,parsed):
         nick = parsed['event_nick']
         time = parsed['event_timestamp']
-        print parsed
         trigger = message.split(' ')
         internal = message
         for line in trigger:
@@ -61,7 +64,6 @@ def Reply(parsed):
                 var = line.replace('$', '').strip('\'/.#][()!", £&*;:()\\')
                 replacement = dbQuery('SELECT replacement FROM vars WHERE var=%s ORDER BY RAND() LIMIT 1', [var.upper()])
                 try:
-                    print "Line is:"+line
                     if line == "$NICK":
                         internal = internal.replace(line, nick, 1)
                     elif line == "$TIMESTAMP":
@@ -83,9 +85,11 @@ def Reply(parsed):
             what_trigger = NICK + ", what was that?"
             if what_trigger in message:
                 if that_was is not None:
-                    return sendMsg(None, that_was)
+                    sendMessage(CHANNEL, that_was)
+                    return
                 else:
-                    return sendMsg(None, 'what was what?')
+                    sendMessage(CHANNEL, 'what was what?')
+                    return
             reply = dbQuery('SELECT replyID, reply, usageCount FROM replies WHERE `trigger`=%s ORDER BY RAND() LIMIT 1', [message])
             if len(reply) > 0:
                 replyID = int(reply[0][0])
@@ -93,7 +97,7 @@ def Reply(parsed):
                 usage = usage + 1
                 dbExecute('UPDATE replies SET usageCount = %s WHERE replyID = %s', [usage, replyID])
                 that_was = '"' + reply[0][1] + '" triggered by "' + message + '"'
-                return sendMsg(None, replaceVar(reply[0][1], parsed))
+                sendMessage(CHANNEL, replaceVar(reply[0][1], parsed))
 
     #=====rmReply=====#
     #rmReply removes a reply from the db#
@@ -103,24 +107,23 @@ def Reply(parsed):
         try:
             reply = message.split('->rm')[1].lstrip()
         except:
-            return sendMsg(None, 'Incorrect syntax')
+            sendMessage(CHANNEL, 'Incorrect syntax')
+            return
         if authUser(nick) == True:
             affected = dbExecute('DELETE FROM replies WHERE reply=%s', [reply])
-            return_msg = sendMsg(None, "Total records deleted: " + str(affected))
+            sendMessage(CHANNEL, "Total records deleted: %s" % affected)
             log('rmReply(): Deleted ' + reply)
         else:
-            return_msg = sendMsg(None, "03>Lol nice try faggot")
-            log('rmReply(): ' + nick + \
-                    ' UNAUTHORIZED delete attempt of' + reply)
-        return return_msg
+            sendMessage(CHANNEL, "03>Lol nice try faggot")
+            log('rmReply(): %s UNAUTHORIZED delete attempt of %s' % (nick, reply))
 
     if parsed['event'] == 'PRIVMSG':
         if parsed['event_msg'].startswith(NICK + ", "):
             if '<reply>' in parsed['event_msg']:
-                return newReply(parsed)
-            if parsed['event_msg'].startswith(NICK + ", assign "):
-                return addVar(parsed)
-            if '->rm' in parsed['event_msg']:
-                return rmReply(parsed)
-        return outputReply(parsed)
+                newReply(parsed)
+            elif parsed['event_msg'].startswith(NICK + ", assign "):
+                addVar(parsed)
+            elif '->rm' in parsed['event_msg']:
+                rmReply(parsed)
+        outputReply(parsed)
 

@@ -1,5 +1,6 @@
 from config import *
 from utils import *
+from irc import *
 
 def Quit(parsed):
     """Tells the robot to kindly leave. Remeber, robots have no feelings,
@@ -11,11 +12,9 @@ def Quit(parsed):
         if message.startswith(combostring):
             if authUser(nick) == True:
                 log('QUIT by ' + nick)
-                output = []
-                output.append(sendMsg(None, "Bye :("))
+                sendMessage(CHANNEL, "Bye :(")
                 #this is instant close now, it does not have time to send
                 #PART + adding a sleep
-                output.append('QUIT :Gone to lunch\n\r')
-                return output
+                sendQuit("Gone to lunch")
             else:
-                return sendMsg(nick, '03>implying')
+                sendMessage(CHANNEL, '%s, 03>implying' % nick)

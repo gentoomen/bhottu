@@ -1,5 +1,6 @@
 from config import *
 from utils import *
+from irc import *
 import os
 import re
 import urllib2
@@ -25,13 +26,11 @@ def LinkTitle(parsed):
             derp = dbQuery('SELECT url, title FROM urls WHERE title LIKE %s OR url LIKE %s',
                     ['%' + title + '%', '%' + title + '%'])
             if len(derp) > 3:
-                return sendMsg(None, str(len(derp)) + \
-                        ' entries found, refine your search')
+                sendMessage(CHANNEL, '%s entries found, refine your search' % len(derp))
             else:
-                return_list = []
                 for idk in derp:
-                    return_list.append(sendMsg(None, idk[0] + ' ' + idk[1]))
-                return return_list
+                    sendMessage(CHANNEL, '%s %s' % (idk[0], idk[1]))
+            return
     if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", blacklist"
         if combostring in parsed['event_msg']:
@@ -39,34 +38,39 @@ def LinkTitle(parsed):
                 domain = parsed['event_msg'].replace(combostring, '').strip()
                 if len(domain) < 3:
                     derp = dbQuery('SELECT * FROM blacklists')
-                    return_list = []
+                    blacklist = []
                     for row in derp:
-                        return_list.append(row[1])
-                    return_list = "\n".join(return_list)
+                        blacklist.append(row[1])
+                    blacklist = "\n".join(blacklist)
                     f = open('./blacklist','w')
-                    f.write(return_list)
+                    f.write(blacklist)
                     f.close()
                     url = os.popen('./ompload blacklist')
-                    return sendMsg(None, url.read())
+                    sendMessage(CHANNEL, url.read())
+                    return
                 log('outputTitle(): Domain is ' + domain)
                 derp = dbQuery('SELECT domain FROM blacklists WHERE domain=%s', [domain])
                 if len(derp) > 0:
-                    return sendMsg(None, 'domain already blacklisted')
+                    sendMessage(CHANNEL, 'domain already blacklisted')
                 else:
                     dbExecute('INSERT INTO blacklists (domain) VALUES (%s)', [domain])
-                    return sendMsg(None, domain + ' blacklisted')
+                    sendMessage(CHANNEL, '%s blacklisted' % domain)
+                return
 
     if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", remove blacklist"
         if combostring in parsed['event_msg']:
             if authUser(parsed['event_nick']) == True:
                 domain = parsed['event_msg'].replace(combostring, '').strip()
-                if len(domain) == 0: return sendMsg(None, 'The whole list? Yeah right..')
+                if len(domain) == 0:
+                    sendMessage(CHANNEL, 'The whole list? Yeah right..')
+                    return
                 try:
                     dbExecute('DELETE FROM blacklists WHERE domain=%s', [domain])
-                    return sendMsg(None, 'domain removed from blacklist')
+                    sendMessage(CHANNEL, 'domain removed from blacklist')
                 except:
-                    return sendMsg(None, 'nope that didnt work')
+                    sendMessage(CHANNEL, 'nope that didnt work')
+                return
 
     if parsed['event'] == 'PRIVMSG':
         message = parsed['event_msg']
@@ -88,11 +92,9 @@ def LinkTitle(parsed):
             if len(dupe_url) > 0:
                 log('outputTitle(): Found dupe from DB: ' + url)
                 if len(blacklist) > 0:
-                    log('outputTitle(): Domain is blacklisted, ' + \
-                            'will not output title')
-                    return None
+                    log('outputTitle(): Domain is blacklisted, will not output title')
                 else:
-                    return sendMsg(None, 'Site title: '+ unescape(str(dupe_url[0][1])))
+                    sendMessage(CHANNEL, 'Site title: %s' % unescape(str(dupe_url[0][1])))
             else:
                 try:
                     headers = { 'User-Agent' : 'JustUs/0.8 (compatible;) urllib2' }
@@ -121,14 +123,12 @@ def LinkTitle(parsed):
                     elif hasattr(e, 'code'): error = e.code
                     else: error = 'beyond who the fuck knows'
                     log('outputTitle(): Failed to fetch url ' + url + ' reason: ' + str(error))
-                    return sendMsg(None, 'Failed to fetch url, reason '+ str(error))
+                    sendMessage(CHANNEL, 'Failed to fetch url, reason %s' % error)
 
                 dbExecute('INSERT INTO urls (url, title) VALUES (%s, %s)', \
                         [url, title])
                 if len(blacklist) > 0:
-                    log('outputTitle(): Domain is blacklisted, \
-                        will not output title')
-                    return None
+                    log('outputTitle(): Domain is blacklisted, will not output title')
                 else:
-                    return sendMsg(None, "Site title: %s" % (title))
+                    sendMessage(CHANNEL, "Site title: %s" % (title))
 

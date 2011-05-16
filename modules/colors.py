@@ -1,5 +1,6 @@
 from config import *
 from utils import *
+from irc import *
 import os
 import re
 
@@ -30,12 +31,12 @@ def Colors(parsed):
                             VALUES (%s, %s, %s, %s)", \
                             [r, g, b, color[1]])
                     log('Colors(): Added a color definition for' + hex_test)
-                    return sendMsg(None, 'Added a color definition')
+                    sendMessage(CHANNEL, 'Added a color definition')
                 else:
-                    return sendMsg(None, \
-                            'SYNTAX: add color #ffffff definition')
+                    sendMessage(CHANNEL, 'Syntax: color #ffffff definition')
             else:
-                return sendMsg(None, 'SYNTAX: add color #ffffff definition')
+                sendMessage(CHANNEL, 'Syntax: color #ffffff definition')
+            return
         uname = re.search('#([0-9A-Fa-f]{6})(?!\w)', parsed['event_msg'])
         if uname is not None:
             uname = uname.group()
@@ -61,5 +62,4 @@ def Colors(parsed):
                 for result in fout.readlines():
                     return_list.append(result)
                     log('Colors(): '+result)
-            return_list = ''.join(return_list)
-            return sendMsg(None, return_list)
+            sendMessage(CHANNEL, ''.join(return_list))

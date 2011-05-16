@@ -1,5 +1,6 @@
 from config import *
 from utils import *
+from irc import *
 import feedparser
 import datetime
 
@@ -27,15 +28,17 @@ def Commits(parsed):
                             feed=%s OR last_item=%s", \
                             [repo[0], repo[1], repo[2]])
                     if len(derp) > 0:
-                        return sendMsg(None, 'we call that a duplicate')
+                        sendMessage(CHANNEL, 'we call that a duplicate')
+                        return
                     dbExecute("INSERT INTO repos (repo, feed, last_item) \
                             VALUES (%s, %s, %s)", \
                             [repo[0], repo[1], repo[2]])
-                    return sendMsg(None, \
+                    sendMessage(CHANNEL, \
                             'repo added, 1st update will contain all new msgs, so prepare for spam kthxbai')
                 else:
-                    return sendMsg(None, \
+                    sendMessage(CHANNEL, \
                             'the fuck, format your msg properly')
+                return
     if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", remove repo "
         if parsed['event_msg'].startswith(combostring):
@@ -44,10 +47,11 @@ def Commits(parsed):
                 try:
                     dbExecute("DELETE FROM repos WHERE repo=%s", [repo])
                     log('Commits(): Removed ' + repo)
-                    return sendMsg(None, 'removed ' + repo)
+                    sendMessage(CHANNEL, 'removed ' + repo)
                 except:
                     log('Commits(): Failed to remove' + repo)
-                    return sendMsg(None, 'failed to remove' + repo)
+                    sendMessage(CHANNEL, 'failed to remove' + repo)
+                return
     #if this could be done locally, it would be awesome
     if last_repo_check == None:
         last_repo_check = datetime.datetime.now()
@@ -85,9 +89,6 @@ def Commits(parsed):
             dbExecute("UPDATE repos SET last_item=%s WHERE repo=%s", \
                     [first_item, repo[0]])
         item_list.reverse()
-        msg_list = []
         for commit in item_list:
-            msg_list.append(sendMsg(None, '[' + commit[0] + '] ' + \
-                    '<' + commit[3] + '> ' + commit[1] + ' => ' + commit[2]))
+            sendMessage(CHANNEL, '[%s] <%s> %s => %s' % (commit[0], commit[3], commit[1], commit[2]))
         last_repo_check = datetime.datetime.now()
-        return msg_list

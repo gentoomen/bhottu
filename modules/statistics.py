@@ -1,5 +1,7 @@
 from config import *
 from utils import *
+from irc import *
+import datetime
 
 def Statistics(parsed):
     #funcs
@@ -7,8 +9,7 @@ def Statistics(parsed):
         reply = dbQuery("SELECT DISTINCT name FROM `lines` WHERE name<>'learningcode'")
         top10 = []
         for line in reply:
-            count = dbQuery("SELECT COUNT(*) FROM `lines` WHERE name=%s",\
-                               [line[0]])
+            count = dbQuery("SELECT COUNT(*) FROM `lines` WHERE name=%s", [line[0]])
             top10.append([line,count])
         listhing = sorted(top10, key=lambda listed: listed[1], reverse=True)
         count = 0
@@ -42,8 +43,8 @@ def Statistics(parsed):
     #triggers
     if parsed['event'] == "PRIVMSG":
         if parsed['event_msg'] == NICK+", top10ever":
-            return sendMsg(None, top10Ever(parsed))
-        if parsed['event_msg'] == NICK+", mpm":
-            return sendMsg(None, str(Mpm())+' messages per minute')
-        if parsed['event_msg'].startswith(NICK+", line average of "):
-            return sendMsg(None, lineAvg(parsed))
+            sendMessage(CHANNEL, top10Ever(parsed))
+        elif parsed['event_msg'] == NICK+", mpm":
+            sendMessage(CHANNEL, '%s messages per minute' % Mpm())
+        elif parsed['event_msg'].startswith(NICK+", line average of "):
+            sendMessage(CHANNEL, lineAvg(parsed))
