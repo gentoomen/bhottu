@@ -81,20 +81,6 @@ def Parse(incoming):
     return parsed
 
 
-def moduleHandler(parsed):
-    msg_list = []
-    tmp_list = [f(parsed) for f in enabled_modules]
-    for m in tmp_list:
-        if m is not None:
-            if type(m) == list:
-                for sub in m:
-                    if sub is not None:
-                        msg_list.append(sub)
-            else:
-                msg_list.append(m)
-    return msg_list
-
-
 def sigint_handler(signum,  frame):
     """Handles SIGINT signal (<C-c>). Quits program."""
     #raise RuntimeError("Aborted.")
@@ -124,8 +110,9 @@ def main():
             command = irc.readCommand()
             if command == None:
                 break
-            for m in moduleHandler(Parse(command)):
-                irc.sendCommand(m)
+            parsed = Parse(command)
+            for module in enabled_modules:
+                module(parsed)
         log("Lost connection, reconnecting...")
 
 if __name__ == "__main__":
