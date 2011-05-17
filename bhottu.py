@@ -113,6 +113,7 @@ def main():
             parsed = Parse(command)
             for module in enabled_modules:
                 module(parsed)
+        irc.disconnect()
         log("Lost connection, reconnecting...")
 
 if __name__ == "__main__":
