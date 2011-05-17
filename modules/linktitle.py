@@ -124,6 +124,7 @@ def LinkTitle(parsed):
                     else: error = 'beyond who the fuck knows'
                     log('outputTitle(): Failed to fetch url ' + url + ' reason: ' + str(error))
                     sendMessage(CHANNEL, 'Failed to fetch url, reason %s' % error)
+                    return
 
                 dbExecute('INSERT INTO urls (url, title) VALUES (%s, %s)', \
                         [url, title])
