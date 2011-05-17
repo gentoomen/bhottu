@@ -36,11 +36,11 @@ def sendCommand(command):
     log.debug('>> ' + command)
     connection.sendall(command + '\r\n')
 
-def sendRawMessage(receiver, message):
+def sendPrivmsg(receiver, message):
     sendCommand("PRIVMSG %s :%s" % (receiver, message))
 
 def sendMessage(receiver, message):
-    sendRawMessage(receiver, sanitize(message))
+    sendPrivmsg(receiver, sanitize(message))
 
 def sendKick(channel, target, reason):
     sendCommand("KICK %s %s :%s" % (channel, target, reason))
