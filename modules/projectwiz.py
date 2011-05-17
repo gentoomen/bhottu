@@ -1,6 +1,7 @@
 from config import *
 from utils import *
 from irc import *
+import log
 
 def bhottu_init():
     dbExecute('''create table if not exists projects (
@@ -59,8 +60,7 @@ def ProjectWiz(parsed):
         add_string = add_string.replace(' |', '|')
         add_string = add_string.split('|', 5)
         if len(add_string) == 6:
-            log('projectWiz(): ADDING -> ' + \
-                    str(add_string))
+            log.info('projectWiz(): ADDING -> %s' % add_string)
             derp = dbQuery('SELECT name, version, description, maintainers, language, status FROM projects WHERE name=%s',
 	        [add_string[0]])
             if len(derp) > 0:

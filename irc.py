@@ -1,5 +1,5 @@
-from utils import *
 import socket
+import log
 
 connection = None
 readbuffer = ''
@@ -23,7 +23,7 @@ def readCommand():
         if pos >= 0:
             output = readbuffer[:pos+1].strip('\r\n')
             readbuffer = readbuffer[pos+1:]
-            log_raw('<< ' + output)
+            log.debug('<< ' + output)
             return output
         data = connection.recv(1024)
         if len(data) == 0:
@@ -33,7 +33,7 @@ def readCommand():
 def sendCommand(command):
     global connection
     command = command.replace('\r', '').replace('\n', '')[:510]
-    log_raw('>> ' + command)
+    log.debug('>> ' + command)
     connection.sendall(command + '\r\n')
 
 def sendRawMessage(receiver, message):

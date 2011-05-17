@@ -1,6 +1,7 @@
 from config import *
 from utils import *
 from irc import *
+import log
 
 def userKick(parsed):
     """Kick specific user. Authorized users only."""
@@ -11,7 +12,7 @@ def userKick(parsed):
             combostring = NICK + ", kick "
             if message.startswith(combostring):
                 name = message.replace(combostring, '')
-                log('KICK %s %s :%s' % (name, CHANNEL, 'I am a pretty young maiden'))
+                log.info('KICK %s %s :%s' % (name, CHANNEL, 'I am a pretty young maiden'))
                 sendKick(CHANNEL, name, 'I am a pretty young maiden')
 
 
@@ -31,7 +32,7 @@ def userMode(parsed):
                     return
                 name = parts[0]
                 mode = parts[1]
-                log('MODE %s %s %s' % (CHANNEL, mode, name))
+                log.info('MODE %s %s %s' % (CHANNEL, mode, name))
                 sendCommand('MODE %s %s %s'% (CHANNEL, name, mode))
 
 

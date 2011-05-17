@@ -1,6 +1,7 @@
 from config import *
 from utils import *
 from irc import *
+import log
 
 def Quit(parsed):
     """Tells the robot to kindly leave. Remeber, robots have no feelings,
@@ -11,7 +12,7 @@ def Quit(parsed):
         combostring = NICK + ", gtfo"
         if message.startswith(combostring):
             if authUser(nick) == True:
-                log('QUIT by ' + nick)
+                log.notice('QUIT by %s' % nick)
                 sendMessage(CHANNEL, "Bye :(")
                 #this is instant close now, it does not have time to send
                 #PART + adding a sleep

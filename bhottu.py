@@ -40,6 +40,7 @@ from config import *
 from utils import *
 from modules import *
 import irc
+import log
 
 enabled_modules = [globals()[name] for name in ENABLED_MODULES]
 
@@ -90,18 +91,18 @@ def makeConnection():
     tries = 0
     while True:
         try:
-            log("Connecting to server %s:%i..." % (SERVER, PORT))
+            log.notice("Connecting to server %s:%i..." % (SERVER, PORT))
             irc.connect(SERVER, PORT)
             break
         except:
             if tries == 12:
-                log("Failed to establish a connection, giving up")
+                log.critical("Failed to establish a connection, giving up")
                 return False
             timeout = pow(2, tries)
-            log("Connection failed, trying again in %i seconds" % timeout)
+            log.notice("Connection failed, trying again in %i seconds" % timeout)
             time.sleep(timeout)
             tries += 1
-    log("Success!")
+    log.notice("Success!")
     return True
 
 def main():
@@ -116,10 +117,12 @@ def main():
             for module in enabled_modules:
                 module(parsed)
         irc.disconnect()
-        log("Lost connection, reconnecting...")
+        log.notice("Lost connection, reconnecting...")
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, sigint_handler)
+    log.addLog(sys.stdout, STDOUT_LOGLEVEL, STDOUT_VERBOSE)
+    log.addLog(LOG_FILE, LOG_LEVEL, LOG_VERBOSE)
     dbConnect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE)
     for initFunction in set([module.bhottu_init for module in sys.modules.values() if hasattr(module, 'bhottu_init')]):
         initFunction()

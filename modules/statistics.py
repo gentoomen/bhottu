@@ -18,14 +18,12 @@ def Statistics(parsed):
             top10reply = top10reply + str(count+1)+". "+\
                         str(listhing[count][0][0])+" ["+str(listhing[count][1][0][0])+"] "
             count+=1
-        log('Statistics(): top 10 chatters')
         return top10reply
 
     def Mpm():
         diffdate = datetime.datetime.now() - datetime.datetime(2010, 12, 17, 00, 24, 42)
         reply = dbQuery("SELECT COUNT(*) FROM `lines`")
         mpm = (( diffdate.days * 24 * 60 ) + ( diffdate.seconds / 60 )) / float(reply[0][0])
-        log('Statistics(): messages per minute '+str(mpm))
         return mpm
 
     def lineAvg(parsed):

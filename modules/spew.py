@@ -34,7 +34,6 @@ def Spew(parsed):
                 branch = dbQuery("SELECT message FROM `lines` ORDER BY RAND() LIMIT 1")[0][0]
                 branch = random.choice(branch.split(random.choice\
                 (branch.split(' ')))).lstrip().rstrip()
-                log("Branch is "+branch)
                 limit = random.randint(2,4)
                 itercount = 0
                 while itercount < limit:

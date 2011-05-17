@@ -1,6 +1,8 @@
 from config import *
 from utils import *
 from irc import *
+import log
+
 import os
 import re
 
@@ -30,7 +32,7 @@ def Colors(parsed):
                     dbExecute("INSERT INTO colors (r, g, b, colorname) \
                             VALUES (%s, %s, %s, %s)", \
                             [r, g, b, color[1]])
-                    log('Colors(): Added a color definition for' + hex_test)
+                    log.info('Added a color definition for %s' % hex_test)
                     sendMessage(CHANNEL, 'Added a color definition')
                 else:
                     sendMessage(CHANNEL, 'Syntax: color #ffffff definition')
@@ -40,7 +42,6 @@ def Colors(parsed):
         uname = re.search('#([0-9A-Fa-f]{6})(?!\w)', parsed['event_msg'])
         if uname is not None:
             uname = uname.group()
-            log('Colors(): ' + uname + ' seen')
             uname = uname.strip('#')
             r = int(uname[0:2], 16)
             g = int(uname[2:4], 16)
@@ -61,5 +62,5 @@ def Colors(parsed):
                 return_list.append(' => ')
                 for result in fout.readlines():
                     return_list.append(result)
-                    log('Colors(): '+result)
+                    log.debug(result)
             sendMessage(CHANNEL, ''.join(return_list))

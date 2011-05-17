@@ -15,10 +15,13 @@ NICK_PASS = ''
 GODS = []
 
 #Logging options
-RAW_LOGGING = True
-LOG_TO_STDOUT = True
-LOG_TO_FILE = False
+# Set either of the loglevels to None for no logging to that channel
+# Verbose enables printing the calling function with each log message
+STDOUT_LOGLEVEL = 'DEBUG'
+STDOUT_VERBOSE = False
 LOG_FILE = 'bhottu_log'
+LOG_LEVEL = 'INFO'
+LOG_VERBOSE = True
 
 #Database connection
 DB_HOSTNAME = ''

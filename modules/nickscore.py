@@ -1,6 +1,8 @@
 from config import *
 from utils import *
 from irc import *
+import log
+
 import re
 
 def bhottu_init():
@@ -18,9 +20,9 @@ def nickPlus(parsed):
         pointnum = None
         if uname is not None:
             uname = uname.group()
-            log('nickPlus(): message: ' + message)
-            log('nickPlus(): nick: ' + nick)
-            log('nickPlus(): uname: ' + uname)
+            log.debug('message: %s' % message)
+            log.debug('nick: %s' % nick)
+            log.debug('uname: %s' % uname)
             uname = uname.replace('++', '').rstrip()
             if uname == nick:
                 sendMessage(nick, 'Plussing yourself is a little sad, is it not?')
@@ -29,16 +31,16 @@ def nickPlus(parsed):
             try:
                 pointnum = int(dbQuery('SELECT points FROM nickplus WHERE name=%s', [uname])[0][0])
             except:
-                log('nickPlus(): Something went wrong!')
+                log.error('Something went wrong!')
             if pointnum is not None:
                 sendMessage(CHANNEL, 'incremented by one')
                 pointnum += 1
                 dbExecute('UPDATE nickplus set points=%s WHERE name=%s', [pointnum, uname])
-                log('nickPlus(): Incremented by 1 ' + uname)
+                log.info('Incremented by 1 %s' % uname)
             elif pointnum == None:
                 sendMessage(CHANNEL, 'Added record')
                 dbExecute('INSERT INTO nickplus (name, points) VALUES (%s, %s)', [uname, 1])
-                log('nickPlus(): Incremented by 1 ' + uname)
+                log.info('nickPlus(): Incremented by 1 %s' % uname)
 
 
 def queryNick(parsed):
@@ -48,7 +50,7 @@ def queryNick(parsed):
         combostring = NICK + ", tell me about "
         if combostring in message:
             uname = message.split(combostring)[1].replace('++', '')
-            log('queryNick(): Querying DB with: ' + uname)
+            log.debug('Querying DB with: %s' % uname)
             try:
                 pointnum = int(dbQuery('SELECT points FROM nickplus WHERE name=%s', [uname])[0][0])
                 sendMessage(CHANNEL, '%s, Points for %s = %s' % (nick, uname, pointnum))

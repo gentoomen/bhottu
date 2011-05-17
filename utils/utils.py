@@ -17,19 +17,6 @@
 from config import *
 import time
 
-
-def log(msg):
-    if LOG_TO_STDOUT:
-        print('[' + time.strftime("%Y-%m-%dT%H:%M:%SZ", \
-                time.gmtime()) + '] ' + msg)
-
-
-def log_raw(msg):
-    if RAW_LOGGING and len(msg) > 0:
-        for m in msg.splitlines():
-            print('[' + time.strftime("%Y-%m-%dT%H:%M:%SZ", \
-                    time.gmtime()) + '] [RAW] ' + m)
-
 def triggerTest(msg,trig):
     if msg.startswith(NICK+", "+msg):
         return True

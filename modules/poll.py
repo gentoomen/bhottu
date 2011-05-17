@@ -1,6 +1,8 @@
 from config import *
 from utils import *
 from irc import *
+import log
+
 import datetime
 
 poll_timestamp = None
@@ -47,7 +49,7 @@ def Poll(parsed):
                         sendMessage(CHANNEL, "What about actually asking something, numbnuts?")
                         return
                     dbExecute("INSERT INTO polls (title, status) VALUES (%s, %s)", [title, 'OPEN'])
-                    log('Poll(): New poll opened'+ title)
+                    log.info('New poll opened %s' % title)
                     sendMessage(CHANNEL, "Poll started! %s" % (title))
 
         elif message.startswith(trigger_close):
@@ -59,7 +61,7 @@ def Poll(parsed):
                     pollID = int(poll[0][0])
                     winner = dbQuery("SELECT itemID, pollID, item FROM items WHERE pollID=%s ORDER BY votes DESC", [pollID])
                     dbExecute("UPDATE polls SET status='CLOSED' WHERE pollID=%s", [pollID])
-                    log('Poll(): Open poll closed')
+                    log.info('Open poll closed')
                     poll_timer = 0
                     sendMessage(CHANNEL, "Pool's closed.")
                     if len(winner) > 0:
@@ -74,7 +76,7 @@ def Poll(parsed):
                 pollID = int(poll[0][0])
                 title = poll[0][1]
                 items = dbQuery("SELECT item_index, item, votes FROM items WHERE pollID=%s ORDER BY item_index", [pollID])
-                log('Poll(): Listing open poll and items')
+                log.debug('Listing open poll and items')
                 sendMessage(CHANNEL, title)
                 for item in items:
                     sendMessage(CHANNEL, "%s. %s (%s)" % (item[0], item[1], item[2]))
@@ -107,7 +109,7 @@ def Poll(parsed):
                         dbExecute("INSERT INTO items (pollID, item_index, item, votes) VALUES (%s, %s, %s, %s)", \
                             [pollID, nr_items+1, item_title, 1])
                         dbExecute("UPDATE polls SET voters=%s WHERE pollID=%s", [voters, pollID])
-                        log('Poll(): Adding new item to open poll '+item_title)
+                        log.info('Adding new item to open poll %s' % item_title)
                         sendMessage(CHANNEL, "Vote added.")
                     else:
                         sendMessage(CHANNEL, "define the new item you camelhump")
@@ -118,7 +120,7 @@ def Poll(parsed):
                         voters = voters.split()
                         for item in voters:
                             if nick == item:
-                                log('Poll(): Dupe vote on open poll by'+nick)
+                                log.debug('Dupe vote on open poll by %s' % nick)
                                 sendMessage(CHANNEL, '%s, you have voted already' % nick)
                                 return
                         voters.append(nick)
@@ -132,7 +134,7 @@ def Poll(parsed):
                     nr_votes = int(item[0][1])
                     dbExecute("UPDATE items SET votes=%s WHERE itemID=%s", [nr_votes+1, int(item[0][0])])
                     dbExecute("UPDATE polls SET voters=%s WHERE pollID=%s", [voters, pollID])
-                    log('Poll(): '+nick+' voted on poll')
+                    log.info('%s voted on poll' % nick)
                     sendMessage(CHANNEL, "Vote casted!!")
             else:
                 sendMessage(CHANNEL, "you broke the poll goddam!!!")
@@ -140,9 +142,8 @@ def Poll(parsed):
             #if authUser(nick) == True:
             args = message.replace(trigger_search, '').lstrip()
             derp = dbQuery("SELECT pollID, title, status, voters FROM polls WHERE title LIKE %s", ['%' + args + '%'])
-            log('Poll(): searching poll titles from db')
+            log.debug('searching poll titles from db')
             #for debugging
-            print derp
             if len(derp) > 3:
                 sendMessage('%s entries found, refine your search' % len(derp))
             else:
@@ -177,7 +178,7 @@ def Poll(parsed):
                     return
                 dbExecute("DELETE FROM polls WHERE pollID=%s", [args])
                 dbExecute("DELETE FROM items WHERE pollID=%s", [args])
-                log('Poll(): deleted poll ID: '+args)
+                log.info('deleted poll ID: %s' % args)
                 sendMessage(CHANNEL, 'deleted poll ID: %s' % args)
         elif message.startswith(trigger_timer):
             if authUser(nick) == True:
@@ -192,16 +193,14 @@ def Poll(parsed):
                         sendMessage(CHANNEL, 'interval needs to be an integer and in hours')
                         return
                     poll_timestamp = datetime.datetime.now()
-                    log('Poll(): Timer set on open poll: '+poll_timer+' hours')
+                    log.info('Timer set on open poll: %s hours' % poll_timer)
                     sendMessage(CHANNEL, 'Poll timer started and set to %s minutes' % poll_timer)
     if int(poll_timer) > 0:
         if datetime.datetime.now() - poll_timestamp > datetime.timedelta(minutes=int(poll_timer)):
             pollID = int(dbQuery("SELECT pollID FROM polls WHERE status='OPEN'")[0][0])
             winner = dbQuery("SELECT item FROM items WHERE ident=%s ORDER BY votes DESC", [pollID])
-            #for debugging
-            print winner
             dbExecute("UPDATE polls SET status='CLOSED' WHERE pollID=%s", [pollID])
-            log('Poll(): Timer closed open poll')
+            log.info('Timer closed open poll')
             poll_timer = 0
             sendMessage(CHANNEL, "Pool's closed.")
             if len(winner) > 0:

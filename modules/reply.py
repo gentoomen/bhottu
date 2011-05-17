@@ -3,6 +3,7 @@
 from config import *
 from utils import *
 from irc import *
+import log
 
 that_was = None
 
@@ -23,7 +24,7 @@ def Reply(parsed):
     def newReply(parsed):
         message = parsed['event_msg']
         combostring = NICK + ", "
-        log('newReply(): <reply> in msg')
+        log.debug('<reply> in msg')
         message = message.replace(combostring, '')
         try:
             tmp_reply = message.split('<reply>', 1)
@@ -112,10 +113,10 @@ def Reply(parsed):
         if authUser(nick) == True:
             affected = dbExecute('DELETE FROM replies WHERE reply=%s', [reply])
             sendMessage(CHANNEL, "Total records deleted: %s" % affected)
-            log('rmReply(): Deleted ' + reply)
+            log.info('Deleted %s' % reply)
         else:
             sendMessage(CHANNEL, "03>Lol nice try faggot")
-            log('rmReply(): %s UNAUTHORIZED delete attempt of %s' % (nick, reply))
+            log.info('%s UNAUTHORIZED delete attempt of %s' % (nick, reply))
 
     if parsed['event'] == 'PRIVMSG':
         if parsed['event_msg'].startswith(NICK + ", "):

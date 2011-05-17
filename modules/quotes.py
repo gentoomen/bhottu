@@ -1,6 +1,7 @@
 from config import *
 from utils import *
 from irc import *
+import log
 
 def bhottu_init():
     dbExecute('''create table if not exists quote (
@@ -16,7 +17,7 @@ def quoteIt(parsed):
         if combostring in message:
             message = message.split(combostring)[1]
             quotation = message
-            log('quoteIt(): Trying to insert quote: ' + quotation)
+            log.info('Trying to insert quote: %s' % quotation)
             name = message.split('>')[0].replace('<', '').lstrip('~&@%+')
             if parsed['event_nick'] == name:
                 sendMessage(CHANNEL, "%s, you shouldn't quote your lonely self." % parsed['event_nick'])
