@@ -21,7 +21,7 @@ def readCommand():
     while True:
         pos = readbuffer.find('\n')
         if pos >= 0:
-            output = readbuffer[:pos+1].rstrip('\r\n')
+            output = readbuffer[:pos+1].strip('\r\n')
             readbuffer = readbuffer[pos+1:]
             log_raw('<< ' + output)
             return output
