@@ -88,17 +88,19 @@ def sigint_handler(signum,  frame):
 
 def makeConnection():
     tries = 0
-    try:
-        log("Connecting to server %s:%i..." % (SERVER, PORT))
-        irc.connect(SERVER, PORT)
-    except:
-        if tries == 12:
-            log("Failed to establish a connection, giving up")
-            return False
-        timeout = pow(2, tries)
-        log("Connection failed, trying again in %i seconds", timeout)
-        time.sleep(timeout)
-        tries += 1
+    while True:
+        try:
+            log("Connecting to server %s:%i..." % (SERVER, PORT))
+            irc.connect(SERVER, PORT)
+            break
+        except:
+            if tries == 12:
+                log("Failed to establish a connection, giving up")
+                return False
+            timeout = pow(2, tries)
+            log("Connection failed, trying again in %i seconds" % timeout)
+            time.sleep(timeout)
+            tries += 1
     log("Success!")
     return True
 
