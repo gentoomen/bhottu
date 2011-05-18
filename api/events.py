@@ -1,6 +1,12 @@
 class Handler(object):
     pass
 
+#
+# Handlers registered while a module is being loaded are automatically
+# registered as belonging to that loading module, allowing them to be
+# automatically unregistered during module unload.
+#
+
 _loadingModule = None
 
 def setLoadingModule(module):
@@ -13,6 +19,9 @@ def _effectiveModule(module):
         return _loadingModule
     return module
 
+#
+# A ParsedCommandHandler gets called for each IRC command, in Parse()d form.
+#
 
 _parsedCommandHandlers = []
 
@@ -28,6 +37,9 @@ def registerParsedCommandHandler(function, module = None):
     _parsedCommandHandlers.append(registration)
     return registration
 
+#
+# Unregisters a ParsedCommandHandler.
+#
 
 def unregister(registration):
     global _parsedCommandHandlers
@@ -73,6 +85,11 @@ def Parse(incoming):
     else:
         parsed['event'] = 'silly'
     return parsed
+
+#
+# incomingIrcCommand is responsible for acting on incoming irc commands
+# by parsing them and calling the appropriate handlers.
+#
 
 def incomingIrcCommand(command):
     global _parsedCommandHandlers
