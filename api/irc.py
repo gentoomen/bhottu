@@ -15,7 +15,7 @@ def disconnect():
     connection.close()
     connection = None
 
-def readCommand():
+def readEvent():
     global connection
     global readbuffer
     while True:

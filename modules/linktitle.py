@@ -7,7 +7,7 @@ import re
 import urllib2
 
 def load():
-    registerParsedCommandHandler(LinkTitle)
+    registerParsedEventHandler(LinkTitle)
     dbExecute('''create table if not exists urls (
               urlID int auto_increment primary key,
               url varchar(255),

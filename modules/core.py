@@ -3,11 +3,11 @@ from utils import *
 from api import *
 
 def load():
-    registerParsedCommandHandler(SetUser)
-    registerParsedCommandHandler(SetNick)
-    registerParsedCommandHandler(SetVhost)
-    registerParsedCommandHandler(SetChannel)
-    registerParsedCommandHandler(Pong)
+    registerParsedEventHandler(SetUser)
+    registerParsedEventHandler(SetNick)
+    registerParsedEventHandler(SetVhost)
+    registerParsedEventHandler(SetChannel)
+    registerParsedEventHandler(Pong)
 registerModule('Core', load)
 
 def SetUser(parsed):

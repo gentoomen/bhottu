@@ -3,8 +3,8 @@ from utils import *
 from api import *
 
 def load():
-    registerParsedCommandHandler(userKick)
-    registerParsedCommandHandler(userMode)
+    registerParsedEventHandler(userKick)
+    registerParsedEventHandler(userMode)
 registerModule('UserManagement', load)
 
 def userKick(parsed):

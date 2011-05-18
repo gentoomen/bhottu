@@ -4,7 +4,7 @@ from api import *
 import subprocess
 
 def load():
-    registerParsedCommandHandler(AutoUpdate)
+    registerParsedEventHandler(AutoUpdate)
 registerModule('AutoUpdate', load)
 
 def AutoUpdate(parsed):

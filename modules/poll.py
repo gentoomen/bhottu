@@ -8,7 +8,7 @@ poll_timestamp = None
 poll_timer = 0
 
 def load():
-    registerParsedCommandHandler(Poll)
+    registerParsedEventHandler(Poll)
     dbExecute('''create table if not exists polls (
               pollID int auto_increment primary key,
               title varchar(255),

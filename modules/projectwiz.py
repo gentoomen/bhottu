@@ -3,7 +3,7 @@ from utils import *
 from api import *
 
 def load():
-    registerParsedCommandHandler(ProjectWiz)
+    registerParsedEventHandler(ProjectWiz)
     dbExecute('''create table if not exists projects (
               projectID int auto_increment primary key,
               name varchar(255),

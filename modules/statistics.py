@@ -4,7 +4,7 @@ from api import *
 import datetime
 
 def load():
-    registerParsedCommandHandler(Statistics)
+    registerParsedEventHandler(Statistics)
 registerModule('Statistics', load)
 
 def Statistics(parsed):

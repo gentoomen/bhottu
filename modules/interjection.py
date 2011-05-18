@@ -4,7 +4,7 @@ from api import *
 import re
 
 def load():
-    registerParsedCommandHandler(Interjection)
+    registerParsedEventHandler(Interjection)
 registerModule('Interjection', load)
 
 def Interjection(parsed):

@@ -7,7 +7,7 @@ from usermanagement import *
 from quit import *
 
 def load():
-    registerParsedCommandHandler(Help)
+    registerParsedEventHandler(Help)
 registerModule('Help', load)
 
 def Help(parsed):

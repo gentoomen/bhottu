@@ -3,7 +3,7 @@ from utils import *
 from api import *
 
 def load():
-    registerParsedCommandHandler(Greetings)
+    registerParsedEventHandler(Greetings)
     dbExecute('''create table if not exists greetings (
               greetingID int auto_increment primary key,
               nick varchar(255),

@@ -4,7 +4,7 @@ from api import *
 import random
 
 def load():
-    registerParsedCommandHandler(Roulette)
+    registerParsedEventHandler(Roulette)
 registerModule('Roulette', load)
 
 def Roulette(parsed):

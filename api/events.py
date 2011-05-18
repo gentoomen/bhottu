@@ -20,31 +20,31 @@ def _effectiveModule(module):
     return module
 
 #
-# A ParsedCommandHandler gets called for each IRC command, in Parse()d form.
+# A ParsedEventHandler gets called for each IRC event, in Parse()d form.
 #
 
-_parsedCommandHandlers = []
+_parsedEventHandlers = []
 
-def registerParsedCommandHandler(function, module = None):
-    global _parsedCommandHandlers
+def registerParsedEventHandler(function, module = None):
+    global _parsedEventHandlers
     registration = Handler()
     registration.enabled = True
-    registration.type = _parsedCommandHandlers
+    registration.type = _parsedEventHandlers
     registration.function = function
     registration.module = _effectiveModule(module)
     if registration.module != None:
         registration.module.handlers.append(registration)
-    _parsedCommandHandlers.append(registration)
+    _parsedEventHandlers.append(registration)
     return registration
 
 #
-# Unregisters a ParsedCommandHandler.
+# Unregisters a ParsedEventHandler.
 #
 
 def unregister(registration):
-    global _parsedCommandHandlers
-    if registration.type == _parsedCommandHandlers:
-        _parsedCommandHandlers.remove(registration)
+    global _parsedEventHandlers
+    if registration.type == _parsedEventHandlers:
+        _parsedEventHandlers.remove(registration)
         registration.enabled = False
         return True
     return False
@@ -87,13 +87,13 @@ def Parse(incoming):
     return parsed
 
 #
-# incomingIrcCommand is responsible for acting on incoming irc commands
+# incomingIrcEvent is responsible for acting on incoming irc events
 # by parsing them and calling the appropriate handlers.
 #
 
-def incomingIrcCommand(command):
-    global _parsedCommandHandlers
-    parsed = Parse(command)
-    for handler in _parsedCommandHandlers[:]:
+def incomingIrcEvent(event):
+    global _parsedEventHandlers
+    parsed = Parse(event)
+    for handler in _parsedEventHandlers[:]:
         if handler.enabled:
             handler.function(parsed)

@@ -6,7 +6,7 @@ import os
 import re
 
 def load():
-    registerParsedCommandHandler(Colors)
+    registerParsedEventHandler(Colors)
     dbExecute('''create table if not exists colors (
               colorID int auto_increment primary key,
               r tinyint(3),

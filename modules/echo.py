@@ -5,8 +5,8 @@ from utils import *
 from api import *
 
 def load():
-    registerParsedCommandHandler(echoMsg)
-    registerParsedCommandHandler(shoutMsg)
+    registerParsedEventHandler(echoMsg)
+    registerParsedEventHandler(shoutMsg)
 registerModule('Echo', load)
 
 def echoMsg(parsed):

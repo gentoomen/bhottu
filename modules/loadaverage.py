@@ -4,7 +4,7 @@ from api import *
 import os
 
 def load():
-    registerParsedCommandHandler(LoadAverage)
+    registerParsedEventHandler(LoadAverage)
 registerModule('LoadAverage', load)
 
 def LoadAverage(parsed):

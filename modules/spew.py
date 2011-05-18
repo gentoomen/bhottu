@@ -3,7 +3,7 @@ from utils import *
 from api import *
 
 def load():
-    registerParsedCommandHandler(Spew)
+    registerParsedEventHandler(Spew)
     dbExecute('''create table if not exists `lines` (
               lineID int auto_increment primary key,
               name varchar(255),

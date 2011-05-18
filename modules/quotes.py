@@ -3,8 +3,8 @@ from utils import *
 from api import *
 
 def load():
-    registerParsedCommandHandler(quoteIt)
-    registerParsedCommandHandler(echoQuote)
+    registerParsedEventHandler(quoteIt)
+    registerParsedEventHandler(echoQuote)
     dbExecute('''create table if not exists quote (
               quoteID int auto_increment primary key,
               name varchar(255),

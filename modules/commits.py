@@ -8,7 +8,7 @@ import datetime
 last_repo_check = None
 
 def load():
-    registerParsedCommandHandler(Commits)
+    registerParsedEventHandler(Commits)
     dbExecute('''create table if not exists repos (
               repoID int auto_increment primary key,
               repo varchar(255),

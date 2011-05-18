@@ -5,8 +5,8 @@ from api import *
 import re
 
 def load():
-    registerParsedCommandHandler(nickPlus)
-    registerParsedCommandHandler(queryNick)
+    registerParsedEventHandler(nickPlus)
+    registerParsedEventHandler(queryNick)
     dbExecute('''create table if not exists nickplus (
               nickplusID int auto_increment primary key,
               name varchar(255),

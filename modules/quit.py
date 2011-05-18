@@ -3,7 +3,7 @@ from utils import *
 from api import *
 
 def load():
-    registerParsedCommandHandler(Quit)
+    registerParsedEventHandler(Quit)
 registerModule('Quit', load)
 
 def Quit(parsed):

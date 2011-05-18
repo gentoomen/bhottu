@@ -64,10 +64,10 @@ def main():
         if not makeConnection():
             break
         while True:
-            command = readCommand()
-            if command == None:
+            event = readEvent()
+            if event == None:
                 break
-            incomingIrcCommand(command)
+            incomingIrcEvent(event)
         disconnect()
         log.notice("Lost connection, reconnecting...")
 

@@ -6,7 +6,7 @@ flood_time = ""
 flood_counter = 0
 
 def load():
-    registerParsedCommandHandler(FloodControl)
+    registerParsedEventHandler(FloodControl)
 registerModule('FloodControl', load)
 
 def FloodControl(parsed):

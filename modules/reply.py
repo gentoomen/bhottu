@@ -7,7 +7,7 @@ from api import *
 that_was = None
 
 def load():
-    registerParsedCommandHandler(Reply)
+    registerParsedEventHandler(Reply)
     dbExecute('''create table if not exists replies (
               replyID int auto_increment primary key,
               `trigger` varchar(255),
