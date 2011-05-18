@@ -1,12 +1,12 @@
 from config import *
 from utils import *
-from irc import *
-import log
+from api import *
 
 import os
 import re
 
-def bhottu_init():
+def load():
+    registerParsedCommandHandler(Colors)
     dbExecute('''create table if not exists colors (
               colorID int auto_increment primary key,
               r tinyint(3),
@@ -14,6 +14,7 @@ def bhottu_init():
               b tinyint(3),
               colorname varchar(255),
               index(r,g,b))''')
+registerModule('Colors', load)
 
 def Colors(parsed):
     if parsed['event'] == 'PRIVMSG':

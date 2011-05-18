@@ -2,7 +2,12 @@
 
 from config import *
 from utils import *
-from irc import *
+from api import *
+
+def load():
+    registerParsedCommandHandler(echoMsg)
+    registerParsedCommandHandler(shoutMsg)
+registerModule('Echo', load)
 
 def echoMsg(parsed):
     """Echo given text."""
@@ -30,8 +35,3 @@ def shoutMsg(parsed):
             if saying.startswith('.') and authUser(nick) == False:
                 saying = saying.replace('.', '', 1)
             sendMessage(CHANNEL, chr(2) + saying)
-
-
-def Echo(parsed):
-    echoMsg(parsed)
-    shoutMsg(parsed)

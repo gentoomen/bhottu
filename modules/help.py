@@ -1,10 +1,14 @@
 from config import *
 from utils import *
-from irc import *
+from api import *
 
 from echo import *
 from usermanagement import *
 from quit import *
+
+def load():
+    registerParsedCommandHandler(Help)
+registerModule('Help', load)
 
 def Help(parsed):
     """Simple help system."""

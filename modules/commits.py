@@ -1,19 +1,20 @@
 from config import *
 from utils import *
-from irc import *
-import log
+from api import *
 
 import feedparser
 import datetime
 
 last_repo_check = None
 
-def bhottu_init():
+def load():
+    registerParsedCommandHandler(Commits)
     dbExecute('''create table if not exists repos (
               repoID int auto_increment primary key,
               repo varchar(255),
               feed varchar(255),
               last_item varchar(255) )''')
+registerModule('Commits', load)
 
 def Commits(parsed):
     global last_repo_check

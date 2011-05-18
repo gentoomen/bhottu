@@ -1,7 +1,11 @@
 from config import *
 from utils import *
-from irc import *
+from api import *
 import datetime
+
+def load():
+    registerParsedCommandHandler(Statistics)
+registerModule('Statistics', load)
 
 def Statistics(parsed):
     #funcs

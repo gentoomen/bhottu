@@ -1,14 +1,16 @@
 from config import *
 from utils import *
-from irc import *
+from api import *
 
-def bhottu_init():
+def load():
+    registerParsedCommandHandler(Spew)
     dbExecute('''create table if not exists `lines` (
               lineID int auto_increment primary key,
               name varchar(255),
               message text,
               time int,
               index(name) )''')
+registerModule('Spew', load)
 
 def Spew(parsed):
     def intoLines(parsed):

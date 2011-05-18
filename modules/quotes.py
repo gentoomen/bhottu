@@ -1,14 +1,16 @@
 from config import *
 from utils import *
-from irc import *
-import log
+from api import *
 
-def bhottu_init():
+def load():
+    registerParsedCommandHandler(quoteIt)
+    registerParsedCommandHandler(echoQuote)
     dbExecute('''create table if not exists quote (
               quoteID int auto_increment primary key,
               name varchar(255),
               quotation text,
               index(name) )''')
+registerModule('Quotes', load)
 
 def quoteIt(parsed):
     if parsed['event'] == 'PRIVMSG':
@@ -48,7 +50,3 @@ def echoQuote(parsed):
            f.close()
            url = os.popen('./ompload quotelist')
            sendMessage(CHANNEL, url.read())
-
-def Quotes(parsed):
-    quoteIt(parsed)
-    echoQuote(parsed)

@@ -1,9 +1,13 @@
 from config import *
 from utils import *
-from irc import *
+from api import *
 
 flood_time = ""
 flood_counter = 0
+
+def load():
+    registerParsedCommandHandler(FloodControl)
+registerModule('FloodControl', load)
 
 def FloodControl(parsed):
     """Flood control for channel"""

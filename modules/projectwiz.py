@@ -1,9 +1,9 @@
 from config import *
 from utils import *
-from irc import *
-import log
+from api import *
 
-def bhottu_init():
+def load():
+    registerParsedCommandHandler(ProjectWiz)
     dbExecute('''create table if not exists projects (
               projectID int auto_increment primary key,
               name varchar(255),
@@ -13,6 +13,7 @@ def bhottu_init():
               language varchar(255),
               status varchar(255),
               index(name) )''')
+registerModule('ProjectWiz', load)
 
 def ProjectWiz(parsed):
     def mls(svar, lvar):

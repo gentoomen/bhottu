@@ -1,7 +1,14 @@
 from config import *
 from utils import *
-from irc import *
-import log
+from api import *
+
+def load():
+    registerParsedCommandHandler(SetUser)
+    registerParsedCommandHandler(SetNick)
+    registerParsedCommandHandler(SetVhost)
+    registerParsedCommandHandler(SetChannel)
+    registerParsedCommandHandler(Pong)
+registerModule('Core', load)
 
 def SetUser(parsed):
     if parsed['event'] == '439':
@@ -37,11 +44,3 @@ def Pong(parsed):
     if parsed['event'] == 'PING':
         log.debug('PONG')
         sendCommand('PONG :%s' % parsed['event_msg'])
-
-
-def Core(parsed):
-    SetUser(parsed)
-    SetNick(parsed)
-    SetVhost(parsed)
-    SetChannel(parsed)
-    Pong(parsed)

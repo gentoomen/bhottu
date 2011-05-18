@@ -1,14 +1,14 @@
 from config import *
 from utils import *
-from irc import *
-import log
+from api import *
 
 import datetime
 
 poll_timestamp = None
 poll_timer = 0
 
-def bhottu_init():
+def load():
+    registerParsedCommandHandler(Poll)
     dbExecute('''create table if not exists polls (
               pollID int auto_increment primary key,
               title varchar(255),
@@ -21,6 +21,7 @@ def bhottu_init():
               item varchar(255),
               votes int,
               index(pollID) )''')
+registerModule('Poll', load)
 
 def Poll(parsed):
     global poll_timestamp

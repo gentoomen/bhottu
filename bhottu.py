@@ -26,61 +26,15 @@ bhottu v2
 #  |___  /___|  /\____/|__|  |__| |____/
 #      \/     \/
 
-#import os
 import sys
-#import re
-import socket
-#import string
 import time
-#import datetime
 import signal
-from time import gmtime, strftime
 
 from config import *
 from utils import *
 from modules import *
-import irc
-import log
 
-enabled_modules = [globals()[name] for name in ENABLED_MODULES]
-
-#### FUNCTIONS ####
-
-def Parse(incoming):
-    parsed = {}
-    tmp_vars = []
-    index = 0
-    parsed['raw'] = incoming
-    parsed['event_timestamp'] = strftime("%H:%M:%S +0000", gmtime())
-    for part in parsed['raw'].lstrip(':').split(' '):
-        if part.startswith(':'):
-            tmp_vars.append(parsed['raw'].lstrip(':')\
-                    .split(' ', index)[index].lstrip(':'))
-            break
-        else:
-            tmp_vars.append(part)
-            tmp_vars = [' '.join(tmp_vars)]
-            index += 1
-            continue
-    if len(tmp_vars) > 1:
-        parsed['event_msg'] = tmp_vars[1]
-        cmd_vars = tmp_vars[0].split()
-        if cmd_vars[0] == 'PING':
-            parsed['event'] = 'PING'
-        else:
-            parsed['event'] = cmd_vars[1]
-            try:
-                parsed['event_host'] = cmd_vars[0].split('@')[1]
-                parsed['event_user'] = cmd_vars[0].split('@')[0].split('!')[1]
-                parsed['event_nick'] = cmd_vars[0].split('@')[0].split('!')[0]
-            except:
-                parsed['event_host'] = cmd_vars[0]
-            if parsed['event'] == 'PRIVMSG':
-                    parsed['event_target'] = cmd_vars[2]
-    else:
-        parsed['event'] = 'silly'
-    return parsed
-
+from api import *
 
 def sigint_handler(signum,  frame):
     """Handles SIGINT signal (<C-c>). Quits program."""
@@ -92,7 +46,7 @@ def makeConnection():
     while True:
         try:
             log.notice("Connecting to server %s:%i..." % (SERVER, PORT))
-            irc.connect(SERVER, PORT)
+            connect(SERVER, PORT)
             break
         except:
             if tries == 12:
@@ -110,13 +64,11 @@ def main():
         if not makeConnection():
             break
         while True:
-            command = irc.readCommand()
+            command = readCommand()
             if command == None:
                 break
-            parsed = Parse(command)
-            for module in enabled_modules:
-                module(parsed)
-        irc.disconnect()
+            incomingIrcCommand(command)
+        disconnect()
         log.notice("Lost connection, reconnecting...")
 
 if __name__ == "__main__":
@@ -124,6 +76,6 @@ if __name__ == "__main__":
     log.addLog(sys.stdout, STDOUT_LOGLEVEL, STDOUT_VERBOSE)
     log.addLog(LOG_FILE, LOG_LEVEL, LOG_VERBOSE)
     dbConnect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE)
-    for initFunction in set([module.bhottu_init for module in sys.modules.values() if hasattr(module, 'bhottu_init')]):
-        initFunction()
+    for module in ENABLED_MODULES:
+        loadModule(module)
     main()

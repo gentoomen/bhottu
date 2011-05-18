@@ -2,12 +2,12 @@
 
 from config import *
 from utils import *
-from irc import *
-import log
+from api import *
 
 that_was = None
 
-def bhottu_init():
+def load():
+    registerParsedCommandHandler(Reply)
     dbExecute('''create table if not exists replies (
               replyID int auto_increment primary key,
               `trigger` varchar(255),
@@ -19,6 +19,7 @@ def bhottu_init():
               var varchar(255),
               replacement varchar(255),
               index(var) )''')
+registerModule('Reply', load)
 
 def Reply(parsed):
     def newReply(parsed):

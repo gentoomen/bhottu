@@ -1,16 +1,18 @@
 from config import *
 from utils import *
-from irc import *
-import log
+from api import *
 
 import re
 
-def bhottu_init():
+def load():
+    registerParsedCommandHandler(nickPlus)
+    registerParsedCommandHandler(queryNick)
     dbExecute('''create table if not exists nickplus (
               nickplusID int auto_increment primary key,
               name varchar(255),
               points int,
               unique(name) )''')
+registerModule('NickScore', load)
 
 def nickPlus(parsed):
     if parsed['event'] == 'PRIVMSG':
@@ -56,8 +58,3 @@ def queryNick(parsed):
                 sendMessage(CHANNEL, '%s, Points for %s = %s' % (nick, uname, pointnum))
             except:
                 pass
-
-
-def NickScore(parsed):
-    nickPlus(parsed)
-    queryNick(parsed)

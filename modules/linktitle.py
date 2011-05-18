@@ -1,13 +1,13 @@
 from config import *
 from utils import *
-from irc import *
-import log
+from api import *
 
 import os
 import re
 import urllib2
 
-def bhottu_init():
+def load():
+    registerParsedCommandHandler(LinkTitle)
     dbExecute('''create table if not exists urls (
               urlID int auto_increment primary key,
               url varchar(255),
@@ -17,7 +17,7 @@ def bhottu_init():
               blacklistID int auto_increment primary key,
               domain varchar(255),
               index(domain) )''')
-
+registerModule('LinkTitle', load)
 
 def LinkTitle(parsed):
     if parsed['event'] == 'PRIVMSG':

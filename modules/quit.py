@@ -1,7 +1,10 @@
 from config import *
 from utils import *
-from irc import *
-import log
+from api import *
+
+def load():
+    registerParsedCommandHandler(Quit)
+registerModule('Quit', load)
 
 def Quit(parsed):
     """Tells the robot to kindly leave. Remeber, robots have no feelings,

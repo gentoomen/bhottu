@@ -1,13 +1,15 @@
 from config import *
 from utils import *
-from irc import *
+from api import *
 
-def bhottu_init():
+def load():
+    registerParsedCommandHandler(Greetings)
     dbExecute('''create table if not exists greetings (
               greetingID int auto_increment primary key,
               nick varchar(255),
               greeting text,
               index(nick) )''')
+registerModule('Greetings', load)
 
 def Greetings(parsed):
     if parsed['event'] == 'PRIVMSG':

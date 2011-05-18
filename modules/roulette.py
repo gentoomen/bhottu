@@ -1,7 +1,11 @@
 from config import *
 from utils import *
-from irc import *
+from api import *
 import random
+
+def load():
+    registerParsedCommandHandler(Roulette)
+registerModule('Roulette', load)
 
 def Roulette(parsed):
     if parsed['event'] == 'PRIVMSG':

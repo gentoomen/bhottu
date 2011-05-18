@@ -1,7 +1,11 @@
 from config import *
 from utils import *
-from irc import *
+from api import *
 import re
+
+def load():
+    registerParsedCommandHandler(Interjection)
+registerModule('Interjection', load)
 
 def Interjection(parsed):
     if parsed['event'] == 'PRIVMSG':

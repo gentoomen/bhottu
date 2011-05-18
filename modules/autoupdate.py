@@ -1,7 +1,11 @@
 from config import *
 from utils import *
-from irc import *
+from api import *
 import subprocess
+
+def load():
+    registerParsedCommandHandler(AutoUpdate)
+registerModule('AutoUpdate', load)
 
 def AutoUpdate(parsed):
     if parsed['event'] == 'PRIVMSG':

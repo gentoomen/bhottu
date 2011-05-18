@@ -1,7 +1,11 @@
 from config import *
 from utils import *
-from irc import *
-import log
+from api import *
+
+def load():
+    registerParsedCommandHandler(userKick)
+    registerParsedCommandHandler(userMode)
+registerModule('UserManagement', load)
 
 def userKick(parsed):
     """Kick specific user. Authorized users only."""
@@ -34,8 +38,3 @@ def userMode(parsed):
                 mode = parts[1]
                 log.info('MODE %s %s %s' % (CHANNEL, mode, name))
                 sendCommand('MODE %s %s %s'% (CHANNEL, name, mode))
-
-
-def UserManagement(parsed):
-    userKick(parsed)
-    userMode(parsed)
