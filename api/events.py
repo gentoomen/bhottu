@@ -146,12 +146,18 @@ def _functionName(format):
 # a literal; it also doesn't automatically appear in the help system,
 # generate syntax hints, and stuff like that.
 #
+# If format == None, this registers the handler for any incoming message,
+#   and `implicit` is ignored.
+#
 
 _messageHandlers = []
 
 def registerMessageHandler(format, function, module = None, implicit = False):
     global _messageHandlers
-    parsedFormat = stringmatcher.parseFormat(format)
+    if format == None:
+        parsedFormat = None
+    else:
+        parsedFormat = stringmatcher.parseFormat(format)
     registration = Handler()
     registration.enabled = True
     registration.type = _functionHandlers
@@ -159,7 +165,7 @@ def registerMessageHandler(format, function, module = None, implicit = False):
     registration.module = _effectiveModule(module)
     registration.format = parsedFormat
     registration.implicit = implicit
-    if registation.module != None:
+    if registration.module != None:
         registration.module.handlers.append(registration)
     _messageHandlers.append(registration)
     return registration
@@ -295,7 +301,7 @@ def incomingIrcEvent(event):
                 continue
             callFunction(handler.function, [arguments, sender, command])
     if command == 'PRIVMSG':
-        incomingIrcMessage(sender, arguments)
+        incomingIrcMessage(sender, arguments[0], arguments[1])
     global _currentNick
     if command.isdigit():
         _currentNick = arguments[0]
@@ -304,16 +310,15 @@ def incomingIrcEvent(event):
         if nickname == _currentNick:
             _currentNick = arguments[0]
 
-def incomingIrcMessage(sender, arguments):
+def incomingIrcMessage(sender, channel, fullMessage):
     # sender is a nickname!ident@hostname triple.
     (nickname, ident, hostname) = parseSender(sender)
-    if arguments[0].startswith('#') or arguments[0].startswith('&'):
-        channel = arguments[0]
+    if channel.startswith('#') or channel.startswith('&'):
         triggered = False
     else:
         channel = nickname
         triggered = True
-    message = arguments[1].lstrip(' \t')
+    message = fullMessage.lstrip(' \t')
     if message.startswith(currentNickname()):
         reducedMessage = message[len(currentNickname()):]
         if reducedMessage[:2].rstrip(' \t') in [',', ':']:
@@ -357,6 +362,11 @@ def incomingIrcMessage(sender, arguments):
     for handler in _messageHandlers[:]:
         if not handler.enabled:
             continue
+        # Handlers with format == None are a special case - they always get called, period.
+        if handler.format == None:
+            callFunction(handler.function, [channel, nickname, fullMessage])
+            continue
+        
         # If the incoming message does not start with 'bhottu, ', ignore it
         # unless this function is marked Implicit.
         if not handler.implicit and not triggered:
