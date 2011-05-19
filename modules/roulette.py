@@ -1,16 +1,14 @@
-from config import *
-from utils import *
 from api import *
 import random
 
 def load():
-    registerParsedEventHandler(Roulette)
+    """Russion Roulette module - kicks user with a one in six chance."""
+    registerFunction("roulette", roulette, implicit=True)
 registerModule('Roulette', load)
 
-def Roulette(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        if parsed['event_msg'] == 'roulette':
-            if random.randrange(0, 6) == 5:
-                sendKick(CHANNEL, parsed['event_nick'], 'CONGRATULATIONS, YOU WON THE GRAND PRIZE!')
-            else:
-                sendMessage(CHANNEL, "You get to live for now.")
+def roulette(channel, nick):
+    """Kicks the user with a one out of six chance."""
+    if random.randrange(0, 6) == 0:
+        sendKick(channel, nick, 'CONGRATULATIONS, YOU WON THE GRAND PRIZE!')
+    else:
+        sendMessage(channel, 'You get to live for now.')
