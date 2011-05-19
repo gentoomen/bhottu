@@ -1,4 +1,6 @@
 import stringmatcher
+import authorize
+import irc
 
 class Handler(object):
     pass
@@ -20,6 +22,16 @@ def _effectiveModule(module):
     if module == None:
         return _loadingModule
     return module
+
+#
+# Stores the bot's current nickname.
+#
+
+_currentNick = None
+
+def currentNickname():
+    global _currentNick
+    return _currentNick
 
 #
 # A ParsedEventHandler gets called for each IRC event, in Parse()d form.
@@ -78,6 +90,12 @@ def registerCommandHandler(command, function, module = None):
 #    (in case of a private message) the nickname of the sender (i.e. a copy of `sender`),
 # and argument1..N are the matched values of the format specifier.
 #
+# A function can furthermore be marked as `implicit`, meaning that it will trigger
+#   even when the message is not prefixed with 'bhottu, ';
+# it can be `restricted`, which means that only authorized users can trigger it;
+# and `errorMessages` can be set (which is the default), which means that an error
+#   message will be sent when the syntax is wrong or the user is not authorized.
+#
 
 _functionHandlers = []
 
@@ -94,8 +112,10 @@ def registerFunction(format, function, syntax = None, module = None, implicit = 
     registration.name = name
     registration.description = function.__doc__
     registration.syntax = syntax
+    registration.syntaxErrorMessage = None
     registration.implicit = implicit
     registration.restricted = restricted
+    registration.restrictedErrorMessage = None
     registration.errorMessages = errorMessages
     if registration.module != None:
         registration.module.handlers.append(registration)
@@ -157,14 +177,17 @@ def unregister(registration):
     global _commandHandlers
     if registration.type == _commandHandlers:
         _commandHandlers[registration.command].remove(registration)
+        registration.enabled = False
         return True
     global _functionHandlers
     if registration.type == _functionHandlers:
         _functionHandlers.remove(registration)
+        registration.enabled = False
         return True
     global _messageHandlers
     if registration.type == _messageHandlers:
         _messageHandlers.remove(registration)
+        registration.enabled = False
         return True
     return False
 
@@ -273,41 +296,77 @@ def incomingIrcEvent(event):
             callFunction(handler.function, [arguments, sender, command])
     if command == 'PRIVMSG':
         incomingIrcMessage(sender, arguments)
-
-#
-# TODO:
-#
-# - respond only on "$nick, " unless handler.implicit is set
-# - respond only to authorized users if handlers.restricted is set
-# - deliver syntax hints
-#
+    global _currentNick
+    if command.isdigit():
+        _currentNick = arguments[0]
+    if command == 'NICK':
+        (nickname, ident, hostname) = parseSender(sender)
+        if nickname == _currentNick:
+            _currentNick = arguments[0]
 
 def incomingIrcMessage(sender, arguments):
     # sender is a nickname!ident@hostname triple.
     (nickname, ident, hostname) = parseSender(sender)
-    channel = arguments[0]
-    message = arguments[1]
-    if channel[0] != '#' and channel[0] != '&':
+    if arguments[0].startswith('#') or arguments[0].startswith('&'):
+        channel = arguments[0]
+        triggered = False
+    else:
         channel = nickname
-    
+        triggered = True
+    message = arguments[1].lstrip(' \t')
+    if message.startswith(currentNickname()):
+        reducedMessage = message[len(currentNickname()):]
+        if reducedMessage[:2].rstrip(' \t') in [',', ':']:
+            message = reducedMessage[2:]
+            triggered = True
+    authorized = authorize.isAuthorized(nickname)
     
     global _functionHandlers
     for handler in _functionHandlers[:]:
         if not handler.enabled:
             continue
+        # If the incoming message does not start with 'bhottu, ', ignore it
+        # unless this function is marked Implicit.
+        if not handler.implicit and not triggered:
+            continue
         arguments = stringmatcher.matchFormat(message, handler.format)
-        if isinstance(arguments, list):
-            callFunction(handler.function, [channel, nickname] + arguments)
+        if arguments == False:
+            # The function was not called.
+            continue
         elif arguments == True:
-            # TODO: Send syntax hint
-            pass
+            # The function matches, but with wrong syntax.
+            if handler.errorMessages:
+                if handler.syntaxErrorMessage != None:
+                    irc.sendMessage(channel, handler.syntaxErrorMessage)
+                elif handler.syntax != None:
+                    irc.sendMessage(channel, "syntax: %s" % handler.syntax)
+            continue
+        # If we get here, the function was matched.
+        # If the user is not authorized to invoke this function, abort.
+        if handler.restricted and not authorized:
+            if handler.errorMessages:
+                if handler.restrictedErrorMessage != None:
+                    irc.sendMessage(channel, handler.restrictedErrorMessage)
+                else:
+                    irc.sendMessage(channel, 'Sorry, authorized users only.')
+            continue
+        # Everything checks out, we can execute the function.
+        callFunction(handler.function, [channel, nickname] + arguments)
+    
     global _messageHandlers
     for handler in _messageHandlers[:]:
         if not handler.enabled:
             continue
+        # If the incoming message does not start with 'bhottu, ', ignore it
+        # unless this function is marked Implicit.
+        if not handler.implicit and not triggered:
+            continue
         arguments = stringmatcher.matchFormat(message, handler.format)
-        if isinstance(arguments, list):
-            callFunction(handler.function, [channel, nickname] + arguments)
+        if arguments == True or arguments == False:
+            # No match.
+            continue
+        # We have a match, so execute the handler.
+        callFunction(handler.function, [channel, nickname] + arguments)
 
 def parseSender(sender):
     pos = sender.find('@')

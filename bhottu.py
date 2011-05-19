@@ -75,6 +75,8 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, sigint_handler)
     log.addLog(sys.stdout, STDOUT_LOGLEVEL, STDOUT_VERBOSE)
     log.addLog(LOG_FILE, LOG_LEVEL, LOG_VERBOSE)
+    for god in GODS:
+        addRoot(god)
     dbConnect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE)
     for module in ENABLED_MODULES:
         loadModule(module)
