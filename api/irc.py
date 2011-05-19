@@ -34,13 +34,15 @@ def sendCommand(command):
     global connection
     command = command.replace('\r', '').replace('\n', '')[:510]
     log.debug('>> ' + command)
+    if command.find(':') < 0:
+        command = command[:509] + ' '
     connection.sendall(command + '\r\n')
 
 def sendPrivmsg(receiver, message):
     sendCommand("PRIVMSG %s :%s" % (receiver, message))
 
 def sendMessage(receiver, message):
-    sendPrivmsg(receiver, sanitize(message))
+    sendPrivmsg(receiver, sanitize(str(message)))
 
 def sendKick(channel, target, reason):
     sendCommand("KICK %s %s :%s" % (channel, target, reason))
