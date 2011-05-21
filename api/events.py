@@ -3,6 +3,7 @@ import authorize
 import irc
 import ircstatus
 import log
+import traceback
 
 class Handler(object):
     pass
@@ -272,7 +273,7 @@ def callFunction(function, arguments):
     try:
         function(*arguments[:function.func_code.co_argcount])
     except Exception, description:
-        log.warning("Function '%s' raised an exception: '%s'" % (function.__name__, description))
+        log.warning("Function '%s' raised an exception: '%s'\n%s" % (function.__name__, description, traceback.format_exc()))
 
 #
 # incomingIrcEvent is responsible for acting on incoming irc events
