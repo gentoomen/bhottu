@@ -1,58 +1,47 @@
-from config import *
-from utils import *
 from api import *
+import time
 
 def load():
-    registerParsedEventHandler(Greetings)
     dbExecute('''create table if not exists greetings (
               greetingID int auto_increment primary key,
               nick varchar(255),
               greeting text,
               index(nick) )''')
+    registerFunction("greet %s %S", addGreet, "greet <target> <message>", restricted = True)
+    registerFunction("don't greet %s", removeGreet, "don't greet <target>", restricted = True)
+    registerCommandHandler("JOIN", checkGreetJoin)
+    registerCommandHandler("NICK", checkGreetNick)
 registerModule('Greetings', load)
 
-def Greetings(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        combostring = NICK + ", greet "
-        message = parsed['event_msg']
-        if combostring in message:
-            if authUser(parsed['event_nick']) == True:
-                name = message.replace(combostring, '').split(' ', 1)[0]
-                name = name.strip()
-                if len(name) < 1:
-                    sendMessage(CHANNEL, 'who?')
-                    return
-                if parsed['event_nick'] == name:
-                    sendMessage(CHANNEL, '%s, u silly poophead' % name)
-                    return
-                try:
-                    msg = message.replace(combostring, '').split(' ', 1)[1]
-                except:
-                    sendMessage(CHANNEL, 'how?')
-                    return
-                reply = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [name])
-                if len(reply) > 0:
-                    sendMessage(CHANNEL, 'I already great %s with %s' % (name, reply[0][0]))
-                else:
-                    dbExecute("INSERT INTO greetings (nick, greeting) VALUES (%s, %s)", [name, msg])
-                    sendMessage(CHANNEL, 'will do')
-    if parsed['event'] == 'PRIVMSG':
-        combostring = NICK + ", don't greet "
-        message = parsed['event_msg']
-        if combostring in message:
-            if authUser(parsed['event_nick']) == True:
-                name = message.replace(combostring, '')
-                dbExecute("DELETE FROM greetings WHERE nick=%s", [name])
-                sendMessage(CHANNEL, 'okay.. ;_;')
-    if parsed['event'] == 'JOIN':
-        name = parsed['event_nick']
-        reply = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [name])
-        if len(reply) > 0:
-            time.sleep(2)
-            sendMessage(CHANNEL, '%s, %s' % (name, reply[0][0]))
-    if parsed['event'] == 'NICK':
-        name = parsed['event_msg']
-        reply = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [name])
-        if len(reply) > 0:
-            time.sleep(2)
-            sendMessage(CHANNEL, '%s, %s' % (name, reply[0][0]))
+def addGreet(channel, sender, target, message):
+    if sender == target:
+        sendMessage(channel, "%s, u silly poophead" % sender)
+        return
+    currentGreeting = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [target])
+    if len(currentGreeting) > 0:
+        sendMessage("I already greet %s with %s" % (target, currentGreeting[0][0]))
+        return
+    dbExecute("INSERT INTO greetings (nick, greeting) VALUES (%s, %s)", [target, message])
+    sendMessage(channel, "will do")
+
+def removeGreet(channel, sender, target):
+    dbExecute("DELETE FROM greetings WHERE nick=%s", [target])
+    sendMessage(channel, "okay.. ;_;")
+
+def checkGreetJoin(arguments, sender):
+    (nick, ident, hostname) = parseSender(sender)
+    greetings = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [nick])
+    channel = arguments[0]
+    if len(greetings) > 0:
+        time.sleep(2)
+        sendMessage(channel, "%s, %s" % (nick, greetings[0][0]))
+
+def checkGreetNick(arguments, sender):
+    (nick, ident, hostname) = parseSender(sender)
+    newNick = arguments[0]
+    greetings = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [newNick])
+    if len(greetings) > 0:
+        time.sleep(2)
+        for channel in joinedChannels():
+            if newNick in channelUserList(channel):
+                sendMessage(channel, "%s, %s" % (newNick, greetings[0][0]))
