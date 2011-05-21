@@ -2,6 +2,7 @@ import stringmatcher
 import authorize
 import irc
 import ircstatus
+import log
 
 class Handler(object):
     pass
@@ -268,7 +269,10 @@ def parseEvent(event):
 #
 
 def callFunction(function, arguments):
-    function(*arguments[:function.func_code.co_argcount])
+    try:
+        function(*arguments[:function.func_code.co_argcount])
+    except Exception, description:
+        log.warning("Function '%s' raised an exception: '%s'" % (function.__name__, description))
 
 #
 # incomingIrcEvent is responsible for acting on incoming irc events
