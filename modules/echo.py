@@ -1,37 +1,15 @@
-# -*- coding: UTF-8 -*-
-
-from config import *
-from utils import *
 from api import *
 
 def load():
-    registerParsedEventHandler(echoMsg)
-    registerParsedEventHandler(shoutMsg)
+    """Lets the bot say or shout messages on command."""
+    registerFunction("say %S", say, "say <message>")
+    registerFunction("shout %S", shout, "shout <message>")
 registerModule('Echo', load)
 
-def echoMsg(parsed):
-    """Echo given text."""
-    if parsed['event'] == 'PRIVMSG':
-        message = parsed['event_msg']
-        nick = parsed['event_nick']
-        combostring = NICK + ", say "
-        if message.startswith(combostring):
-            #if authUser(nick) == True:
-            saying = message.replace(combostring, '')
-            if saying.startswith('.') and authUser(nick) == False:
-                saying = saying.replace('.', '', 1)
-            sendMessage(CHANNEL, saying)
+def say(channel, sender, message):
+    """Say given text."""
+    sendMessage(channel, message)
 
-
-def shoutMsg(parsed):
+def shout(channel, sender, message):
     """Shout given text."""
-    if parsed['event'] == 'PRIVMSG':
-        message = parsed['event_msg']
-        nick = parsed['event_nick']
-        combostring = NICK + ", shout "
-        if message.startswith(combostring):
-            saying = message.replace(combostring, '').upper()
-            #if authUser(nick) == True:
-            if saying.startswith('.') and authUser(nick) == False:
-                saying = saying.replace('.', '', 1)
-            sendMessage(CHANNEL, chr(2) + saying)
+    sendMessage(channel, chr(2) + message.upper())
