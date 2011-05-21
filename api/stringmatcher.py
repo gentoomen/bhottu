@@ -69,17 +69,15 @@ def parseFormat(format):
 
 def matchFormat(string, format):
     output = []
-    literalMatched = False
     lastSeen = None
     for i in range(len(format)):
         (type, argument) = format[i]
         if type == 'literal':
             if string.startswith(argument):
                 string = string[len(argument):]
-                literalMatched = True
                 lastSeen = 'literal'
             else:
-                return literalMatched
+                return None
         elif type == 'space':
             reducedString = string.lstrip(' \t')
             # Space blocks are idenpotent, that is, matching two adjacent space
@@ -89,7 +87,7 @@ def matchFormat(string, format):
                 string = reducedString
                 lastSeen = 'space'
             else:
-                return literalMatched
+                return None
         elif type == 'specifier':
             optional = argument[0] == '!'
             parameter = argument[-1]
@@ -106,7 +104,7 @@ def matchFormat(string, format):
             elif parameter == 's':
                 (argValue, argString) = matchString(string, terminator)
             elif parameter == 'S':
-                (argValue, argString) = (string, string)
+                (argValue, argString) = matchRemainingString(string)
             else:
                 raise ValueError, 'Unknown format specifier "%s"' % argument
             
@@ -114,13 +112,15 @@ def matchFormat(string, format):
                 if optional:
                     output.append(argValue)
                 else:
-                    return literalMatched
+                    return None
             else:
                 output.append(argValue)
                 string = string[len(argString):]
                 lastSeen = 'specifier'
         else:
             raise ValueError, 'Unknown format block "%s"' % type
+    if string.strip(' \t') != '':
+        return None
     return output
 
 def matchInteger(string, terminator):
@@ -203,3 +203,8 @@ def matchString(string, terminator):
             index += 1
         output = string[:index]
         return (output, output)
+
+def matchRemainingString(string):
+    if string == '':
+        return (None, None)
+    return (string, string)

@@ -95,13 +95,14 @@ _functionHandlers = []
 def registerFunction(format, function, syntax = None, module = None, implicit = False, restricted = False, errorMessages = True):
     global _functionHandlers
     parsedFormat = stringmatcher.parseFormat(format)
-    name = _functionName(parsedFormat)
+    (name, attemptFormat) = _functionName(parsedFormat)
     registration = Handler()
     registration.enabled = True
     registration.type = _functionHandlers
     registration.function = function
     registration.module = _effectiveModule(module)
     registration.format = parsedFormat
+    registration.attemptFormat = attemptFormat
     registration.name = name
     registration.description = function.__doc__
     registration.syntax = syntax
@@ -116,23 +117,29 @@ def registerFunction(format, function, syntax = None, module = None, implicit = 
     return registration
 
 def _functionName(format):
-    output = ''
+    outputString = ''
+    outputFormat = []
+    currentString = ''
+    currentFormat = []
     if len(format) == 0 or format[0][0] != 'literal':
         raise ValueError, 'Invalid function format'
     for (type, argument) in format:
         if type == 'literal':
-            output += argument
+            currentString += argument
+            currentFormat.append((type, argument))
         elif type == 'space':
-            output += ' '
+            outputString += currentString
+            outputFormat.extend(currentFormat)
+            currentString = ' '
+            currentFormat = [(type, argument)]
         else:
-            # Remove everything from the last space onwards.
-            # This takes care of syntax that is not part of the command,
-            # like 'quote <%s> %S'.
-            pos = output.rfind(' ')
-            if pos < 0:
-                return output
-            return output[:pos]
-    return output
+            break
+    else:
+        outputString += currentString
+        outputFormat.extend(currentFormat)
+    outputFormat.append(('space', None))
+    outputFormat.append(('specifier', '!S'))
+    return (outputString, outputFormat)
 
 def functionList():
     global _functionHandlers
@@ -327,11 +334,11 @@ def incomingIrcMessage(sender, channel, fullMessage):
         # unless this function is marked Implicit.
         if not handler.implicit and not triggered:
             continue
-        arguments = stringmatcher.matchFormat(message, handler.format)
-        if arguments == False:
+        if stringmatcher.matchFormat(message, handler.attemptFormat) == None:
             # The function was not called.
             continue
-        elif arguments == True:
+        arguments = stringmatcher.matchFormat(message, handler.format)
+        if arguments == None:
             # The function matches, but with wrong syntax.
             if handler.errorMessages:
                 if handler.syntaxErrorMessage != None:
