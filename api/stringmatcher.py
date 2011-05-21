@@ -71,7 +71,8 @@ def matchFormat(string, format):
     output = []
     literalMatched = False
     lastSeen = None
-    for (type, argument) in format:
+    for i in range(len(format)):
+        (type, argument) = format[i]
         if type == 'literal':
             if string.startswith(argument):
                 string = string[len(argument):]
@@ -93,12 +94,17 @@ def matchFormat(string, format):
             optional = argument[0] == '!'
             parameter = argument[-1]
             
+            if i + 1 < len(format) and format[i + 1][0] == 'literal':
+                terminator = format[i + 1][1][0]
+            else:
+                terminator = None
+            
             if parameter == 'i':
-                (argValue, argString) = matchInteger(string)
+                (argValue, argString) = matchInteger(string, terminator)
             elif parameter == 'f':
-                (argValue, argString) = matchFloat(string)
+                (argValue, argString) = matchFloat(string, terminator)
             elif parameter == 's':
-                (argValue, argString) = matchString(string)
+                (argValue, argString) = matchString(string, terminator)
             elif parameter == 'S':
                 (argValue, argString) = (string, string)
             else:
@@ -117,12 +123,12 @@ def matchFormat(string, format):
             raise ValueError, 'Unknown format block "%s"' % type
     return output
 
-def matchInteger(string):
+def matchInteger(string, terminator):
     digitMatched = False
     index = 0
     if index < len(string) and (string[index] == '+' or string[index] == '-'):
         index += 1
-    while index < len(string) and string[index].isdigit():
+    while index < len(string) and string[index].isdigit() and string[index] != terminator:
         index += 1
         digitMatched = True
     if not digitMatched:
@@ -133,17 +139,17 @@ def matchInteger(string):
     except Exception:
         return (None, None)
 
-def matchFloat(string):
+def matchFloat(string, terminator):
     digitMatched = False
     index = 0
     if index < len(string) and (string[index] == '+' or string[index] == '-'):
         index += 1
-    while index < len(string) and string[index].isdigit():
+    while index < len(string) and string[index].isdigit() and string[index] != terminator:
         index += 1
         digitMatched = True
-    if index < len(string) and string[index] == '.':
+    if index < len(string) and string[index] == '.' and string[index] != terminator:
         index += 1
-    while index < len(string) and string[index].isdigit():
+    while index < len(string) and string[index].isdigit() and string[index] != terminator:
         index += 1
         digitMatched = True
     if not digitMatched:
@@ -154,7 +160,7 @@ def matchFloat(string):
     except Exception:
         return (None, None)
 
-def matchString(string):
+def matchString(string, terminator):
     if string == '':
         return (None, None)
     elif string[0] == "'":
@@ -193,7 +199,7 @@ def matchString(string):
         return (None, None)
     else:
         index = 0
-        while index < len(string) and string[index] != ' ' and string[index] != '\t':
+        while index < len(string) and string[index] != ' ' and string[index] != '\t' and string[index] != terminator:
             index += 1
         output = string[:index]
         return (output, output)
