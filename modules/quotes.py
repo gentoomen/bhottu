@@ -1,5 +1,3 @@
-from config import *
-from utils import *
 from api import *
 
 def load():
@@ -25,17 +23,17 @@ def addQuote(channel, sender, target, quotation):
 
 def echoQuote(channel, sender, target):
     """Fetches a random quote from DB for target and echoes it to channel"""
-    le_quote_fromage = dbQuery('SELECT quotation, name FROM quote WHERE name=%s ORDER BY RAND() LIMIT 1', [target])[0]
-    if len(le_quote_fromage) > 0:
-        sendMessage(channel, "%s - %s" % le_quote_fromage[0], le_quote_fromage[1])
+    quote = dbQuery('SELECT quotation, name FROM quote WHERE name=%s ORDER BY RAND() LIMIT 1', [target])
+    if len(quote) > 0:
+        sendMessage(channel, "%s - %s" % quote[0][0], [0][1])
     else:
-        sendMessage(CHANNEL, "No quotes for %s" % target)
+        sendMessage(channel, "No quotes for %s" % target)
 
 def allQuotes(channel, sender, target):
-    # This is for returning an entire list of somoene's quotes from the DB via omploader
+    """Fetches all quotes for target, uploads them to ompload and echoes link to channel"""
     quotes = dbQuery('SELECT quotation FROM quote WHERE name=%s', [target])
-    if len(le_quote_fromage) < 1:
-        sendMessage(CHANNEL, "No quotes for %s" % target)
+    if len(quotes) < 1:
+        sendMessage(channel, "No quotes for %s" % target)
         return
     return_list = []
     for row in quotes:
