@@ -353,7 +353,7 @@ def incomingIrcMessage(sender, channel, fullMessage):
                 if handler.restrictedErrorMessage != None:
                     irc.sendMessage(channel, handler.restrictedErrorMessage)
                 else:
-                    irc.sendMessage(channel, 'Sorry, authorized users only.')
+                    irc.sendMessage(channel, "%s, %s03>implying" % (nickname, chr(3)))
             continue
         # Everything checks out, we can execute the function.
         callFunction(handler.function, [channel, nickname] + arguments)
