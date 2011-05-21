@@ -1,21 +1,18 @@
-from config import *
-from utils import *
 from api import *
 import subprocess
+import os
 
 def load():
-    registerParsedEventHandler(AutoUpdate)
+    """Allows the bot to update itself."""
+    registerFunction("it's your birthday", birthday, restricted = True)
 registerModule('AutoUpdate', load)
 
-def AutoUpdate(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        combostring = NICK + ", it's your birthday"
-        if parsed['event_msg'].startswith(combostring):
-            if authUser(parsed['event_nick']) == True:
-                retcode = subprocess.call(["git", "pull", "origin", "master"])
-                if retcode == 0:
-                    sendMessage(CHANNEL, "YAY, brb cake!!")
-                    sendQuit("mmmmm chocolate cake")
-                    subprocess.Popen('./bhottu.py', shell=True)
-                else:
-                    sendMessage(CHANNEL, "Hmph, no cake!!")
+def birthday(channel):
+    """Updates the bot to the latest version."""
+    result = subprocess.call(["git", "pull", "origin", "master"])
+    if result == 0:
+        sendMessage(channel, "YAY, brb cake!!")
+        sendQuit("mmmmm chocolate cake")
+        os.execl("./bhottu.py")
+    else:
+        sendMessage(channel, "Hmph, no cake!!")
