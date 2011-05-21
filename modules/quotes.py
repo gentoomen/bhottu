@@ -1,5 +1,5 @@
 from api import *
-import os
+from utils.ompload import *
 
 def load():
     dbExecute('''create table if not exists quote (
@@ -28,7 +28,7 @@ def echoQuote(channel, sender, target):
     if len(quote) == 0:
         sendMessage(channel, "No quotes for %s" % target)
         return
-    sendMessage(channel, "%s - %s" % (quote[0][0], target))
+    sendMessage(channel, '"%s" -- %s' % (quote[0][0], target))
 
 def allQuotes(channel, sender, target):
     """Fetches all quotes for target, uploads them to ompload and echoes link to channel"""
@@ -36,12 +36,14 @@ def allQuotes(channel, sender, target):
     if len(quotes) == 0:
         sendMessage(channel, "No quotes for %s" % target)
         return
-    return_list = []
-    for row in quotes:
-        return_list.append(row[0])
-    return_list = "\n".join(return_list)
-    f = open('./quotelist','w')
-    f.write(return_list)
-    f.close()
-    url = os.popen('./ompload quotelist')
-    sendMessage(channel, url.read())
+    quoteList = ''
+    for quote in quotes:
+        quoteList += '"%s" -- %s\n' % (quote[0], target)
+    try:
+        url = omploadData(quoteList)
+    except Exception:
+        url = None
+    if url == None:
+        sendMessage(channel, "Uploading quotes for %s failed." % target)
+        return
+    sendMessage(channel, "Quotes for %s: %s" % (target, url))
