@@ -1,6 +1,7 @@
 import stringmatcher
 import authorize
 import irc
+import ircstatus
 
 class Handler(object):
     pass
@@ -22,16 +23,6 @@ def _effectiveModule(module):
     if module == None:
         return _loadingModule
     return module
-
-#
-# Stores the bot's current nickname.
-#
-
-_currentNick = None
-
-def currentNickname():
-    global _currentNick
-    return _currentNick
 
 #
 # A ParsedEventHandler gets called for each IRC event, in Parse()d form.
@@ -302,13 +293,6 @@ def incomingIrcEvent(event):
             callFunction(handler.function, [arguments, sender, command])
     if command == 'PRIVMSG':
         incomingIrcMessage(sender, arguments[0], arguments[1])
-    global _currentNick
-    if command.isdigit():
-        _currentNick = arguments[0]
-    if command == 'NICK':
-        (nickname, ident, hostname) = parseSender(sender)
-        if nickname == _currentNick:
-            _currentNick = arguments[0]
 
 def incomingIrcMessage(sender, channel, fullMessage):
     # sender is a nickname!ident@hostname triple.
@@ -319,8 +303,8 @@ def incomingIrcMessage(sender, channel, fullMessage):
         channel = nickname
         triggered = True
     message = fullMessage.lstrip(' \t')
-    if message.startswith(currentNickname()):
-        reducedMessage = message[len(currentNickname()):]
+    if message.startswith(ircstatus.currentNickname()):
+        reducedMessage = message[len(ircstatus.currentNickname()):]
         if reducedMessage[:2].rstrip(' \t') in [',', ':']:
             message = reducedMessage[2:]
             triggered = True
