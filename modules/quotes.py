@@ -6,7 +6,7 @@ def load():
               name varchar(255),
               quotation text,
               index(name) )''')
-    registerFunction("quote %s %S", addQuote, "quote <nick> citation")
+    registerFunction("quote <%s> %S", addQuote, "quote <nick> citation")
     registerFunction("cite %s", echoQuote, "cite <nick>")
     registerFunction("quotes from %s", allQuotes, "quotes from <nick>", restricted = True)
 registerModule('Quotes', load)
@@ -23,16 +23,16 @@ def addQuote(channel, sender, target, quotation):
 
 def echoQuote(channel, sender, target):
     """Fetches a random quote from DB for target and echoes it to channel"""
-    quote = dbQuery('SELECT quotation, name FROM quote WHERE name=%s ORDER BY RAND() LIMIT 1', [target])
-    if len(quote) > 0:
-        sendMessage(channel, "%s - %s" % quote[0][0], [0][1])
-    else:
+    quote = dbQuery('SELECT quotation FROM quote WHERE name=%s ORDER BY RAND() LIMIT 1', [target])
+    if len(quote) == 0:
         sendMessage(channel, "No quotes for %s" % target)
+        return
+    sendMessage(channel, "%s - %s" % (quote[0][0], target))
 
 def allQuotes(channel, sender, target):
     """Fetches all quotes for target, uploads them to ompload and echoes link to channel"""
     quotes = dbQuery('SELECT quotation FROM quote WHERE name=%s', [target])
-    if len(quotes) < 1:
+    if len(quotes) == 0:
         sendMessage(channel, "No quotes for %s" % target)
         return
     return_list = []
