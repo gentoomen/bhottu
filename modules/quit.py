@@ -1,24 +1,14 @@
-from config import *
-from utils import *
 from api import *
+import sys
 
 def load():
-    registerParsedEventHandler(Quit)
+    """Lets the bot get the fuck out on command."""
+    registration = registerFunction("gtfo", gtfo, restricted = True)
+    registration.restrictedErrorMessage = '03>implying'
 registerModule('Quit', load)
 
-def Quit(parsed):
-    """Tells the robot to kindly leave. Remeber, robots have no feelings,
-    'cause feelings are gay."""
-    if parsed['event'] == 'PRIVMSG':
-        message = parsed['event_msg']
-        nick = parsed['event_nick']
-        combostring = NICK + ", gtfo"
-        if message.startswith(combostring):
-            if authUser(nick) == True:
-                log.notice('QUIT by %s' % nick)
-                sendMessage(CHANNEL, "Bye :(")
-                #this is instant close now, it does not have time to send
-                #PART + adding a sleep
-                sendQuit("Gone to lunch")
-            else:
-                sendMessage(CHANNEL, '%s, 03>implying' % nick)
+def gtfo(channel, sender):
+    log.notice('QUIT by %s' % sender)
+    sendMessage(channel, 'Bye :(')
+    sendQuit('Gone to lunch')
+    sys.exit()
