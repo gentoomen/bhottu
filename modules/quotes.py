@@ -1,4 +1,5 @@
 from api import *
+import os
 
 def load():
     dbExecute('''create table if not exists quote (
