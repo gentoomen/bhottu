@@ -129,8 +129,12 @@ def _functionName(format):
             pos = output.rfind(' ')
             if pos < 0:
                 return output
-            return output[pos:]
+            return output[:pos]
     return output
+
+def functionList():
+    global _functionHandlers
+    return _functionHandlers
 
 #
 # A MessageHandler uses the same syntax as a Function, but need not start with

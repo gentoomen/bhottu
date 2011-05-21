@@ -8,6 +8,7 @@ def load():
 registerModule('Quit', load)
 
 def gtfo(channel, sender):
+    """Stops the bot."""
     log.notice('QUIT by %s' % sender)
     sendMessage(channel, 'Bye :(')
     sendQuit('Gone to lunch')

@@ -14,6 +14,7 @@ def load():
 registerModule('Greetings', load)
 
 def addGreet(channel, sender, target, message):
+    """Sets a greeting."""
     if sender == target:
         sendMessage(channel, "%s, u silly poophead" % sender)
         return
@@ -25,6 +26,7 @@ def addGreet(channel, sender, target, message):
     sendMessage(channel, "will do")
 
 def removeGreet(channel, sender, target):
+    """Unsets a greeting."""
     dbExecute("DELETE FROM greetings WHERE nick=%s", [target])
     sendMessage(channel, "okay.. ;_;")
 

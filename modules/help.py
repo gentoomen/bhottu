@@ -1,43 +1,32 @@
-from config import *
-from utils import *
 from api import *
-
-from echo import *
-from usermanagement import *
-from quit import *
+from api.stringmatcher import *
 
 def load():
-    registerParsedEventHandler(Help)
+    """Provides help on the bot's commands."""
+    registerFunction("help %S", help, "help [command]")
 registerModule('Help', load)
 
-def Help(parsed):
-    """Simple help system."""
-    funcnames = {
-            'gtfo': "Quit",
-            'kick': "userKick",
-            'mode': "userMode",
-            'say': "echoMsg",
-            'shout': "shoutMsg",
-            'help': "Help"
-            }
-    if parsed['event'] == 'PRIVMSG':
-        message = parsed['event_msg']
-
-        combostring = NICK + ", help"
-        if message == combostring:
-            helptext = "The following commands are available:"
-            for key, value in funcnames.iteritems():
-                helptext = "%s %s, " % (helptext, key)
-            helptext = "%s %s" % (helptext, \
-                    "type help [command] to receive more help.")
-            sendMessage(CHANNEL, helptext)
-            return
-
-        combostring = NICK + ", help "
-        if message.startswith(combostring):
-            messageitems = message.split()
-            try:
-                helptext = globals()[funcnames[messageitems[2]]].__doc__
-            except:
-                helptext = "I ain't got help for that, dude."
-            sendMessage(CHANNEL, helptext)
+def help(channel, sender, command):
+    """Provides help on the bot's commands."""
+    if command == '':
+        sendMessage(sender, "The following commands are available:")
+        for function in functionList():
+            if function.description == None:
+                description = ""
+            else:
+                description = function.description
+            sendMessage(sender, "%-20s %s" % (function.name, description))
+        sendMessage(sender, "Use `help [command]` to recieve help on a particular command.")
+    else:
+        for function in functionList():
+            if matchFormat(command, parseFormat(function.name)) != False:
+                helpProvided = False
+                if function.description != None:
+                    sendMessage(sender, "%s: %s" % (function.name, function.description))
+                    helpProvided = True
+                if function.syntax != None:
+                    sendMessage(sender, "syntax: %s" % function.syntax)
+                    helpProvided = True
+                if helpProvided:
+                    return
+        sendMessage(sender, "I have no help on that topic.")
