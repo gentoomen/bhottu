@@ -1,6 +1,7 @@
 from config import *
 from utils import *
 from api import *
+from utils.ompload import *
 
 import os
 import re
@@ -33,6 +34,18 @@ def LinkTitle(parsed):
                 for idk in derp:
                     sendMessage(CHANNEL, '%s %s' % (idk[0], idk[1]))
             return
+        elif NICK+", links[*]" in  parsed['event_msg']:
+            title = parsed['event_msg'].replace(NICK+", links[*]",'').strip()
+            log.debug('querying DB with: %s' % title)
+            query = dbQuery('SELECT URL, title FROM urls WHERE title like %s OR url like %s',
+                    ['%'+title+'%','%'+title+'%'])
+            for links in query:
+                linklist = linklist+link[0]+"\n"
+            try:
+                url = omploadData(linklist)
+                sendMessage(channel, "Links: %" % url)
+            except:
+                sendMessage(channel, "Error uploading link list")
     if parsed['event'] == 'PRIVMSG':
         combostring = NICK + ", blacklist"
         if combostring in parsed['event_msg']:
