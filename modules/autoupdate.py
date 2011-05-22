@@ -13,6 +13,6 @@ def birthday(channel):
     if result == 0:
         sendMessage(channel, "YAY, brb cake!!")
         sendQuit("mmmmm chocolate cake")
-        os.execl("./bhottu.py")
+        os.execl("./bhottu.py", "./bhottu.py")
     else:
         sendMessage(channel, "Hmph, no cake!!")
