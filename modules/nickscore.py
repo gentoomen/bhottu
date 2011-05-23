@@ -58,3 +58,11 @@ def queryNick(parsed):
                 sendMessage(CHANNEL, '%s, Points for %s = %s' % (nick, uname, pointnum))
             except:
                 pass
+
+
+def showTop(channel, sender, amount):
+    registerFunction("show me the top %!i", showtop)
+    for (name, points) in dbQuery("SELECT name, points FROM nickplus ORDER BY points LIMIT %i"
+    % amount):
+        toplist = toplist + "%s (%d) " % (name, points)
+    sendMessage(channel, toplist)
