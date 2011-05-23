@@ -31,8 +31,6 @@ def echoQuote(channel, sender, target):
     sendMessage(channel, '"%s" -- %s' % (quote[0][0], target))
 
 def allQuotes(channel, sender, target):
-    return
-    """This is broken at the moment and I'm unsure as to why. It causes the bot to autoquit"""
     """Fetches all quotes for target, uploads them to ompload and echoes link to channel"""
     quotes = dbQuery('SELECT quotation FROM quote WHERE name=%s', [target])
     if len(quotes) == 0:
