@@ -42,8 +42,6 @@ def allQuotes(channel, sender, target):
     try:
         url = omploadData(quoteList)
     except Exception:
-        url = None
-    if url == None:
         sendMessage(channel, "Uploading quotes for %s failed." % target)
         return
     sendMessage(channel, "Quotes for %s: %s" % (target, url))

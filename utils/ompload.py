@@ -24,11 +24,11 @@ def _ompload(postdata):
     posBegin = html.find('<!-- View file:')
     posEnd = html.find('</a> -->')
     if posBegin < 0 or posEnd < 0:
-        return None
+        raise EnvironmentError, 'Unable to parse ompldr HTML'
     remainder = html[posBegin:posEnd]
     posUrl = remainder.find('http://')
     if posUrl < 0:
-        return None
+        raise EnvironmentError, 'Unable to parse ompldr HTML'
     return remainder[posUrl:]
 
 def omploadData(data, filename = None):
