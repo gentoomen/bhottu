@@ -35,24 +35,23 @@ def _isBlacklisted(domain):
             return False
         domain = domain[pos+1:]
 
-def _parseTitle(html, type):
+def _parseTitle(html, mimeType):
     match = re.search('<title>(.*)<\/title>', html, re.I | re.S)
     if match == None:
-        return type
+        return mimeType
     title = match.group(1).replace('\n', '').replace('\r', '')
     #title = unescapeXml(title)
     return ' '.join(title.split())
 
 def _fetchTitle(url):
-    headers = { 'User-Agent' : 'Bhottu (compatible;) urllib2' }
+    urlRequest = urllib2.Request(url, None, {'User-Agent':'Bhottu(compatible;) urllib2'})
     try:
-        req = urllib2.Request(url, None, headers)
-        response = urllib2.urlopen(req)
-        type = response.info().gettype()
-        if type == "text/html":
-            html = response.read(5000)
+        fObject = urllib2.urlopen(urlRequest)
+        mimeType = response.info().gettype()
+        if mimeType == "text/html":
+            title = _parseTitle(fObject.read(5000), mimeType)
         else:
-            html = None
+            title = mimeType
         response.close()
     except Exception, e:
         if hasattr(e, 'reason'):
@@ -64,57 +63,51 @@ def _fetchTitle(url):
         log.warning('Failed to fetch url %s reason: %s' % (url, error))
         sendMessage(channel, 'Failed to fetch url: %s' % error)
         return None
-    if html == None:
-        return tupe
-    return _parseTitle(html, type)
+    return mimeType
 
 def searchLinks(channel, sender, message):
     url = re.search('((http(s)?):)(//([^/?#\s]*))([^?#\s]*)(\?([^#\s]*))?(#([^\s]*))?', message)
     if url is not None:
         if _isBlacklisted(url.group(5)):
-            log.info('Domain match in blacklist: %' % url.group(5))
+            log.info('Domain in blacklist: %' % url.group(5))
             return
         dupeTitle = dbQuery('SELECT title FROM urls WHERE url=%s LIMIT 1', [url])
         if len(dupeTitle) > 0:
-            title = dupeTitle[0]
-        else:
-            title = _fetchTitle(url.group(0))
-            if title == None:
-                return
-            dbExecute('INSERT INTO urls (url, title) VALUES (%s, %s)', [url, title])
+            sendMessage(channel, 'Site title: %s' % dupeTitle[0])
+            return
+        title = _fetchTitle(url.group(0))
+        if title == None:
+            return
+        dbExecute('INSERT INTO urls (url, title) VALUES (%s, %s)', [url, title])
         sendMessage(channel, 'Site title: %s' % title)
 
 def showLinks(channel, sender, searchterm):
-    log.debug('Querying DB with: %s' % searchterm)
     results = dbQuery('SELECT url, title FROM urls WHERE title LIKE %s OR url LIKE %s',
                     ['%' + searchterm + '%', '%' + searchterm + '%'])
     if len(results) > 3:
         sendMessage(channel, '%s entries found, refine your search' % len(results))
-    else:
-        for link in results:
-            sendMessage(channel, '%s %s' % (link[0], link[1]))
-    return
+        return
+    for link in results:
+        sendMessage(channel, '%s %s' % (link[0], link[1]))
 
 def showAllLinks(channel, sender, searchterm):
-    log.debug('querying DB with: %s' % searchterm)
-    results = dbQuery('SELECT URL, title FROM urls WHERE title like %s OR url like %s',
+    results = dbQuery('SELECT url, title FROM urls WHERE title like %s OR url like %s',
                     ['%'+searchterm+'%','%'+searchterm+'%'])
-    if len(results) > 0:
-        for link in results:
-            linklist = linklist+link[0]+"\n"
-        try:
-            url = omploadData(linklist)
-            sendMessage(channel, "Links: %" % url)
-        except:
-            log.warning('Failed to upload link list')
-            sendMessage(channel, "Error uploading link list")
+    if len(results) == 0:
+        return
+    for link in results:
+        linklist += link[0]+"\n"
+    try:
+        url = omploadData(linklist)
+        sendMessage(channel, "Links: %" % url)
+    except:
+        log.warning('Failed to upload link list')
+        sendMessage(channel, "Error uploading link list")
 
 def showBlacklist(channel, sender):
     results = dbQuery('SELECT * FROM blacklists')
-    blacklist = []
-    for row in results:
-        blacklist.append(row[1])
-    blacklist = "\n".join(blacklist)
+    for domain in results:
+        blacklist += domain[1]+"\n"
     try:
         url = omploadData(blacklist)
         sendMessage(channel, url.read())
@@ -123,8 +116,7 @@ def showBlacklist(channel, sender):
         sendMessage(channel, "Error uploading blacklist")
 
 def blacklistDomain(channel, sender, domain):
-    derp = dbQuery('SELECT domain FROM blacklists WHERE domain=%s', [domain])
-    if len(derp) > 0:
+    if len(dbQuery('SELECT domain FROM blacklists WHERE domain=%s', [domain])) > 0:
         sendMessage(channel, 'domain already blacklisted')
     else:
         dbExecute('INSERT INTO blacklists (domain) VALUES (%s)', [domain])
