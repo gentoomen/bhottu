@@ -2,6 +2,7 @@ from config import *
 from utils import *
 from api import *
 from utils.ompload import *
+from utils.unescapexml import *
 
 import os
 import re
@@ -35,18 +36,12 @@ def _isBlacklisted(domain):
         domain = domain[pos+1:]
 
 def _parseTitle(html, type):
-    title = re.search('<title>.*<\/title>', html, re.I | re.S)
-    if title not None:
-        title = title.group(0)
-        title = ' '.join(title.split())
-        title = title.split('>')[1]
-        title = title.split('<')[0]
-        title = title.replace('\n', '').lstrip()
-        title = title.replace('\r', '').rstrip()
-        title = unescape(title) #internal helper
-        return title
-    else:
+    match = re.search('<title>(.*)<\/title>', html, re.I | re.S)
+    if match == None:
         return type
+    titleHtml = match.group(1).replace('\n', '').replace('\r', '')
+    title = unescapeXml(titleHtml)
+    return ' '.join(title.split())
 
 def _fetchTitle(url):
     headers = { 'User-Agent' : 'Bhottu (compatible;) urllib2' }
