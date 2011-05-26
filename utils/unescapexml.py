@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """ Removes HTML or XML character references and entities from a text string."""
 import re
+import sys
 import htmlentitydefs
 
 def unescapeXml(text):
@@ -22,6 +23,8 @@ def unescapeXml(text):
             except KeyError:
                 pass
         return text # leave as is
+    if type(text) is not unicode:
+        text = text.decode("UTF-8")
     return re.sub("&#?\w+;", fixup, text)
 
 if __name__ == '__main__':
