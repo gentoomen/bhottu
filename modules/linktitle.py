@@ -64,10 +64,9 @@ def _fetchTitle(url):
         log.warning('Failed to fetch url %s reason: %s' % (url, error))
         sendMessage(channel, 'Failed to fetch url: %s' % error)
         return None
-    if html not None:
-        return _parseTitle(html, type)
-    else:
-        return type
+    if html == None:
+        return tupe
+    return _parseTitle(html, type)
 
 def searchLinks(channel, sender, message):
     url = re.search('((http(s)?):)(//([^/?#\s]*))([^?#\s]*)(\?([^#\s]*))?(#([^\s]*))?', message)
