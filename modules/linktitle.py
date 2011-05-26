@@ -39,8 +39,8 @@ def _parseTitle(html, type):
     match = re.search('<title>(.*)<\/title>', html, re.I | re.S)
     if match == None:
         return type
-    titleHtml = match.group(1).replace('\n', '').replace('\r', '')
-    title = unescapeXml(titleHtml)
+    title = match.group(1).replace('\n', '').replace('\r', '')
+    #title = unescapeXml(title)
     return ' '.join(title.split())
 
 def _fetchTitle(url):
