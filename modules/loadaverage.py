@@ -1,15 +1,14 @@
-from config import *
-from utils import *
 from api import *
-import os
 
 def load():
-    registerParsedEventHandler(LoadAverage)
+    registerFunction("load average", loadAverage)
 registerModule('LoadAverage', load)
 
-def LoadAverage(parsed):
-    if parsed['event'] == 'PRIVMSG':
-        if parsed['event_msg'] == NICK+', load average':
-            load = os.popen('cat /proc/loadavg').read()
-            sendMessage(CHANNEL, '%s' % (load))
-
+def loadAverage(channel):
+    try:
+        with open("/proc/loadavg") as file:
+            average = file.read()
+    except:
+        sendMessage(channel, "Load data not available.")
+        return
+    sendMessage(channel, average)
