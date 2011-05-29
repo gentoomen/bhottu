@@ -5,7 +5,6 @@ from api import *
 import feedparser
 
 def load():
-    registerParsedEventHandler(Commits)
     dbExecute('''create table if not exists feeds (
               feedID int auto_increment primary key,
               feedName varchar(255),
@@ -14,10 +13,9 @@ def load():
     registerFunction("add feed %s %S", addFeed, "add feed <name> <link>", restricted = True)
     registerFunction("remove feed %s %S", removeFeed, "remove feed <name>", restricted = True)
     registerCommandHandler("PING", updateFeeds)
-registerModule('Commits', load)
+registerModule('Feeds', load)
 
 def addFeed(channel, sender, name, link):
-    repo.extend(['foobar'])
     duplicateCheck = dbQuery("SELECT * FROM feeds WHERE feedName=%s OR feedLink=%s OR lastItem=%s", \
                     [name, link, 'foobar'])
     if len(duplicateCheck) > 0:
