@@ -14,7 +14,7 @@ import reply
 import spew
 import greetings
 import colors
-import commits
+import feeds
 import autoupdate
 import poll
 import statistics
