@@ -3,91 +3,65 @@ from utils import *
 from api import *
 
 import feedparser
-import datetime
-
-last_repo_check = None
 
 def load():
     registerParsedEventHandler(Commits)
-    dbExecute('''create table if not exists repos (
-              repoID int auto_increment primary key,
-              repo varchar(255),
-              feed varchar(255),
-              last_item varchar(255) )''')
+    dbExecute('''create table if not exists feeds (
+              feedID int auto_increment primary key,
+              feedName varchar(255),
+              feedLink varchar(255),
+              lastItem varchar(255) )''')
+    registerFunction("add feed %s %S", addFeed, "add feed <name> <link>", restricted = True)
+    registerFunction("remove feed %s %S", removeFeed, "remove feed <name>", restricted = True)
+    registerCommandHandler("PING", updateFeeds)
 registerModule('Commits', load)
 
-def Commits(parsed):
-    global last_repo_check
-    interval = 5  # Update interval in minutes
-    if parsed['event'] == 'PRIVMSG':
-        combostring = NICK + ", repo "
-        if parsed['event_msg'].startswith(combostring):
-            if authUser(parsed['event_nick']) == True:
-                repo = parsed['event_msg'].replace(combostring, '').\
-                        split(' ', 1)
-                if len(repo) == 2:
-                    repo.extend(['foobar'])
-                    derp = dbQuery("SELECT * FROM repos WHERE repo=%s OR \
-                            feed=%s OR last_item=%s", \
-                            [repo[0], repo[1], repo[2]])
-                    if len(derp) > 0:
-                        sendMessage(CHANNEL, 'we call that a duplicate')
-                        return
-                    dbExecute("INSERT INTO repos (repo, feed, last_item) \
-                            VALUES (%s, %s, %s)", \
-                            [repo[0], repo[1], repo[2]])
-                    sendMessage(CHANNEL, \
-                            'repo added, 1st update will contain all new msgs, so prepare for spam kthxbai')
-                else:
-                    sendMessage(CHANNEL, \
-                            'the fuck, format your msg properly')
-                return
-    if parsed['event'] == 'PRIVMSG':
-        combostring = NICK + ", remove repo "
-        if parsed['event_msg'].startswith(combostring):
-            if authUser(parsed['event_nick']) == True:
-                repo = parsed['event_msg'].replace(combostring, '').strip()
-                try:
-                    dbExecute("DELETE FROM repos WHERE repo=%s", [repo])
-                    log.info('Removed %s' % repo)
-                    sendMessage(CHANNEL, 'removed %s' % repo)
-                except:
-                    log.error('Failed to remove %s' % repo)
-                    sendMessage(CHANNEL, 'failed to remove %s' % repo)
-                return
-    #if this could be done locally, it would be awesome
-    if last_repo_check == None:
-        last_repo_check = datetime.datetime.now()
-    else:
-        pass
-    if datetime.datetime.now() - last_repo_check > \
-            datetime.timedelta(minutes=interval):
-        log.info('Refreshing feeds (%s min)' % interval)
-        repos = dbQuery("SELECT repo, feed, last_item FROM repos")
-        if len(repos) < 1:
-            log.warning('NO REPOS ADDED, DISBALE ME(Commits) OR ADD SOME FUCKING FEEDS')
-            last_repo_check = datetime.datetime.now()
-            return
-        item_list = []  # we append all msg for all repos
-        for repo in repos:
-            item_index = 0
-            first_item = ""
-            try:
-                feed = feedparser.parse(repo[1])
-            except:
-                log.warning('Failed to fetch feed for [%s], skipping' % repo[0])
-                continue
-            for item in feed['entries']:
-                if item_index == 0:
-                    first_item = item['title']
-                if item['title'] == repo[2]:
-                    break
-                else:
-                    item_list.append([repo[0], item['title'], item['link'], item['author_detail'].name])
-                    item_index += 1
-            log.info('[%s] %s new commits found' % (repo[0], item_index))
-            dbExecute("UPDATE repos SET last_item=%s WHERE repo=%s", [first_item, repo[0]])
-        item_list.reverse()
-        for commit in item_list:
-            sendMessage(CHANNEL, '[%s] <%s> %s => %s' % (commit[0], commit[3], commit[1], commit[2]))
-        last_repo_check = datetime.datetime.now()
+def addFeed(channel, sender, name, link):
+    repo.extend(['foobar'])
+    duplicateCheck = dbQuery("SELECT * FROM feeds WHERE feedName=%s OR feedLink=%s OR lastItem=%s", \
+                    name, link, 'foobar')
+    if len(duplicateCheck) > 0:
+        sendMessage(channel, 'we call that a duplicate')
+        return
+    dbExecute("INSERT INTO feeds (feedName, feedLink, lastItem) VALUES (%s, %s, %s)", \
+                [name, link, 'foobar')
+    sendMessage(channel, 'feed added, 1st update will contain all new msgs, so prepare for spam kthxbai')
+
+def removeFeed(channel, sender, name)
+    try:
+        dbExecute("DELETE FROM feeds WHERE feedName=%s", [name])
+        log.info('Removed %s' % name)
+        sendMessage(channel, 'removed %s' % name)
+    except:
+        log.error('Failed to remove %s' % name)
+        sendMessage(channel, 'failed to remove %s' % name)
+
+def updateFeed(*args):
+    log.debug('Arguments for updateFeed: %s' % join(args))
+    log.info('Refreshing feeds')
+    feeds = dbQuery("SELECT feedName, feedLink, lastItem FROM feeds")
+    if len(feeds) < 1:
+        log.warning('NO REPOS ADDED, DISBALE ME(Commits) OR ADD SOME FUCKING FEEDS')
+        return
+    itemList = []
+    for feed in feeds:
+        itemIndex = 0
+        firstItem = ""
+        try:
+            parsedFeed = feedparser.parse(repo[1])
+        except:
+            log.warning('Failed to fetch feed for [%s], skipping' % feed[0])
+            continue
+        for item in parsedFeed['entries']:
+            if itemIndex == 0:
+                firstItem = item['title']
+            if item['title'] == repo[2]:
+                break
+            else:
+                itemList.append([feed[0], item['title'], item['link'], item['author_detail'].name])
+                itemIndex += 1
+        log.info('[%s] %s new items found' % (repo[0], itemIndex))
+        dbExecute("UPDATE feeds SET lastItem=%s WHERE feedName=%s", [firstItem, feed[0])
+    itemList.reverse()
+    for item in itemList:
+        sendMessage(channel, '[%s] <%s> %s => %s' % (item[0], item[3], item[1], item[2]))
