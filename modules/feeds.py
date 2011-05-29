@@ -33,7 +33,7 @@ def removeFeed(channel, sender, name):
         log.error('Failed to remove %s' % name)
         sendMessage(channel, 'failed to remove %s' % name)
 
-def updateFeed(*args):
+def updateFeeds(*args):
     log.debug('Arguments for updateFeed: %s' % join(args))
     log.info('Refreshing feeds')
     feeds = dbQuery("SELECT feedName, feedLink, lastItem FROM feeds")
