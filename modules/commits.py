@@ -26,7 +26,7 @@ def addFeed(channel, sender, name, link):
     dbExecute("INSERT INTO feeds (feedName, feedLink, lastItem) VALUES (%s, %s, %s)", [name, link, 'foobar'])
     sendMessage(channel, 'feed added, 1st update will contain all new msgs, so prepare for spam kthxbai')
 
-def removeFeed(channel, sender, name)
+def removeFeed(channel, sender, name):
     try:
         dbExecute("DELETE FROM feeds WHERE feedName=%s", [name])
         log.info('Removed %s' % name)
