@@ -19,12 +19,11 @@ registerModule('Commits', load)
 def addFeed(channel, sender, name, link):
     repo.extend(['foobar'])
     duplicateCheck = dbQuery("SELECT * FROM feeds WHERE feedName=%s OR feedLink=%s OR lastItem=%s", \
-                    name, link, 'foobar')
+                    [name, link, 'foobar'])
     if len(duplicateCheck) > 0:
         sendMessage(channel, 'we call that a duplicate')
         return
-    dbExecute("INSERT INTO feeds (feedName, feedLink, lastItem) VALUES (%s, %s, %s)", \
-                [name, link, 'foobar')
+    dbExecute("INSERT INTO feeds (feedName, feedLink, lastItem) VALUES (%s, %s, %s)", [name, link, 'foobar'])
     sendMessage(channel, 'feed added, 1st update will contain all new msgs, so prepare for spam kthxbai')
 
 def removeFeed(channel, sender, name)
@@ -61,7 +60,7 @@ def updateFeed(*args):
                 itemList.append([feed[0], item['title'], item['link'], item['author_detail'].name])
                 itemIndex += 1
         log.info('[%s] %s new items found' % (repo[0], itemIndex))
-        dbExecute("UPDATE feeds SET lastItem=%s WHERE feedName=%s", [firstItem, feed[0])
+        dbExecute("UPDATE feeds SET lastItem=%s WHERE feedName=%s", [firstItem, feed[0]])
     itemList.reverse()
     for item in itemList:
         sendMessage(channel, '[%s] <%s> %s => %s' % (item[0], item[3], item[1], item[2]))
