@@ -67,13 +67,17 @@ def parseFormat(format):
 # or False it none was.
 #
 
-def matchFormat(string, format):
+def matchFormat(string, format, caseSensitive = False):
     output = []
     lastSeen = None
     for i in range(len(format)):
         (type, argument) = format[i]
         if type == 'literal':
-            if string.startswith(argument):
+            if caseSensitive:
+                matches = string.startswith(argument)
+            else:
+                matches = string.lower().startswith(argument.lower())
+            if matches:
                 string = string[len(argument):]
                 lastSeen = 'literal'
             else:
