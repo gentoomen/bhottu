@@ -1,7 +1,6 @@
 import core
 
 import quit
-import usermanagement
 import echo
 import help
 import floodcontrol
