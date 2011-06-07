@@ -7,7 +7,6 @@ import floodcontrol
 
 import nickscore
 import linktitle
-import projectwiz
 import quotes
 import reply
 import spew
