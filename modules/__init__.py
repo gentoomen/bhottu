@@ -1,5 +1,3 @@
-import core
-
 import quit
 import echo
 import help
