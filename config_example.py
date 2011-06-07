@@ -39,7 +39,6 @@ ENABLED_MODULES = [
     
     'NickScore',
     'LinkTitle',
-    'ProjectWiz',
     'Quotes',
     'Reply',
     'Spew',
