@@ -21,10 +21,32 @@ def setLoadingModule(module):
     _loadingModule = module
 
 def _effectiveModule(module):
-    global _loadingModule
     if module == None:
         return _loadingModule
     return module
+
+def _registerHandler(function, module, list, type = None):
+    if type == None:
+        type = list
+    registration = Handler()
+    registration.enabled = True
+    registration.type = type
+    registration.function = function
+    registration.module = _effectiveModule(module)
+    if registration.module != None:
+        registration.module.handlers.append(registration)
+    list.append(registration)
+    return registration
+
+#
+# An UnloadHandler gets called when its module gets unloaded.
+#
+
+def registerUnloadHandler(function, targetModule = None, callingModule = None):
+    targetModule = _effectiveModule(targetModule)
+    registration = _registerHandler(function, callingModule, targetModule.unloadHandlers, "UnloadHandler")
+    registration.targetModule = targetModule
+    return registration
 
 #
 # A ParsedEventHandler gets called for each IRC event, in Parse()d form.
@@ -33,16 +55,7 @@ def _effectiveModule(module):
 _parsedEventHandlers = []
 
 def registerParsedEventHandler(function, module = None):
-    global _parsedEventHandlers
-    registration = Handler()
-    registration.enabled = True
-    registration.type = _parsedEventHandlers
-    registration.function = function
-    registration.module = _effectiveModule(module)
-    if registration.module != None:
-        registration.module.handlers.append(registration)
-    _parsedEventHandlers.append(registration)
-    return registration
+    return _registerHandler(function, module, _parsedEventHandlers)
 
 #
 # An CommandHandler gets called for each IRC event with the given command.
@@ -58,18 +71,10 @@ def registerCommandHandler(command, function, module = None):
     """Registers a function for a given IRC command.
        If command == None, the function is registered for ALL incoming IRC events.
     """
-    global _commandHandlers
-    registration = Handler()
-    registration.enabled = True
-    registration.type = _commandHandlers
-    registration.command = command
-    registration.function = function
-    registration.module = _effectiveModule(module)
-    if registration.module != None:
-        registration.module.handlers.append(registration)
     if command not in _commandHandlers:
         _commandHandlers[command] = []
-    _commandHandlers[command].append(registration)
+    registration = _registerHandler(function, module, _commandHandlers[command], _commandHandlers)
+    registration.command = command
     return registration
 
 #
@@ -93,14 +98,9 @@ def registerCommandHandler(command, function, module = None):
 _functionHandlers = []
 
 def registerFunction(format, function, syntax = None, module = None, implicit = False, restricted = False, errorMessages = True):
-    global _functionHandlers
     parsedFormat = stringmatcher.parseFormat(format)
     (name, attemptFormat) = _functionName(parsedFormat)
-    registration = Handler()
-    registration.enabled = True
-    registration.type = _functionHandlers
-    registration.function = function
-    registration.module = _effectiveModule(module)
+    registration = _registerHandler(function, module, _functionHandlers)
     registration.format = parsedFormat
     registration.attemptFormat = attemptFormat
     registration.name = name
@@ -111,9 +111,6 @@ def registerFunction(format, function, syntax = None, module = None, implicit = 
     registration.restricted = restricted
     registration.restrictedErrorMessage = None
     registration.errorMessages = errorMessages
-    if registration.module != None:
-        registration.module.handlers.append(registration)
-    _functionHandlers.append(registration)
     return registration
 
 def _functionName(format):
@@ -142,7 +139,6 @@ def _functionName(format):
     return (outputString, outputFormat)
 
 def functionList():
-    global _functionHandlers
     return _functionHandlers
 
 #
@@ -157,46 +153,34 @@ def functionList():
 _messageHandlers = []
 
 def registerMessageHandler(format, function, module = None, implicit = False):
-    global _messageHandlers
     if format == None:
         parsedFormat = None
     else:
         parsedFormat = stringmatcher.parseFormat(format)
-    registration = Handler()
-    registration.enabled = True
-    registration.type = _functionHandlers
-    registration.function = function
-    registration.module = _effectiveModule(module)
+    registration = _registerHandler(function, module, _messageHandlers)
     registration.format = parsedFormat
     registration.implicit = implicit
-    if registration.module != None:
-        registration.module.handlers.append(registration)
-    _messageHandlers.append(registration)
     return registration
 
 #
-# Unregisters a ParsedCommandHandler, EventHandler, FunctionHandler, or MessageHandler.
+# Unregisters an UnloadHandler, ParsedCommandHandler, EventHandler, FunctionHandler, or MessageHandler.
 #
 
 def unregister(registration):
-    global _parsedEventHandlers
-    if registration.type == _parsedEventHandlers:
-        _parsedEventHandlers.remove(registration)
-        registration.enabled = False
-        return True
-    global _commandHandlers
+    for type in (_parsedEventHandlers, _functionHandlers, _messageHandlers):
+        if registration.type == type:
+            type.remove(registration)
+            registration.module.handlers.remove(registration)
+            registration.enabled = False
+            return True
     if registration.type == _commandHandlers:
         _commandHandlers[registration.command].remove(registration)
+        registration.module.handlers.remove(registration)
         registration.enabled = False
         return True
-    global _functionHandlers
-    if registration.type == _functionHandlers:
-        _functionHandlers.remove(registration)
-        registration.enabled = False
-        return True
-    global _messageHandlers
-    if registration.type == _messageHandlers:
-        _messageHandlers.remove(registration)
+    if registration.type == "UnloadHandler":
+        registration.targetModule.unloadHandlers.remove(registration)
+        registration.module.handlers.remove(registration)
         registration.enabled = False
         return True
     return False
@@ -283,20 +267,28 @@ def callFunction(function, arguments):
         log.warning("Function '%s' raised an exception: '%s'\n%s" % (function.__name__, description, traceback.format_exc()))
 
 #
+# moduleUnloadEvent is responsible for calling appropriate handlers for a module unload.
+#
+
+def moduleUnloadEvent(module):
+    for handler in module.unloadHandlers[:]:
+        if not handler.enabled:
+            continue
+        callFunction(handler.function, [])
+
+#
 # incomingIrcEvent is responsible for acting on incoming irc events
 # by parsing them and calling the appropriate handlers.
 #
 
 def incomingIrcEvent(event):
     parsed = Parse(event)
-    global _parsedEventHandlers
     for handler in _parsedEventHandlers[:]:
         if not handler.enabled:
             continue
         handler.function(parsed)
     
     (sender, command, arguments) = parseEvent(event)
-    global _commandHandlers
     if None in _commandHandlers:
         for handler in _commandHandlers[None][:]:
             if not handler.enabled:
@@ -326,7 +318,6 @@ def incomingIrcMessage(sender, channel, fullMessage):
             triggered = True
     authorized = authorize.isAuthorized(nickname)
     
-    global _functionHandlers
     for handler in _functionHandlers[:]:
         if not handler.enabled:
             continue
@@ -358,7 +349,6 @@ def incomingIrcMessage(sender, channel, fullMessage):
         # Everything checks out, we can execute the function.
         callFunction(handler.function, [channel, nickname] + arguments)
     
-    global _messageHandlers
     for handler in _messageHandlers[:]:
         if not handler.enabled:
             continue
