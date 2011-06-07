@@ -33,7 +33,6 @@ ENABLED_MODULES = [
     'Core',
     
     'Quit',
-    'UserManagement',
     'Echo',
     'Help',
     'FloodControl',
