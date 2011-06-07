@@ -35,6 +35,7 @@ from utils import *
 from modules import *
 
 from api import *
+import ircbase
 
 def sigint_handler(signum,  frame):
     """Handles SIGINT signal (<C-c>). Quits program."""
@@ -78,6 +79,7 @@ if __name__ == "__main__":
     for god in GODS:
         addRoot(god)
     dbConnect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE)
+    ircbase.load(NICK, IDENT, MODE, REALNAME, [CHANNEL], NICK_PASS)
     for module in ENABLED_MODULES:
         loadModule(module)
     main()
