@@ -44,6 +44,9 @@ def sendPrivmsg(receiver, message):
 def sendMessage(receiver, message):
     sendPrivmsg(receiver, sanitize(str(message)))
 
+def sendJoin(channel):
+    sendCommand("JOIN %s" % channel)
+
 def sendKick(channel, target, reason):
     sendCommand("KICK %s %s :%s" % (channel, target, reason))
 

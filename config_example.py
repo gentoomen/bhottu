@@ -9,8 +9,7 @@ REALNAME = 'bhottu'
 IDENT = 'bhottu'
 CHANNEL = '#/g/sicp'
 MODE = 0 #This is a bitmask for user mode
-VHOST = True
-NICK_PASS = ''
+NICK_PASS = None
 #Authed users
 GODS = []
 
@@ -33,14 +32,12 @@ ENABLED_MODULES = [
     'Core',
     
     'Quit',
-    'UserManagement',
     'Echo',
     'Help',
     'FloodControl',
     
     'NickScore',
     'LinkTitle',
-    'ProjectWiz',
     'Quotes',
     'Reply',
     'Spew',
