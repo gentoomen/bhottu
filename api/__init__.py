@@ -5,7 +5,7 @@ from ircstatus import *
 from events import *
 from modules import *
 from authorize import *
-from checkignore import *
+from ignorelist import *
 
 #
 # HACK ALERT:

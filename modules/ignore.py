@@ -11,7 +11,7 @@ def load():
               reason text,
               unique(nick) )''')
     for (nick, ) in dbQuery("SELECT nick FROM ignores"):
-        checkignore.addIgnore(nick)
+        ignorelist.addIgnore(nick)
     registerFunction("ignore %s", addIgnore, "ignore <nickname>", restricted = True)
     registerFunction("stop ignoring %s", removeIgnore, "stop ignoring <nickname>", restricted = True)
     registerFunction("list ignores", listIgnores, "list ignores", noIgnore = True)
@@ -25,7 +25,7 @@ def addIgnore(channel, sender, target):
         return
     timestamp = int(time.time())
     dbExecute("INSERT INTO ignores (nick, issuer, issuetime) VALUES (%s, %s, %s)", [target, sender, timestamp])
-    checkignore.addIgnore(target)
+    ignorelist.addIgnore(target)
     sendMessage(channel, "%s was a dick anyway." % (target))
     log.notice('%s is now being ignored.' % (target))
 
@@ -35,7 +35,7 @@ def removeIgnore(channel, sender, target):
         sendMessage(channel, "I'm not ignoring %s right now." % (target))
         return
     dbExecute("DELETE FROM ignores WHERE nick=%s", [target])
-    checkignore.removeIgnore(target)
+    ignorelist.removeIgnore(target)
     sendMessage(channel, "Okay, I'll stop ignoring %s." % (target))
     log.notice('%s is no longer being ignored.' % (target))
 

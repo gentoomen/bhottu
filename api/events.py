@@ -1,10 +1,10 @@
 import stringmatcher
+import ignorelist
 import authorize
 import irc
 import ircstatus
 import log
 import traceback
-import checkignore
 
 class Handler(object):
     pass
@@ -319,7 +319,7 @@ def incomingIrcMessage(sender, channel, fullMessage):
         if reducedMessage[:2].rstrip(' \t') in [',', ':']:
             message = reducedMessage[2:]
             triggered = True
-    ignored = checkignore.isIgnored(nickname)
+    ignored = ignorelist.isIgnored(nickname)
     authorized = authorize.isAuthorized(nickname)
     
     for handler in _functionHandlers[:]:
