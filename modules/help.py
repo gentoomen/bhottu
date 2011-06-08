@@ -11,6 +11,8 @@ def help(channel, sender, command):
     if command == None:
         sendMessage(sender, "The following commands are available:")
         for function in functionList():
+            if function.restricted and not isAuthorized(sender):
+                continue
             if function.description == None:
                 description = ""
             else:
@@ -30,4 +32,3 @@ def help(channel, sender, command):
                 if helpProvided:
                     return
         sendMessage(sender, "I have no help on that topic.")
-        for function in functionList(): print function.format
