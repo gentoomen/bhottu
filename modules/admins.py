@@ -1,7 +1,6 @@
 from api import *
-import api
 import time
-import string
+
 
 def load():
     dbExecute('''create table if not exists admins (
@@ -10,11 +9,12 @@ def load():
               issuer varchar(255),
               issuetime int,
               unique(nick) )''')
-    for admin in dbQuery("SELECT nick FROM admins"):
-        registerAdmin(admin)
+    for (admin, ) in dbQuery("SELECT nick FROM admins"):
+        authorize.addAdmin(admin)
     registerFunction("add admin %s", addAdmin, "add admin <nickname>", restricted = True)
     registerFunction("remove admin %s", removeAdmin, "remove admin <nickname>", restricted = True)
-    registerFunction("list admins", listAdmins, "list admins", restricted = False)
+    registerFunction("list admins", listAdmins, "list admins")
+    registerUnloadHandler(clearAdmins)
 registerModule('Admins', load)
 
 def addAdmin(channel, sender, target):
@@ -24,36 +24,30 @@ def addAdmin(channel, sender, target):
         return
     timestamp = int(time.time())
     dbExecute("INSERT INTO admins (nick, issuer, issuetime) VALUES (%s, %s, %s)", [target, sender, timestamp])
-    registerAdmin(target)
-    sendMessage(channel, "%s added as an admin by %s." % (target, sender))
-    log.info('%s added as an admin by %s.' % (target, sender))
-    return
+    authorize.addAdmin(target)
+    sendMessage(channel, "Added %s as an admin." % (target))
+    log.notice('%s added as an admin by %s.' % (target, sender))
+
     
     
 def removeAdmin(channel, sender, target):
     """Removes an admin"""
     if len(dbQuery("SELECT nick FROM admins WHERE nick=%s", [target])) <= 0:
-        sendMessage(channel, "There is no such admin as %s." % (target))
-        return
-    if target == sender:
-        dbExecute("DELETE FROM admins WHERE nick=%s", [target])
-        sendMessage(channel, "Trying to remove yourself, huh? Too bad the if statement checking for that is down at the workshop.")
-        log.info('Silly %s, removing himself from the admins...' % (sender))
+        sendMessage(channel, "There is no such admin." % (target))
         return
     dbExecute("DELETE FROM admins WHERE nick=%s", [target])
-    unregisterAdmin(target)
-    sendMessage(channel, "%s's admin status was removed by %s." % (target, sender))
-    log.info('%s\'s admin status was removed by %s.' % (target, sender))
-    return
+    authorize.removeAdmin(target)
+    sendMessage(channel, "Removed %s as an admin." % (target))
+    log.notice('%s\'s admin status was removed by %s.' % (target, sender))
     
     
 def listAdmins(channel, sender):
+    """Lists all the current bhottu admins"""
     if len(dbQuery("SELECT nick FROM admins")) <= 0:
         sendMessage(channel, "There are no admins yet.")
         return
     sendMessage(sender, "The following people are admins: ")
     for (nick, issuer, issuetime) in dbQuery("SELECT nick, issuer, issuetime FROM admins"):
         sendMessage(sender, "%s: set by %s on %s" % (nick, issuer, time.strftime("%Y/%m/%d %H:%M:%S", time.gmtime(issuetime))))
-    return
     
 
