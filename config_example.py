@@ -48,4 +48,5 @@ ENABLED_MODULES = [
     'Roulette',
     'LoadAverage',
     'Admins',
+    'Ignore',
 ]

@@ -4,6 +4,7 @@ import irc
 import ircstatus
 import log
 import traceback
+import checkignore
 
 class Handler(object):
     pass
@@ -97,7 +98,7 @@ def registerCommandHandler(command, function, module = None):
 
 _functionHandlers = []
 
-def registerFunction(format, function, syntax = None, module = None, implicit = False, restricted = False, errorMessages = True):
+def registerFunction(format, function, syntax = None, module = None, implicit = False, restricted = False, errorMessages = True, noIgnore = False):
     parsedFormat = stringmatcher.parseFormat(format)
     (name, attemptFormat) = _functionName(parsedFormat)
     registration = _registerHandler(function, module, _functionHandlers)
@@ -111,6 +112,7 @@ def registerFunction(format, function, syntax = None, module = None, implicit = 
     registration.restricted = restricted
     registration.restrictedErrorMessage = None
     registration.errorMessages = errorMessages
+    registration.noIgnore = noIgnore
     return registration
 
 def _functionName(format):
@@ -152,7 +154,7 @@ def functionList():
 
 _messageHandlers = []
 
-def registerMessageHandler(format, function, module = None, implicit = False):
+def registerMessageHandler(format, function, module = None, implicit = False, noIgnore = False):
     if format == None:
         parsedFormat = None
     else:
@@ -160,6 +162,7 @@ def registerMessageHandler(format, function, module = None, implicit = False):
     registration = _registerHandler(function, module, _messageHandlers)
     registration.format = parsedFormat
     registration.implicit = implicit
+    registration.noIgnore = noIgnore
     return registration
 
 #
@@ -316,10 +319,14 @@ def incomingIrcMessage(sender, channel, fullMessage):
         if reducedMessage[:2].rstrip(' \t') in [',', ':']:
             message = reducedMessage[2:]
             triggered = True
+    ignored = checkignore.isIgnored(nickname)
     authorized = authorize.isAuthorized(nickname)
     
     for handler in _functionHandlers[:]:
         if not handler.enabled:
+            continue
+        # If the person in question is ignored, disregard the command.
+        if ignored and not handler.noIgnore:
             continue
         # If the incoming message does not start with 'bhottu, ', ignore it
         # unless this function is marked Implicit.
@@ -351,6 +358,8 @@ def incomingIrcMessage(sender, channel, fullMessage):
     
     for handler in _messageHandlers[:]:
         if not handler.enabled:
+            continue
+        if ignored and not handler.noIgnore:
             continue
         # Handlers with format == None are a special case - they always get called, period.
         if handler.format == None:
