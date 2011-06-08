@@ -21,3 +21,4 @@ import statistics
 import roulette
 import loadaverage
 import interjection
+import admins
