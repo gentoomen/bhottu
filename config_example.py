@@ -29,8 +29,6 @@ DB_PASSWORD = ''
 DB_DATABASE = ''
 
 ENABLED_MODULES = [
-    'Core',
-    
     'Quit',
     'Echo',
     'Help',
@@ -49,4 +47,5 @@ ENABLED_MODULES = [
     'Statistics',
     'Roulette',
     'LoadAverage',
+    'Admins',
 ]
