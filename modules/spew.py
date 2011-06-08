@@ -3,6 +3,7 @@ import random
 import time
 
 def load():
+    """Keeps a log of chat activity and cites from it on request."""
     dbExecute('''create table if not exists `lines` (
               lineID int auto_increment primary key,
               name varchar(255),

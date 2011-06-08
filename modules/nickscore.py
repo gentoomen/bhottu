@@ -2,6 +2,7 @@ from api import *
 import re
 
 def load():
+    """Keeps a score for users that others can increase or decrease."""
     dbExecute('''create table if not exists nickscore (
               nickscoreID int auto_increment primary key,
               name varchar(255),
@@ -39,6 +40,7 @@ def searchNickMinus(channel, sender, message):
     sendMessage(channel, "Decremented by one")
 
 def tellMeAbout(channel, sender, target):
+    """Shows the score for a given user."""
     result = dbQuery('SELECT points FROM nickscore WHERE name = %s', [target])
     if len(result) == 0:
         score = 0
@@ -47,6 +49,7 @@ def tellMeAbout(channel, sender, target):
     sendMessage(channel, "%s, %s has a score of %s points" % (sender, target, score))
 
 def showTop(channel, sender, amount):
+    """Shows the highest ranking users."""
     if amount == None:
         amount = 10
     if amount < 0:

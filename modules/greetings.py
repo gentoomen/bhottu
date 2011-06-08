@@ -2,6 +2,7 @@ from api import *
 import time
 
 def load():
+    """Greets people when joining the channel."""
     dbExecute('''create table if not exists greetings (
               greetingID int auto_increment primary key,
               nick varchar(255),

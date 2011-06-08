@@ -2,6 +2,7 @@ from api import *
 import time
 
 def load():
+    """Displays chat statistics."""
     registerFunction("top10ever", top10)
     registerFunction("mpm", mpm)
     registerFunction("line average of %s", lineAverage, "line average of <target>")

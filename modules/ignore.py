@@ -2,6 +2,7 @@ from api import *
 import time
 
 def load():
+    """Keeps a list of users the bot will ignore."""
     dbExecute('''create table if not exists ignores (
               ignoreID int auto_increment primary key,
               nick varchar(255),
@@ -9,7 +10,6 @@ def load():
               issuetime int,
               reason text,
               unique(nick) )''')
-    
     for (nick, ) in dbQuery("SELECT nick FROM ignores"):
         checkignore.addIgnore(nick)
     registerFunction("ignore %s", addIgnore, "ignore <nickname>", restricted = True)
@@ -17,7 +17,6 @@ def load():
     registerFunction("list ignores", listIgnores, "list ignores", noIgnore = True)
     registerUnloadHandler(clearIgnores)
 registerModule('Ignore', load)
-
 
 def addIgnore(channel, sender, target):
     """Ignores a person, excluding him/her from triggering any commands."""
@@ -29,7 +28,6 @@ def addIgnore(channel, sender, target):
     checkignore.addIgnore(target)
     sendMessage(channel, "%s was a dick anyway." % (target))
     log.notice('%s is now being ignored.' % (target))
-
 
 def removeIgnore(channel, sender, target):
     """Removes someone from the ignore list."""
@@ -49,4 +47,3 @@ def listIgnores(channel, sender):
     sendMessage(sender, "The following people are currently ignored: ")
     for (nick, issuer, issuetime) in dbQuery("SELECT nick, issuer, issuetime FROM ignores"):
         sendMessage(sender, "%s: set by %s on %s" % (nick, issuer, time.strftime("%Y/%m/%d %H:%M:%S", time.gmtime(issuetime))))
-        

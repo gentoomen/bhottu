@@ -6,6 +6,7 @@ import re
 import urllib2
 
 def load():
+    """Shows page titles of all URLs spoken in channel."""
     dbExecute('''create table if not exists urls (
               urlID int auto_increment primary key,
               url varchar(255),
@@ -77,6 +78,7 @@ def searchLinks(channel, sender, message):
     sendMessage(channel, 'Site title: %s' % title)
 
 def showLinks(channel, sender, searchterm):
+    """Shows URLs whose titles match a search term."""
     results = dbQuery('SELECT url, title FROM urls WHERE title LIKE %s OR url LIKE %s',
                     ['%' + searchterm + '%', '%' + searchterm + '%'])
     if len(results) > 3:
@@ -86,6 +88,7 @@ def showLinks(channel, sender, searchterm):
         sendMessage(channel, '%s %s' % (link[0], link[1]))
 
 def showAllLinks(channel, sender, searchterm):
+    """Posts all URLs whose titles match a search term on ompldr.org."""
     links = dbQuery('SELECT url, title FROM urls WHERE title like %s OR url like %s',
                     ['%' + searchterm + '%','%' + searchterm + '%'])
     if len(links) == 0:
@@ -103,6 +106,7 @@ def showAllLinks(channel, sender, searchterm):
     sendMessage(channel, url)
 
 def showBlacklist(channel, sender):
+    """Lists the currently blacklisted domains."""
     blacklist = ''
     for domain in dbQuery('SELECT domain FROM blacklists'):
         blacklist += domain[0] + "\n"
@@ -115,6 +119,7 @@ def showBlacklist(channel, sender):
     sendMessage(channel, url)
 
 def blacklistDomain(channel, sender, domain):
+    """Blocks URLs from a given domain from being summarized."""
     if len(dbQuery('SELECT domain FROM blacklists WHERE domain=%s', [domain])) > 0:
         sendMessage(channel, 'domain already blacklisted')
         return
@@ -123,6 +128,7 @@ def blacklistDomain(channel, sender, domain):
     sendMessage(channel, 'Blacklisted %s' % domain)
 
 def unBlacklistDomain(channel, sender, domain):
+    """Unblocks URLs from a given domain from being summarized."""
     dbExecute('DELETE FROM blacklists WHERE domain=%s', [domain])
     log.info('Domain removed from blacklist: %s' % domain)
     sendMessage(channel, 'Removed %s from blacklist' % domain)

@@ -2,6 +2,7 @@ from api import *
 from utils.ompload import *
 
 def load():
+    """Records memorable quotes and cites them."""
     dbExecute('''create table if not exists quote (
               quoteID int auto_increment primary key,
               name varchar(255),
