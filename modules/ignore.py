@@ -31,7 +31,7 @@ def addIgnore(channel, sender, target):
 
 def removeIgnore(channel, sender, target):
     """Removes someone from the ignore list."""
-    if len(dbQuery("SELECT nick FROM ignores WHERE nick=%s" % (target))) <= 0:
+    if len(dbQuery("SELECT nick FROM ignores WHERE nick=%s", [target])) <= 0:
         sendMessage(channel, "I'm not ignoring %s right now." % (target))
         return
     dbExecute("DELETE FROM ignores WHERE nick=%s", [target])
