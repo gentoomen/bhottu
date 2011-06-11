@@ -19,3 +19,4 @@ import loadaverage
 import interjection
 import admins
 import ignore
+import friday

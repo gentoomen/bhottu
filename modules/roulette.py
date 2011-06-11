@@ -2,7 +2,7 @@ from api import *
 import random
 
 def load():
-    """Russion Roulette module - kicks user with a one in six chance."""
+    """Russian Roulette module - kicks user with a one in six chance."""
     registerFunction("roulette", roulette, implicit=True)
 registerModule('Roulette', load)
 
