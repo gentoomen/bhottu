@@ -17,8 +17,8 @@ def load():
               domain varchar(255),
               index(domain) )''')
     registerMessageHandler(None, searchLinks)
-    registerFunction("links %s", showLinks, "links <search term>")
-    registerFunction("all links %s", showAllLinks, "all links <search term>", restricted = True)
+    registerFunction("links %S", showLinks, "links <search term>")
+    registerFunction("all links %S", showAllLinks, "all links <search term>", restricted = True)
     registerFunction("show blacklist", showBlacklist, None, restricted = True)
     registerFunction("blacklist %s", blacklistDomain, "blacklist <domain>", restricted = True)
     registerFunction("remove blacklist %s", unBlacklistDomain, "remove blacklist <domain>", restricted = True)
