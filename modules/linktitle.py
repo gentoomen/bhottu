@@ -59,7 +59,7 @@ def searchLinks(channel, sender, message):
     url = match.group(1)
     domain = match.group(3)
     if _isBlacklisted(domain):
-        log.info('Domain in blacklist: %' % domain)
+        log.info('Domain in blacklist: %s' % domain)
         return
     cache = dbQuery('SELECT title FROM urls WHERE url=%s LIMIT 1', [url])
     if len(cache) > 0:
