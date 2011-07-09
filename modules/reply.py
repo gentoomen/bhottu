@@ -98,7 +98,7 @@ def Reply(parsed):
                 usage = int(reply[0][2])
                 usage = usage + 1
                 dbExecute('UPDATE replies SET usageCount = %s WHERE replyID = %s', [usage, replyID])
-                that_was = '"' + reply[0][1] + '" triggered by "' + message + '"'
+                that_was = '"%s" in reply to "%s" (triggered by %s)' % (reply[0][1], message, parsed['event_nick'])
                 sendMessage(CHANNEL, replaceVar(reply[0][1], parsed))
 
     #=====rmReply=====#
