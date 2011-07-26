@@ -314,7 +314,7 @@ def incomingIrcMessage(sender, channel, fullMessage):
         channel = nickname
         triggered = True
     message = fullMessage.lstrip(' \t')
-    if message.startswith(ircstatus.currentNickname()):
+    if message.lower().startswith(ircstatus.currentNickname().lower()):
         reducedMessage = message[len(ircstatus.currentNickname()):]
         if reducedMessage[:2].rstrip(' \t') in [',', ':']:
             message = reducedMessage[2:]
