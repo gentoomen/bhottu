@@ -8,17 +8,20 @@ registerModule('Help', load)
 
 def help(channel, sender, command):
     """Provides help on the bot's commands."""
+    msg = ""
     if command == None:
-        sendMessage(sender, "The following commands are available:")
+        sendMessage(sender, "The following commands are available:\n"
+                            "You can use `help <command>` for specific help.")
         for function in functionList():
+            msg += function.name
             if function.restricted and not isAuthorized(sender):
+                msg += " || "
                 continue
             if function.description == None:
-                description = ""
+                msg += " || "
             else:
-                description = function.description
-            sendMessage(sender, "%-20s %s" % (function.name, description))
-        sendMessage(sender, "Use `help <command>` to recieve help on a particular command.")
+                msg += " => " + function.description + " || "
+        sendMessage(sender, "%-20s" %msg)
     else:
         for function in functionList():
             if matchFormat(command, function.attemptFormat) != None:
