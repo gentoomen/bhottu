@@ -29,7 +29,7 @@ def echoQuote(channel, sender, target):
     if len(quote) == 0:
         sendMessage(channel, "No quotes for %s" % target)
         return
-    sendMessage(channel, '"%s" -- %s' % (quote[0][0], target))
+    sendMessage(channel, '<%s> %s' % (target, quote[0][0]))
 
 def allQuotes(channel, sender, target):
     """Fetches all quotes for target, uploads them to ompload and echoes link to channel"""
@@ -39,7 +39,7 @@ def allQuotes(channel, sender, target):
         return
     quoteList = ''
     for quote in quotes:
-        quoteList += '"%s" -- %s\n' % (quote[0], target)
+        quoteList += '<%s> %s\n' % (target, quote[0])
     try:
         url = omploadData(quoteList)
     except Exception:
