@@ -1,3 +1,4 @@
+import re
 #
 # Accepted format specifiers:
 # %s - String terminated by the character directly following the %s.
@@ -13,24 +14,16 @@
 # end of the string or in combination with %S unless you know what you're doing.
 #
 
-#
-# A parsed format string is a list of match blocks.
-# A match block is a pair (type, argument), where type is:
-#   - 'literal': a literal string (stored as `argument`) should be matched.
-#   - 'space': any nonempty amount of whitespace should be matched. `argument` is None.
-#   - 'specifier': a format specifier (stored as `argument` without the %) should be matched.
-# Example: parseFormat('chance %i%% %S') =
-#    [ ('literal', 'chance'), ('space', None), ('specifier', 'i'), ('literal', '%'), ('space', None), ('specifier', 'S') ]
-#
-
 def parseFormat(format):
-    output = []
+    pattern = ""
+    specifiers = []
+    attemptPattern = None
     while format != '':
         if format[0] == ' ':
             i = 1
             while i < len(format) and format[i] == ' ':
                 i += 1
-            output.append(('space', None))
+            pattern += '(?:\\s*(?<=\\s)|$)'
             format = format[i:]
         elif format[0] != '%' or (len(format) >= 2 and format[1] == '%'):
             i = 0
@@ -42,173 +35,68 @@ def parseFormat(format):
                     i += 2
                     continue
                 break
-            output.append(('literal', format[:i].replace('%%', '%')))
+            pattern += re.escape(format[:i].replace('%%', '%'))
             format = format[i:]
         else:
+            optional = False
             index = 1
+            if attemptPattern == None:
+                attemptPattern = pattern
             if index >= len(format):
                 raise ValueError, 'Invalid format string: unfinished specifier'
             if format[index] == '!':
+                optional = True
                 index += 1
                 if index >= len(format):
                     raise ValueError, 'Invalid format string: unfinished specifier'
-            if format[index] not in ['s', 'S', 'i', 'f']:
+            if format[index] == 'i':
+                pattern += '([-+]?[0-9]+)'
+            elif format[index] == 'f':
+                pattern += '((?:[-+]?[0-9]+.?[0-9]*)|(?:[-+]?[0-9]*.?[0-9]+))'
+            elif format[index] == 's':
+                pattern += '((?:[^\'\"\\s][\\S]*)|(?:\'(?:[^\'\\\\]|(?:\\\\.))*\')|(?:\"(?:[^\"\\\\]|(?:\\\\.))*\"))'
+            elif format[index] == 'S':
+                pattern += '(\\S.+)'
+            else:
                 raise ValueError, 'Invalid format string: unknown specifier'
-            if len(output) > 0 and output[-1][0] == 'specifier':
-                raise ValueError, 'Invalid format string: two specifiers must be separated by some literal or whitespace'
-            output.append(('specifier', format[1:index + 1]))
+            if optional:
+                pattern += '?'
+            specifiers.append(format[1:index+1])
             format = format[index + 1:]
-    return output
-
-#
-# Matches a string against a parsed format string.
-# Returns a list of matched arguments on success;
-# if the match fails, returns either True if at least one literal was matched,
-# or False it none was.
-#
-
-def matchFormat(string, format, caseSensitive = False):
-    output = []
-    lastSeen = None
-    for i in range(len(format)):
-        (type, argument) = format[i]
-        if type == 'literal':
-            if caseSensitive:
-                matches = string.startswith(argument)
-            else:
-                matches = string.lower().startswith(argument.lower())
-            if matches:
-                string = string[len(argument):]
-                lastSeen = 'literal'
-            else:
-                return None
-        elif type == 'space':
-            reducedString = string.lstrip(' \t')
-            # Space blocks are idenpotent, that is, matching two adjacent space
-            # blocks is equivalent to matching a single space block. This includes
-            # two space blocks with an absent optional parameter in between.
-            if string != reducedString or len(string) == 0 or lastSeen == 'space':
-                string = reducedString
-                lastSeen = 'space'
-            else:
-                return None
-        elif type == 'specifier':
-            optional = argument[0] == '!'
-            parameter = argument[-1]
-            
-            if i + 1 < len(format) and format[i + 1][0] == 'literal':
-                terminator = format[i + 1][1][0]
-            else:
-                terminator = None
-            
-            if parameter == 'i':
-                (argValue, argString) = matchInteger(string, terminator)
-            elif parameter == 'f':
-                (argValue, argString) = matchFloat(string, terminator)
-            elif parameter == 's':
-                (argValue, argString) = matchString(string, terminator)
-            elif parameter == 'S':
-                (argValue, argString) = matchRemainingString(string)
-            else:
-                raise ValueError, 'Unknown format specifier "%s"' % argument
-            
-            if argValue == None:
-                if optional:
-                    output.append(argValue)
-                else:
-                    return None
-            else:
-                output.append(argValue)
-                string = string[len(argString):]
-                lastSeen = 'specifier'
-        else:
-            raise ValueError, 'Unknown format block "%s"' % type
-    if string.strip(' \t') != '':
-        return None
-    return output
-
-def matchInteger(string, terminator):
-    digitMatched = False
-    index = 0
-    if index < len(string) and (string[index] == '+' or string[index] == '-'):
-        index += 1
-    while index < len(string) and string[index].isdigit() and string[index] != terminator:
-        index += 1
-        digitMatched = True
-    if not digitMatched:
-        return (None, None)
-    output = string[:index]
-    try:
-        return (int(output), output)
-    except Exception:
-        return (None, None)
-
-def matchFloat(string, terminator):
-    digitMatched = False
-    index = 0
-    if index < len(string) and (string[index] == '+' or string[index] == '-'):
-        index += 1
-    while index < len(string) and string[index].isdigit() and string[index] != terminator:
-        index += 1
-        digitMatched = True
-    if index < len(string) and string[index] == '.' and string[index] != terminator:
-        index += 1
-    while index < len(string) and string[index].isdigit() and string[index] != terminator:
-        index += 1
-        digitMatched = True
-    if not digitMatched:
-        return (None, None)
-    output = string[:index]
-    try:
-        return (float(output), output)
-    except Exception:
-        return (None, None)
-
-def matchString(string, terminator):
-    if string == '':
-        return (None, None)
-    elif string[0] == "'":
-        output = ''
-        index = 1
-        while index < len(string):
-            if string[index] == "'":
-                index += 1
-                return (output, string[:index])
-            elif string[index] != '\\':
-                output += string[index]
-                index += 1
-            else:
-                index += 1
-                if not index < len(string):
-                    break
-                output += string[index]
-                index += 1
-        return (None, None)
-    elif string[0] == '"':
-        output = ''
-        index = 1
-        while index < len(string):
-            if string[index] == '"':
-                index += 1
-                return (output, string[:index])
-            elif string[index] != '\\':
-                output += string[index]
-                index += 1
-            else:
-                index += 1
-                if not index < len(string):
-                    break
-                output += string[index]
-                index += 1
-        return (None, None)
+    regex = re.compile(pattern + '$', re.IGNORECASE)
+    if attemptPattern == None:
+        attemptPattern = pattern
+    if attemptPattern == "":
+        attemptRegex = None
     else:
-        index = 0
-        while index < len(string) and string[index] != ' ' and string[index] != '\t' and string[index] != terminator:
-            index += 1
-        output = string[:index]
-        return (output, output)
+        attemptRegex = re.compile(attemptPattern, re.IGNORECASE)
+    return (regex, specifiers, attemptRegex)
 
-def matchRemainingString(string):
-    if string == '':
-        return (None, None)
-    return (string, string)
+def matchFormat(string, format):
+    (regex, specifiers, attemptRegex) = format
+    match = regex.match(string)
+    if match == None:
+        return None
+    output = []
+    for i in range(len(specifiers)):
+        item = match.group(i + 1)
+        if item == None:
+            output.append(None)
+        elif specifiers[i][-1] == 'i':
+            output.append(int(item))
+        elif specifiers[i][-1] == 'f':
+            output.append(float(item))
+        elif specifiers[i][-1] == 'S':
+            output.append(item)
+        elif specifiers[i][-1] == 's':
+            if item[0] == '"' or item[0] == "'":
+                output.append(re.sub('\\\\(.)', '\\1', item[1:-1]))
+            else:
+                output.append(item)
+        else:
+            raise ValueError, 'Invalid format'
+    return output
+
+def matchAttempt(string, format):
+    (regex, specifiers, attemptRegex) = format
+    return attemptRegex.match(string) != None

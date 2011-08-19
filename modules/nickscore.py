@@ -8,17 +8,13 @@ def load():
               name varchar(255),
               points int,
               unique(name) )''')
-    registerMessageHandler(None, searchNickPlus)
-    registerMessageHandler(None, searchNickMinus)
+    registerMessageHandler("%s++", searchNickPlus, implicit=True)
+    registerMessageHandler("%s--", searchNickMinus, implicit=True)
     registerFunction("tell me about %s", tellMeAbout, "tell me about <target>")
     registerFunction("show me the top %!i", showTop, "show me the top [amount]")	
 registerModule('NickScore', load)
 
-def searchNickPlus(channel, sender, message):
-    match = re.match('\s*(\w+)\+\+$', message)
-    if match == None:
-        return
-    target = match.group(1)
+def searchNickPlus(channel, sender, target):
     if target == sender:
         sendMessage(channel, "%s: Plussing yourself is a little sad, is it not?" % sender)
         return
@@ -28,11 +24,7 @@ def searchNickPlus(channel, sender, message):
         dbExecute('UPDATE nickscore SET points = points + 1 WHERE name = %s', [target])
     sendMessage(channel, "Incremented by one")
 
-def searchNickMinus(channel, sender, message):
-    match = re.match('\s*(\w+)--$', message)
-    if match == None:
-        return
-    target = match.group(1)
+def searchNickMinus(channel, sender, target):
     if len(dbQuery('SELECT points FROM nickscore WHERE name = %s', [target])) == 0:
         dbExecute('INSERT INTO nickscore (name, points) VALUES (%s, -1)', [target])
     else:

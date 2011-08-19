@@ -100,11 +100,8 @@ _functionHandlers = []
 
 def registerFunction(format, function, syntax = None, module = None, implicit = False, restricted = False, errorMessages = True, noIgnore = False):
     parsedFormat = stringmatcher.parseFormat(format)
-    (name, attemptFormat) = _functionName(parsedFormat)
     registration = _registerHandler(function, module, _functionHandlers)
     registration.format = parsedFormat
-    registration.attemptFormat = attemptFormat
-    registration.name = name
     registration.description = function.__doc__
     registration.syntax = syntax
     registration.syntaxErrorMessage = None
@@ -114,31 +111,6 @@ def registerFunction(format, function, syntax = None, module = None, implicit = 
     registration.errorMessages = errorMessages
     registration.noIgnore = noIgnore
     return registration
-
-def _functionName(format):
-    outputString = ''
-    outputFormat = []
-    currentString = ''
-    currentFormat = []
-    if len(format) == 0 or format[0][0] != 'literal':
-        raise ValueError, 'Invalid function format'
-    for (type, argument) in format:
-        if type == 'literal':
-            currentString += argument
-            currentFormat.append((type, argument))
-        elif type == 'space':
-            outputString += currentString
-            outputFormat.extend(currentFormat)
-            currentString = ' '
-            currentFormat = [(type, argument)]
-        else:
-            break
-    else:
-        outputString += currentString
-        outputFormat.extend(currentFormat)
-    outputFormat.append(('space', None))
-    outputFormat.append(('specifier', '!S'))
-    return (outputString, outputFormat)
 
 def functionList():
     return _functionHandlers
@@ -332,7 +304,7 @@ def incomingIrcMessage(sender, channel, fullMessage):
         # unless this function is marked Implicit.
         if not handler.implicit and not triggered:
             continue
-        if stringmatcher.matchFormat(message, handler.attemptFormat) == None:
+        if not stringmatcher.matchAttempt(message, handler.format):
             # The function was not called.
             continue
         arguments = stringmatcher.matchFormat(message, handler.format)
@@ -371,7 +343,7 @@ def incomingIrcMessage(sender, channel, fullMessage):
         if not handler.implicit and not triggered:
             continue
         arguments = stringmatcher.matchFormat(message, handler.format)
-        if arguments == True or arguments == False:
+        if arguments == None:
             # No match.
             continue
         # We have a match, so execute the handler.
