@@ -1,25 +1,29 @@
-from config import *
-from utils import *
 from api import *
+import time
 
-flood_time = ""
-flood_counter = 0
+_MAX_MESSAGES_PER_SECOND = 3
+_BURST_SECONDS = 5
 
 def load():
-    registerParsedEventHandler(FloodControl)
+    registerMessageHandler(None, floodCheck, noIgnore = True)
 registerModule('FloodControl', load)
 
-def FloodControl(parsed):
-    """Flood control for channel"""
-    global flood_time, flood_counter
-    mode = '+m'
-    if 'event_target' in parsed:
-        if flood_time == parsed['event_timestamp']:
-            flood_counter = flood_counter + 1
-        else:
-            flood_time = parsed['event_timestamp']
-            flood_counter = 0
+_counters = {}
 
-        if flood_counter > 3:
-            sendMessage(CHANNEL, "Pool's closed.")
-            sendCommand('MODE %s %s' % (CHANNEL, mode))
+def floodCheck(channel):
+    currentTime = time.time()
+    if channel not in _counters:
+        _counters[channel] = (currentTime, 1)
+        return
+    (lastTime, messages) = _counters[channel]
+    dt = currentTime - lastTime
+    messages -= dt * _MAX_MESSAGES_PER_SECOND
+    if messages < 0:
+        _counters[channel] = (currentTime, 1)
+        return
+    messages += 1
+    if messages <= _MAX_MESSAGES_PER_SECOND * _BURST_SECONDS:
+        _counters[channel] = (currentTime, messages)
+        return
+    sendMessage(channel, "Pool's closed.")
+    sendCommand("MODE %s +m" % channel)
