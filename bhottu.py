@@ -31,7 +31,6 @@ import time
 import signal
 
 from config import *
-from utils import *
 from modules import *
 
 from api import *

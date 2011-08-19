@@ -1,6 +1,5 @@
 from api import *
 from utils.ompload import *
-#from utils.unescapexml import *
 
 import re
 import urllib2
@@ -38,7 +37,6 @@ def _parseTitle(html):
     if match == None:
         return None
     titleHtml = match.group(1).replace('\n', '').replace('\r', '')
-    #title = unescapeXml(title)
     title = titleHtml
     return ' '.join(title.split())
 

@@ -50,15 +50,6 @@ def registerUnloadHandler(function, targetModule = None, callingModule = None):
     return registration
 
 #
-# A ParsedEventHandler gets called for each IRC event, in Parse()d form.
-#
-
-_parsedEventHandlers = []
-
-def registerParsedEventHandler(function, module = None):
-    return _registerHandler(function, module, _parsedEventHandlers)
-
-#
 # An CommandHandler gets called for each IRC event with the given command.
 # `function` is called as function([arguments[, sender[, command]]]),
 # where `arguments` is the list of event arguments, `sender` is the sender
@@ -142,7 +133,7 @@ def registerMessageHandler(format, function, module = None, implicit = False, no
 #
 
 def unregister(registration):
-    for type in (_parsedEventHandlers, _functionHandlers, _messageHandlers):
+    for type in (_functionHandlers, _messageHandlers):
         if registration.type == type:
             type.remove(registration)
             registration.module.handlers.remove(registration)
@@ -159,43 +150,6 @@ def unregister(registration):
         registration.enabled = False
         return True
     return False
-
-from time import gmtime, strftime
-
-def Parse(incoming):
-    parsed = {}
-    tmp_vars = []
-    index = 0
-    parsed['raw'] = incoming
-    parsed['event_timestamp'] = strftime("%H:%M:%S +0000", gmtime())
-    for part in parsed['raw'].lstrip(':').split(' '):
-        if part.startswith(':'):
-            tmp_vars.append(parsed['raw'].lstrip(':')\
-                    .split(' ', index)[index].lstrip(':'))
-            break
-        else:
-            tmp_vars.append(part)
-            tmp_vars = [' '.join(tmp_vars)]
-            index += 1
-            continue
-    if len(tmp_vars) > 1:
-        parsed['event_msg'] = tmp_vars[1]
-        cmd_vars = tmp_vars[0].split()
-        if cmd_vars[0] == 'PING':
-            parsed['event'] = 'PING'
-        else:
-            parsed['event'] = cmd_vars[1]
-            try:
-                parsed['event_host'] = cmd_vars[0].split('@')[1]
-                parsed['event_user'] = cmd_vars[0].split('@')[0].split('!')[1]
-                parsed['event_nick'] = cmd_vars[0].split('@')[0].split('!')[0]
-            except:
-                parsed['event_host'] = cmd_vars[0]
-            if parsed['event'] == 'PRIVMSG':
-                    parsed['event_target'] = cmd_vars[2]
-    else:
-        parsed['event'] = 'silly'
-    return parsed
 
 def parseEvent(event):
     if event[:1] == ':':
@@ -257,12 +211,6 @@ def moduleUnloadEvent(module):
 #
 
 def incomingIrcEvent(event):
-    parsed = Parse(event)
-    for handler in _parsedEventHandlers[:]:
-        if not handler.enabled:
-            continue
-        handler.function(parsed)
-    
     (sender, command, arguments) = parseEvent(event)
     if None in _commandHandlers:
         for handler in _commandHandlers[None][:]:
