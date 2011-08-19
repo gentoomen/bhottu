@@ -1,13 +1,9 @@
-# -*- coding: UTF-8 -*-
-
-from config import *
-from utils import *
 from api import *
-
-that_was = None
+import re
+import time
 
 def load():
-    registerParsedEventHandler(Reply)
+    """Lets the bot send scripted replies to certain messages."""
     dbExecute('''create table if not exists replies (
               replyID int auto_increment primary key,
               `trigger` varchar(255),
@@ -19,113 +15,80 @@ def load():
               var varchar(255),
               replacement varchar(255),
               index(var) )''')
+    registerMessageHandler(None, reply)
+    registerMessageHandler("%S <reply> %S", addReply)
+    registerFunction("what was that?", whatWasThat)
+    registerFunction("stop that", stopThat, restricted = True)
+    registerFunction("yes, stop that", yesStopThat, restricted = True)
+    registerFunction("assign %S to %s", assign, "assign <term> to <variable>")
+    registerFunction("suggest a %s", suggest, "suggest a <variable>")
+    registerFunction("suggest an %s", suggest, "suggest an <variable>")
 registerModule('Reply', load)
 
-def Reply(parsed):
-    def newReply(parsed):
-        message = parsed['event_msg']
-        combostring = NICK + ", "
-        log.debug('<reply> in msg')
-        message = message.replace(combostring, '')
-        try:
-            tmp_reply = message.split('<reply>', 1)
-            trigger = tmp_reply[0].strip()
-            reply = tmp_reply[1].strip()
-            #reply = reply[1].lstrip()
-        except:
-            sendMessage(CHANNEL, 'Incorrect syntax')
-            return
-        dbExecute('INSERT INTO replies (`trigger`, reply, usageCount) VALUES (%s, %s, %s)', [trigger, reply, 0])
-        sendMessage(CHANNEL, 'Trigger added')
+_lastReply = None
+_removes = {}
+_REMOVE_TIMEOUT = 5 * 60
 
-    def addVar(parsed):
-        message = parsed['event_msg']
-        combostring = NICK + ", assign "
-        #if authUser(parsed['event_nick']) == True:
-        parts = message.replace(combostring, '')
-        parts = parts.split(' to ')
-        if len(parts) != 2:
-            sendMessage(CHANNEL, 'Syntax, learn it.')
-            return
-        replacement = parts[0]
-        var = parts[1].upper().replace('$', '')
-        replacement = dbExecute('INSERT INTO vars (var, replacement) VALUES (%s, %s)', [var, replacement])
-        sendMessage(CHANNEL, 'Added.')
+def _expand(reply, sender):
+    currentTime = time.strftime("%H:%M:%S", time.gmtime())
+    def _replace(match):
+        var = match.group(1)
+        if var.upper() == 'NICK':
+            return sender
+        if var.upper() == 'TIME':
+            return currentTime
+        result = dbQuery('SELECT replacement FROM vars WHERE var=%s ORDER BY RAND() LIMIT 1', [var])
+        if len(result) > 0:
+            return result[0][0];
+        return '$' + var
+    return re.sub('\\$(\\w+)', _replace, reply)
 
-    #=====replaceVar=====#
-    #INTERNAL#
-    #replaceVar replaces a placeholder with the var#
-    #it represents from the db#
-    def replaceVar(message,parsed):
-        nick = parsed['event_nick']
-        time = parsed['event_timestamp']
-        trigger = message.split(' ')
-        internal = message
-        for line in trigger:
-            if '$' in line:
-                var = line.replace('$', '').strip('\'/.#][()!", £&*;:()\\')
-                replacement = dbQuery('SELECT replacement FROM vars WHERE var=%s ORDER BY RAND() LIMIT 1', [var.upper()])
-                try:
-                    if line == "$NICK":
-                        internal = internal.replace(line, nick, 1)
-                    elif line == "$TIMESTAMP":
-                        internal = internal.replace(line, time, 1)
-                    else:
-                        internal = internal.replace(var, replacement[0][0], 1)
-                except:
-                    internal = internal.replace(var, '[X]')
-        return internal.replace('$', '')
+def reply(channel, sender, message):
+    global _lastReply
+    result = dbQuery('SELECT replyID, reply FROM replies WHERE `trigger`=%s ORDER BY RAND() LIMIT 1', [message])
+    if len(result) == 0:
+        return
+    (replyID, reply) = result[0]
+    _lastReply = (sender, replyID, message, reply, message)
+    dbExecute('UPDATE replies SET usageCount = usageCount + 1 WHERE replyID = %s', [replyID])
+    sendMessage(channel, _expand(reply, sender))
 
-    #=====outputReply=====#
-    #outputReply simply converts a reply using replaceVar and#
-    #outputs it into the channel#
-    def outputReply(parsed):
-        if parsed['event'] == 'PRIVMSG':
-            global that_was
-            message = parsed['event_msg']
-            nick = parsed['event_nick']
-            what_trigger = NICK + ", what was that?"
-            if what_trigger in message:
-                if that_was is not None:
-                    sendMessage(CHANNEL, that_was)
-                    return
-                else:
-                    sendMessage(CHANNEL, 'what was what?')
-                    return
-            reply = dbQuery('SELECT replyID, reply, usageCount FROM replies WHERE `trigger`=%s ORDER BY RAND() LIMIT 1', [message])
-            if len(reply) > 0:
-                replyID = int(reply[0][0])
-                usage = int(reply[0][2])
-                usage = usage + 1
-                dbExecute('UPDATE replies SET usageCount = %s WHERE replyID = %s', [usage, replyID])
-                that_was = '"%s" in reply to "%s" (triggered by %s)' % (reply[0][1], message, parsed['event_nick'])
-                sendMessage(CHANNEL, replaceVar(reply[0][1], parsed))
+def addReply(channel, sender, trigger, reply):
+    dbExecute('INSERT INTO replies (`trigger`, reply, usageCount) VALUES (%s, %s, %s)', [trigger, reply, 0])
+    sendMessage(channel, "Trigger added")
 
-    #=====rmReply=====#
-    #rmReply removes a reply from the db#
-    def rmReply(parsed):
-        message = parsed['event_msg']
-        nick = parsed['event_nick']
-        try:
-            reply = message.split('->rm')[1].lstrip()
-        except:
-            sendMessage(CHANNEL, 'Incorrect syntax')
-            return
-        if authUser(nick) == True:
-            affected = dbExecute('DELETE FROM replies WHERE reply=%s', [reply])
-            sendMessage(CHANNEL, "Total records deleted: %s" % affected)
-            log.info('Deleted %s' % reply)
-        else:
-            sendMessage(CHANNEL, "03>Lol nice try faggot")
-            log.info('%s UNAUTHORIZED delete attempt of %s' % (nick, reply))
+def whatWasThat(channel, sender):
+    if _lastReply == None:
+        sendMessage(channel, "What was what?")
+    else:
+        sendMessage(channel, 'That was "%s" in reply to "%s", trigged by %s.' % (_lastReply[3], _lastReply[2], _lastReply[0]))
 
-    if parsed['event'] == 'PRIVMSG':
-        if parsed['event_msg'].startswith(NICK + ", "):
-            if '<reply>' in parsed['event_msg']:
-                newReply(parsed)
-            elif parsed['event_msg'].startswith(NICK + ", assign "):
-                addVar(parsed)
-            elif '->rm' in parsed['event_msg']:
-                rmReply(parsed)
-        outputReply(parsed)
+def stopThat(channel, sender):
+    if _lastReply == None:
+        sendMessage(channel, "Stop what?")
+        return
+    _removes[sender] = (_lastReply[1], time.time(), _lastReply[2], _lastReply[3])
+    sendMessage(channel, "Remove '%s <reply> %s'? Type '%s: yes, stop that' to confirm." % (_lastReply[2], _lastReply[3], currentNickname()))
 
+def yesStopThat(channel, sender):
+    if sender not in _removes or time.time() - _removes[sender][1] > _REMOVE_TIMEOUT:
+        sendMessage(channel, "Stop what?")
+        return
+    dbExecute('DELETE FROM replies WHERE replyID = %s', _removes[sender][0])
+    sendMessage(channel, "Removed '%s <reply> %s'." % (_removes[sender][2], _removes[sender][3]))
+    del _removes[sender]
+
+def assign(channel, sender, term, variable):
+    """Adds a new value to a variable."""
+    variable = variable.lstrip('$')
+    if len(dbQuery("SELECT varID FROM vars WHERE var=%s AND replacement=%s", (variable.upper(), term.upper))) == 0:
+        dbExecute("INSERT INTO vars (var, replacement) VALUES (%s, %s)", (variable.upper(), term))
+    sendMessage(channel, "Variable added.")
+
+def suggest(channel, sender, variable):
+    """Suggests a random variable value."""
+    result = dbQuery("SELECT replacement FROM vars WHERE var=%s ORDER BY RAND() LIMIT 1", (variable, ))
+    if len(result) == 0:
+        sendMessage(channel, "No %s found." % variable)
+        return
+    sendMessage(channel, "How about %s?" % result[0][0])

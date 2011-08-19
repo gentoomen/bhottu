@@ -56,7 +56,7 @@ def parseFormat(format):
             elif format[index] == 's':
                 pattern += '((?:[^\'\"\\s][\\S]*)|(?:\'(?:[^\'\\\\]|(?:\\\\.))*\')|(?:\"(?:[^\"\\\\]|(?:\\\\.))*\"))'
             elif format[index] == 'S':
-                pattern += '(\\S.+)'
+                pattern += '(\\S(?:.+(?:\\S|$)))'
             else:
                 raise ValueError, 'Invalid format string: unknown specifier'
             if optional:
