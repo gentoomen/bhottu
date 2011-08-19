@@ -1,5 +1,3 @@
-from config import *
-from utils import *
 from api import *
 
 import feedparser
