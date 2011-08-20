@@ -82,6 +82,9 @@ def showLinks(channel, sender, searchterm):
     if len(results) > 3:
         sendMessage(channel, '%s entries found, refine your search' % len(results))
         return
+    if len(results) == 0:
+        sendMessage(channel, 'No results found.')
+        return
     for link in results:
         sendMessage(channel, '%s %s' % (link[0], link[1]))
 
