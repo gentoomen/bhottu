@@ -100,15 +100,8 @@ def load():
     registerCommandHandler("NICK", checkGreetNick)
 ```
 
-Alright! Seems about right. Now let's make sure bhottu loads the module itself. To do that I'll need to edit `config.py` and under `ENABLED_MODULES` add `"greetings"`, so it should look something like this:
+Alright! Seems about right. Now let's make sure bhottu loads the module itself. To do that I'll need to edit `config.py` and add `Greetings` into `ENABLED_MODULES`.
 
-```python
-ENABLED_MODULES = [
-	'Greetings'
-]
-# if you're adding the 'Greetings' entry to the last line, add a comma on the line before that
-# if you're adding that entry inbetween other entries add a comma at the end of it
-# just make sure it's proper python syntax
-```
+And there you go!
 
-Now bhottu is ready to go! Just do the steps written in the `Running` section.
+Now the module is ready to go! To test it, just do the steps written in the `Running` section.
