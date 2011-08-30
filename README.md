@@ -34,7 +34,7 @@ def load():
 registerModule('Greetings', load) # add this after defining "load()" and don't place it inside "load()"
 ```
 
-Now let's make a functions that add and remove greeting into the table:
+Now let's make functions which will add a greeting to the table and remove a greeting from the table:
 
 ```python
 def addGreet(channel, sender, target, message):
@@ -42,7 +42,7 @@ def addGreet(channel, sender, target, message):
         sendMessage(channel, "%s, u silly poophead" % sender)
         return
     currentGreeting = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [target])
-    if len(currentGreeting) > 0: # already greeting target - skip
+    if len(currentGreeting) > 0: # target nickname already has a greeting
         sendMessage("I already greet %s with %s" % (target, currentGreeting[0][0]))
         return
     dbExecute("INSERT INTO greetings (nick, greeting) VALUES (%s, %s)", [target, message]) # insert a new greeting
@@ -64,7 +64,7 @@ def load():
     registerFunction("don't greet %s", removeGreet, "don't greet <target>", restricted = True)
 ```
 
-Now I will create methods that check when a user has joined the channel (or changed his name), look for a greeting and greet him:
+Now I will create functions that get called when a user has joined the channel and/or changed his name and greet him:
 
 ```python
 def checkGreetJoin(arguments, sender):
@@ -85,7 +85,7 @@ def checkGreetNick(arguments, sender):
                 sendMessage(channel, "%s, %s" % (newNick, greetings[0][0]))
 ```
 
-Now I have to alter `load()` again and hook the "JOIN" and "NICK" IRC commands to these new functions:
+Now I have to alter `load()` again and hook these new functions to the "JOIN" and "NICK" IRC:
 
 ```python
 def load():
@@ -100,10 +100,15 @@ def load():
     registerCommandHandler("NICK", checkGreetNick)
 ```
 
-Alright. Seems about right. Now let's make sure bhottu loads the module itself. To do that I'll need to edit `config.py` and under `ENABLED_MODULES` add:
+Alright! Seems about right. Now let's make sure bhottu loads the module itself. To do that I'll need to edit `config.py` and under `ENABLED_MODULES` add `"greetings"`, so it should look something like this:
 
 ```python
-'Greetings'
+ENABLED_MODULES = [
+	'Greetings'
+]
+\# if you're adding the 'Greetings' entry to the last line, add a comma on the line before that
+\# if you're adding that entry inbetween other entries add a comma at the end of it
+\# just make sure it's proper python syntax
 ```
 
-Now bhottu is ready to go!
+Now bhottu is ready to go! Just do the steps written in the `Running` section.
