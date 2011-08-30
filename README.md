@@ -106,9 +106,9 @@ Alright! Seems about right. Now let's make sure bhottu loads the module itself. 
 ENABLED_MODULES = [
 	'Greetings'
 ]
-\# if you're adding the 'Greetings' entry to the last line, add a comma on the line before that
-\# if you're adding that entry inbetween other entries add a comma at the end of it
-\# just make sure it's proper python syntax
+# if you're adding the 'Greetings' entry to the last line, add a comma on the line before that
+# if you're adding that entry inbetween other entries add a comma at the end of it
+# just make sure it's proper python syntax
 ```
 
 Now bhottu is ready to go! Just do the steps written in the `Running` section.
