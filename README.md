@@ -5,10 +5,10 @@ _A modular IRC bot_
 Just clone the git repo and you're ready. Also you will need `MySQL` if you want to use all of the modules.
 
 ## Setting up
-Set up a configuration by editing the `config_example.py` file to your liking and renaming it to `config.py`. The comments in that file are very helpful.
+Set up a configuration by editing the `config_example.py` file to your liking and rename it to `config.py`. The comments in that file are very helpful.
 
 ## Running
-To run bhottu just open a shell, navigate it to the cloned git repo and run `python bhottu.py` or just `bhottu.py` if you're on \*nux/\*BSD.
+To run bhottu just open a shell, navigate it to the cloned git repo and run `python bhottu.py` or just `./bhottu.py` if you're on \*nux/\*BSD.
 
 ## Extending
 Bhottu is very extendable and it's quite simple to do that:
@@ -17,10 +17,13 @@ Bhottu is very extendable and it's quite simple to do that:
 To create a module just create a blank `.py` file in the `/modules` folder. This part will go through the creation of the `modules/greetings.py` file/module thing.
 
 Now first I will need to define a`load()` method, which will set up whatever the module needs on it's initialization. Essential bhottu commands are located in the `/api` folder so you should import that:
+
 ```python
 from api import *
 ```
+
 Now that you have access to the most important functions you can use them. Most (all) modules have a `load()` function which prepares whatever the module needs. In this case the load function should: create a table in the MySQL database which will hold the greetings and the nicknames of people to which will trigger them. Also, I need to tell bhottu to use `load()` function on start, so write there something something like:
+
 ```python
 def load():
     dbExecute('''create table if not exists greetings (
@@ -30,7 +33,9 @@ def load():
               index(nick) )''')
 registerModule('Greetings', load) # add this after defining "load()" and don't place it inside "load()"
 ```
+
 Now let's make a functions that add and remove greeting into the table:
+
 ```python
 def addGreet(channel, sender, target, message):
     if sender == target: # setting a greeting for yourself is kinda selfish
@@ -44,7 +49,9 @@ def addGreet(channel, sender, target, message):
 def removeGreet(channel, sender, target):
     dbExecute("DELETE FROM greetings WHERE nick=%s", [target]) # just deletes a greeting
 ```
+
 Now I have to alter the `load()` function so that bhottu knows when to run these new functions:
+
 ```python
 def load():
     """Greets people when joining the channel."""
@@ -56,7 +63,9 @@ def load():
     registerFunction("greet %s %S", addGreet, "greet <target> <message>", restricted = True) # restricted means that only people who have admin authorization can run this command
     registerFunction("don't greet %s", removeGreet, "don't greet <target>", restricted = True)
 ```
+
 Now I will create methods that check when a user has joined the channel (or changed his name), look for a greeting and greet him:
+
 ```python
 def checkGreetJoin(arguments, sender):
     (nick, ident, hostname) = parseSender(sender)
@@ -75,7 +84,9 @@ def checkGreetNick(arguments, sender):
             if newNick in channelUserList(channel):
                 sendMessage(channel, "%s, %s" % (newNick, greetings[0][0]))
 ```
+
 Now I have to alter `load()` again and hook the "JOIN" and "NICK" IRC commands to these new functions:
+
 ```python
 def load():
     dbExecute('''create table if not exists greetings (
@@ -88,8 +99,11 @@ def load():
     registerCommandHandler("JOIN", checkGreetJoin)
     registerCommandHandler("NICK", checkGreetNick)
 ```
+
 Alright. Seems about right. Now let's make sure bhottu loads the module itself. To do that I'll need to edit `config.py` and under `ENABLED_MODULES` add:
+
 ```python
 'Greetings'
 ```
+
 Now bhottu is ready to go!
