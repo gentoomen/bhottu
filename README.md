@@ -76,6 +76,11 @@ don't greet [nick]             # stops greeting [nick] and removes the greeting 
 #### help.py
 Kinda self-explanatory, isn't it?
 
+```
+# Public commands:
+help [command]                 # gives info on [command]
+```
+
 #### ignore.py
 Makes bhottu ignore a user's messages. That user will not be able to trigger any bhottu commands/module functions.
 
