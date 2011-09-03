@@ -9,7 +9,7 @@ def load():
               feedLink varchar(255),
               lastItem varchar(255) )''')
     registerFunction("add feed %s %S", addFeed, "add feed <name> <link>", restricted = True)
-    registerFunction("remove feed %s %S", removeFeed, "remove feed <name>", restricted = True)
+    registerFunction("remove feed %s", removeFeed, "remove feed <name>", restricted = True)
     registerCommandHandler("PING", updateFeeds)
 registerModule('Feeds', load)
 
