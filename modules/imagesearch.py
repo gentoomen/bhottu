@@ -1,4 +1,4 @@
-﻿from api import *
+from api import *
 import simplejson
 import httplib2
 import urllib
