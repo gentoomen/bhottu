@@ -179,7 +179,7 @@ roulette                       # plays a turn of russian roulette
 ```
 
 #### spew.py
-Records all message everyone has said ever and gives them back at random if someone asks for them.
+Records all messages everyone has said ever (into a table called `lines`) and gives them back at random if someone asks for them.
 
 ```
 # Public commands:
