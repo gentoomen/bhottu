@@ -19,12 +19,12 @@ def addQuote(channel, sender, target, quotation):
     if sender == target:
         sendMessage(channel, "%s, you shouldn't quote your lonely self." % sender)
         return
-    result = dbQuery('SELECT message FROM `lines` WHERE message LIKE %s', [quotation])
+    result = dbQuery('SELECT message FROM `lines` WHERE message = %s AND name = %s', [quotation, target])
     if len(result) == 0:
         if sender == "Manhose":
             sendMessage(channel, "Nice try Manhose.")
         else:
-            sendMessage(channel, "%s, nobody ever said that dude..." % sender)
+            sendMessage(channel, "%s, %s never said that, dude..." % [sender, target])
         return
     else:
         log.info('Trying to insert quote: %s' % quotation)
