@@ -19,9 +19,17 @@ def addQuote(channel, sender, target, quotation):
     if sender == target:
         sendMessage(channel, "%s, you shouldn't quote your lonely self." % sender)
         return
-    log.info('Trying to insert quote: %s' % quotation)
-    dbExecute('INSERT INTO quote (name, quotation) VALUES (%s, %s)', [target, quotation])
-    sendMessage(channel, "Quote recorded")
+    result = dbQuery('SELECT message FROM `lines` WHERE message LIKE %s', [quotation])
+    if len(result) == 0:
+        if sender == "Manhose":
+            sendMessage(channel, "Nice try Manhose.")
+        else:
+            sendMessage(channel, "%s, nobody ever said that dude..." % sender)
+        return
+    else:
+        log.info('Trying to insert quote: %s' % quotation)
+        dbExecute('INSERT INTO quote (name, quotation) VALUES (%s, %s)', [target, quotation])
+        sendMessage(channel, "Quote recorded")
 
 def echoQuote(channel, sender, target):
     """Fetches a random quote from DB for target and echoes it to channel"""
