@@ -24,7 +24,7 @@ def addQuote(channel, sender, target, quotation):
         if sender == "Manhose":
             sendMessage(channel, "Nice try Manhose.")
         else:
-            sendMessage(channel, "%s, %s never said that, dude..." % [sender, target])
+            sendMessage(channel, "%s, %s never said that, dude..." % (sender, target))
         return
     else:
         log.info('Trying to insert quote: %s' % quotation)
