@@ -272,7 +272,7 @@ def checkGreetNick(arguments, sender):
                 sendMessage(channel, "%s, %s" % (newNick, greetings[0][0]))
 ```
 
-Now I have to alter `load()` again and hook these new functions to the "JOIN" and "NICK" IRC:
+Now I have to alter `load()` again and hook these new functions to the "JOIN" and "NICK" IRC commands:
 
 ```python
 def load():
