@@ -30,7 +30,7 @@ def lookupQuote(channel, sender, message):
         sendMessage(channel, "Nobody said that. Ever.")
         return
     result = results[0] # ompload if len(results) more than 4
-    sendMessage(channel, "[%s] <%s>: %s" % (formattime(result[1]), result[0], message))
+    sendMessage(channel, "[%s] <%s> %s" % (formattime(result[1]), result[0], message))
 
 def recordMessage(channel, sender, message):
     dbExecute("INSERT INTO `lines` (name, message, time) VALUES (%s, %s, %s)", (sender, message, int(time.time())))
