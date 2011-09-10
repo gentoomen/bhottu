@@ -9,7 +9,7 @@ registerModule('AutoUpdate', load)
 
 def birthday(channel):
     """Updates the bot to the latest version."""
-    result = subprocess.call(["git", "pull", "origin", "master"])
+    result = subprocess.call(["git", "pull", "origin", "master", "--force"])
     if result == 0:
         sendMessage(channel, "YAY, brb cake!!")
         sendQuit("mmmmm chocolate cake")
