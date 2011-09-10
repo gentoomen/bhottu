@@ -14,18 +14,18 @@ def load():
     registerMessageHandler(None, recordMessage)
     registerFunction("spew like %s", spew, "spew like <person>")
     registerFunction("spew improv", spewImprov)
-    registerFunction("who said %S", lookupQuote, "who said <message>")
+    registerFunction("who said something like %S", lookupQuoteLike, "who said something like <message>")
 registerModule('Spew', load)
 
 def formattime(int):
     return strftime("%d.%m. @ %H:%M", gmtime(int))
 
-def lookupQuote(channel, sender, message):
-    """Looks up a quote and returns the sender and time when it has been said."""
+def lookupQuoteLike(channel, sender, message):
+    """Looks up a quote by pattern and returns the sender and time when it has been said."""
     if len(message) < 5:
         sendMessage(channel, "Search for something longer than 4 characters, %s..." % (sender))
         return
-    results = dbQuery("SELECT name,time FROM `lines` WHERE message=%s", [message])
+    results = dbQuery("SELECT name,time FROM `lines` WHERE message LIKE %s ORDER BY RAND() LIMIT 1", [message])
     if len(results) == 0:
         sendMessage(channel, "Nobody said that. Ever.")
         return
