@@ -12,24 +12,7 @@ def load():
     registerFunction("quote <%s> %S", addQuote, "quote <nick> citation")
     registerFunction("cite %s", echoQuote, "cite <nick>")
     registerFunction("quotes from %s", allQuotes, "quotes from <nick>", restricted = True)
-    registerFunction("who said %S", lookupQuote, "who said <message>")
 registerModule('Quotes', load)
-
-def formattime(int):
-    return strftime("%d.%m. @ %H:%M", gmtime(int))
-
-def lookupQuote(channel, sender, message):
-    """Looks up a quote and returns the sender and time when it has been said."""
-    if len(message) < 5:
-        sendMessage(channel, "Search for something longer than 4 characters, %s..." % (sender))
-        return
-    results = dbQuery("SELECT name,time FROM `lines` WHERE message=%s", [message])
-    if len(results) == 0:
-        sendMessage(channel, "Nobody said that. Ever.")
-        return
-    result = results[0] # ompload if len(results) more than 4
-    sendMessage(channel, "[%s] <%s>: %s" % (formattime(result[1]), result[0], message))
-    return
 
 def addQuote(channel, sender, target, quotation):
     """Quotes a nick on the channel and stores it to the DB"""
