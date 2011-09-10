@@ -1,6 +1,5 @@
 from api import *
 from utils.ompload import *
-from time import strftime, gmtime
 
 def load():
     """Records memorable quotes and cites them."""

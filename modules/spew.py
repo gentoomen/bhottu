@@ -1,6 +1,7 @@
 from api import *
 import random
 import time
+from time import strftime, gmtime
 
 def load():
     """Keeps a log of chat activity and cites from it on request."""
