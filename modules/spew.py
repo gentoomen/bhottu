@@ -34,7 +34,7 @@ def lookupQuoteLike(channel, sender, message):
     sendMessage(channel, "[%s] <%s> %s" % (formattime(result[1]), result[0], message))
 
 def recordMessage(channel, sender, message):
-    dbExecute("INSERT INTO `lines` (name, message, time, channel) VALUES (%s, %s, %s)", (sender, message, int(time.time(), channel)))
+    dbExecute("INSERT INTO `lines` (name, message, time, channel) VALUES (%s, %s, %s, %s)", (sender, message, int(time.time(), channel)))
 
 def spew(channel, sender, target):
     """Repeats a random line a target person has ever said."""
