@@ -15,7 +15,7 @@ class DayForecast:
 	condition = ''
 
 def current(channel, sender, message):
-	feed = urllib2.urlopen('http://www.google.com/ig/api?weather=%s' % message)
+	feed = urllib2.urlopen('http://www.google.com/ig/api?weather=%s' % message.replace(' ','+'))
 	xml = ET.fromstring(feed.read())
 	feed.close()
 	
@@ -30,7 +30,7 @@ def current(channel, sender, message):
 	 location, condition, tempc, tempf, humidity))
 
 def forecast(channel, sender, message):
-	feed = urllib2.urlopen('http://www.google.com/ig/api?weather=%s' % message)
+	feed = urllib2.urlopen('http://www.google.com/ig/api?weather=%s' % message.replace(' ','+'))
 	xml = ET.fromstring(feed.read())
 	feed.close()
 

@@ -21,3 +21,4 @@ import admins
 import ignore
 import imagesearch
 import channels
+import weather
