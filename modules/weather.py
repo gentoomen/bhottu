@@ -1,6 +1,6 @@
 from api import *
 import urllib2
-import xml.etree.ElementTree as xml.etree.ElementTree
+import xml.etree.ElementTree
 
 def load():
 	"""Allows the bot to return weather information"""
