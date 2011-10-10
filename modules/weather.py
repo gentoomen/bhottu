@@ -8,12 +8,6 @@ def load():
 	registerFunction("weather forecast %S", forecast, "weather forecast <location>")
 registerModule("Weather", load)
 
-class DayForecast:
-	day = ''
-	low = ''
-	high = ''
-	condition = ''
-
 def current(channel, sender, message):
 	feed = urllib2.urlopen('http://www.google.com/ig/api?weather=%s' % message.replace(' ','+'))
 	xml = ET.fromstring(feed.read())
