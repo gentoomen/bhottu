@@ -21,7 +21,7 @@ def addGreet(channel, sender, target, message):
         return
     currentGreeting = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [target])
     if len(currentGreeting) > 0:
-        sendMessage("I already greet %s with %s" % (target, currentGreeting[0][0]))
+        sendMessage(channel, "I already greet %s with %s" % (target, currentGreeting[0][0]))
         return
     dbExecute("INSERT INTO greetings (nick, greeting) VALUES (%s, %s)", [target, message])
     sendMessage(channel, "will do")
