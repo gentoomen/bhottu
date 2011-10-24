@@ -17,7 +17,7 @@ registerModule('Greetings', load)
 def addGreet(channel, sender, target, message):
     """Sets a greeting."""
     if sender == target:
-        sendMessage(channel, "%s, u silly poophead" % sender)
+        sendMessage(channel, "%s, trying to greet yourself is just sad." % sender)
         return
     currentGreeting = dbQuery("SELECT greeting FROM greetings WHERE nick=%s", [target])
     if len(currentGreeting) > 0:
