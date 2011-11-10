@@ -42,11 +42,7 @@ def updateFeeds(*args):
     for feed in feeds:
         itemIndex = 0
         firstItem = ""
-        try:
-            parsedFeed = feedparser.parse(repo[1])
-        except:
-            log.warning('Failed to fetch feed for [%s], skipping' % feed[0])
-            continue
+        parsedFeed = feedparser.parse(repo[1])
         for item in parsedFeed['entries']:
             if itemIndex == 0:
                 firstItem = item['title']
