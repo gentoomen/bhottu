@@ -42,16 +42,16 @@ def updateFeeds(*args):
     for feed in feeds:
         itemIndex = 0
         firstItem = ""
-        parsedFeed = feedparser.parse(repo[1])
+        parsedFeed = feedparser.parse(feed[1])
         for item in parsedFeed['entries']:
             if itemIndex == 0:
                 firstItem = item['title']
-            if item['title'] == repo[2]:
+            if item['title'] == feed[2]:
                 break
             else:
                 itemList.append([feed[0], item['title'], item['link'], item['author_detail'].name])
                 itemIndex += 1
-        log.info('[%s] %s new items found' % (repo[0], itemIndex))
+        log.info('[%s] %s new items found' % (feed[0], itemIndex))
         dbExecute("UPDATE feeds SET lastItem=%s WHERE feedName=%s", [firstItem, feed[0]])
     itemList.reverse()
     for item in itemList:
