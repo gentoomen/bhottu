@@ -47,10 +47,8 @@ def searchColor(channel, sender, message):
                                 stdout = subprocess.PIPE, \
                                 stderr = subprocess.PIPE, )
         procOut, procErr = proc.communicate()
-        if procErr == 0:
-            #imgurData(procOut) 
-            message += " (" + omploadData(procOut) + ")"
-        else:
-            message += " (-)"
-            log.error("subprocess call: " + "\"" + " ".join(procCmd) + "\"" + " returned non-zero: " + procErr)
+        log.debug('Subprocess exited with: %s' % procErr)
+        if procErr is None:
+            message += " (" + omploadData(procOut.read()) + ")"
+        message += " (-)"
     sendMessage(channel, message)
