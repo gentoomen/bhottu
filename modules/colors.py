@@ -1,6 +1,6 @@
 from api import *
-
-import os
+from utils.ompload import *
+import subprocess
 import re
 
 def load():
@@ -42,9 +42,15 @@ def searchColor(channel, sender, message):
     else:
         message = "I haven't heard about that color before."
     if isAuthorized(sender):
-        os.system('convert -size 100x100 xc:#%s mod_colors.png' % color)
-        fin, fout = os.popen4('./mod_colors.sh mod_colors.png')
-        message += " =>"
-        for url in fout.readlines():
-            message += " " + url
+        procCmd = ['convert', '-size', '100x100', 'xc:#'+ color, 'png:-']
+        proc = subprocess.Popen(procCmd, \
+                                stdout = subprocess.PIPE, \
+                                stderr = subprocess.PIPE, )
+        procOut, procErr = proc.communicate()
+        if procErr == 0:
+            #imgurData(procOut) 
+            message += " (" + omploadData(procOut) + ")"
+        else:
+            message += " (-)"
+            log.error("subprocess call: " + "\"" + " ".join(procCmd) + "\"" + " returned non-zero: " + procErr)
     sendMessage(channel, message)
