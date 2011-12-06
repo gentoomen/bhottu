@@ -47,8 +47,7 @@ def searchColor(channel, sender, message):
                                 stdout = subprocess.PIPE, \
                                 stderr = subprocess.PIPE, )
         procOut, procErr = proc.communicate()
-        log.debug('Subprocess exited with: %s' % procErr)
-        if procErr is None:
+        if len(procErr) == 0:
             message += " (" + omploadData(procOut.read()) + ")"
         message += " (-)"
     sendMessage(channel, message)
