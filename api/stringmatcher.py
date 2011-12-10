@@ -63,7 +63,7 @@ def parseFormat(format):
                 pattern += '?'
             specifiers.append(format[1:index+1])
             format = format[index + 1:]
-    regex = re.compile(pattern + '$', re.IGNORECASE)
+    regex = re.compile(pattern + '\\s*$', re.IGNORECASE)
     if attemptPattern == None:
         attemptPattern = pattern
     if attemptPattern == "":
