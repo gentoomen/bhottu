@@ -3,6 +3,7 @@ from utils.ompload import *
 
 import re
 import urllib2
+import HTMLParser
 
 def load():
     """Shows page titles of all URLs spoken in channel."""
@@ -38,7 +39,9 @@ def _parseTitle(html):
         return None
     titleHtml = match.group(1).replace('\n', '').replace('\r', '')
     title = titleHtml
-    return ' '.join(title.split())
+    title = ' '.join(title.split())
+    title = HTMLParser.HTMLParser().unescape(title)
+    return title
 
 def _fetchTitle(url):
     response = urllib2.urlopen(url)
