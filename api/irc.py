@@ -1,8 +1,5 @@
 import socket
 import log
-import re
-
-CONTROL_CODES = re.compile(r"(?:\x02|\x03(?:\d{1,2}(?:,\d{1,2})?)?|\x0f|\x11|\x16|\x1f|\x1d)")
 
 connection = None
 readbuffer = ''
@@ -57,4 +54,16 @@ def sendQuit(reason):
     sendCommand("QUIT :%s" % reason)
 
 def sanitize(message):
-    return CONTROL_CODES.sub("", message.replace("\t", ""))
+    # TODO: Improve
+    characters = range(0, 32)
+    characters.remove(2)  # Bold
+    characters.remove(3)  # Colour
+    characters.remove(9)  # Tab
+    characters.remove(15) # Reset
+    characters.remove(17) # Monospace
+    characters.remove(22) # Invert
+    characters.remove(29) # Italic
+    characters.remove(31) # Underline
+    for character in characters:
+        message = message.replace(chr(character), '')
+    return message
