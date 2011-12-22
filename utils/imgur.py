@@ -1,10 +1,11 @@
 #!/usr/bin/env python
+from config import *
 import pycurl
 import string
 import sys
 import base64
 
-IMGUR_API_KEY=''    #register anon api code @ http://imgur.com/register/api_anon
+#IMGUR_API_KEY=''   #register anon api code @ http://imgur.com/register/api_anon
                     #+ gets 50 uploads per hour
 
 class _buffer(object):

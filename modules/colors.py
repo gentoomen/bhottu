@@ -1,5 +1,6 @@
 from api import *
-from utils.ompload import *
+from utils import *
+from config import *
 import subprocess
 import re
 
@@ -48,7 +49,7 @@ def searchColor(channel, sender, message):
                                 stderr = subprocess.PIPE, )
         procOut, procErr = proc.communicate()
         if len(procErr) == 0:
-            message += " (" + omploadData(procOut) + ")"
+            message += " (" + imgurData(procOut) + ")"
         else:
             message += " (-)"
     sendMessage(channel, message)
