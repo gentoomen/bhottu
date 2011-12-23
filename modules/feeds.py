@@ -40,7 +40,7 @@ def listFeeds(channel, sender, *args):
     for feed in feeds:
         sendMessage(sender, '[%s] => %s' % (feed[0], feed[1]))
         
-def updateFeeds(*args):
+def updateFeeds(channel, *args):
     """Refreshes feeds for new entries"""
     log.info('Refreshing feeds')
     feeds = dbQuery("SELECT feedName, feedLink, lastItem FROM feeds")
