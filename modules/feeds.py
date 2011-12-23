@@ -55,7 +55,7 @@ def updateFeeds(*args):
             log.error('Failed to parse %s' % feed[1])
             continue
         for item in entries:
-            if item.link == feeds[2]:
+            if item.link == feed[2]:
                 break
             itemCount += 1
             sendMessage(channel, '[%s] <%s> %s => %s' % \
