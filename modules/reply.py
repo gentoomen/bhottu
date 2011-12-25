@@ -59,19 +59,20 @@ def addReply(channel, sender, trigger, reply):
     sendMessage(channel, "Trigger added")
 
 def listReplies(channel, sender):
-    result = dbQuery('SELECT `trigger`, reply FROM replies')
-    if len(result) == 0:
+    replies = dbQuery('SELECT `trigger`, reply FROM replies')
+    if len(replies) == 0:
         sendMessage(channel, "No replies found.")
         return
+    log.debug('Rows in replies: %s' % (len(replies)))
     replyList = ''
-    for reply in result:
+    for reply in replies:
         replyList += '%s <reply> %s\n' % (reply[0], reply[1])
     try:
         url = omploadData(replyList)
     except Exception:
         sendMessage(channel, "Uploading replies failed.")
         return
-    sendMessage(channel, "Current triggers: %s" % (url))
+    sendMessage(channel, 'Current replies: %s' % (url))
     
 def whatWasThat(channel, sender):
     if _lastReply == None:
