@@ -17,6 +17,7 @@ def load():
               index(var) )''')
     registerMessageHandler(None, reply)
     registerMessageHandler("%S <reply> %S", addReply)
+    registerFunction("list triggers", listReplies, restricted = True)
     registerFunction("what was that?", whatWasThat)
     registerFunction("stop that", stopThat, restricted = True)
     registerFunction("yes, stop that", yesStopThat, restricted = True)
@@ -57,6 +58,21 @@ def addReply(channel, sender, trigger, reply):
     dbExecute('INSERT INTO replies (`trigger`, reply, usageCount) VALUES (%s, %s, %s)', [trigger, reply, 0])
     sendMessage(channel, "Trigger added")
 
+def listReplies(channel, sender):
+    result = dbQuery('SELECT `trigger`, reply FROM replies')
+    if len(result) == 0:
+        sendMessage(channel, "No replies found.")
+        return
+    replyList = ''
+    for reply in result:
+        replyList += '%s <reply> %s\n' % (reply[0], reply[1])
+    try:
+        url = omploadData(replyList)
+    except Exception:
+        sendMessage(channel, "Uploading replies failed.")
+        return
+    sendMessage(channel, "Current triggers: %s" % (url))
+    
 def whatWasThat(channel, sender):
     if _lastReply == None:
         sendMessage(channel, "What was what?")
