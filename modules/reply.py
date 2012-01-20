@@ -16,7 +16,7 @@ def load():
               replacement varchar(255),
               index(var) )''')
     registerMessageHandler(None, reply)
-    registerFunction("%S <reply> %S", addReply, restricted = True)
+    registerMessageHandler("%S <reply> %S", addReply)
     registerFunction("list triggers", listReplies, restricted = True)
     registerFunction("what was that?", whatWasThat)
     registerFunction("stop that", stopThat, restricted = True)
