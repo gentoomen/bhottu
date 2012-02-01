@@ -1,6 +1,7 @@
 from api import *
 import re
 import time
+from utils.ompload import *
 
 def load():
     """Lets the bot send scripted replies to certain messages."""
