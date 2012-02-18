@@ -1,6 +1,7 @@
 from api import *
 import re
 import time
+from utils.ompload import *
 
 def load():
     """Lets the bot send scripted replies to certain messages."""
@@ -21,7 +22,7 @@ def load():
     registerFunction("what was that?", whatWasThat)
     registerFunction("stop that", stopThat, restricted = True)
     registerFunction("yes, stop that", yesStopThat, restricted = True)
-    registerFunction("assign %S to %s", assign, "assign <term> to <variable>")
+    registerFunction("assign %S to %s", assign, "assign <term> to <variable>", restricted = True)
     registerFunction("suggest a %s", suggest, "suggest a <variable>")
     registerFunction("suggest an %s", suggest, "suggest an <variable>")
 registerModule('Reply', load)
