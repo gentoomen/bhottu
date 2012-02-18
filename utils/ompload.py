@@ -15,7 +15,7 @@ class _buffer(object):
 def _ompload(postdata):
     request = pycurl.Curl()
     buffer = _buffer()
-    request.setopt(pycurl.URL, 'http://ompldr.org/upload')
+    request.setopt(pycurl.URL, 'http://omploader.org/upload')
     request.setopt(pycurl.WRITEFUNCTION, buffer.write)
     request.setopt(pycurl.HTTPPOST, postdata)
     request.perform()
