@@ -17,7 +17,7 @@ def addQuote(channel, sender, target, quotation):
     """Quotes a nick on the channel and stores it to the DB"""
     target = target.lstrip('~&@%+')
     if sender == target:
-        sendMessage(channel, "%s, you shouldn't quote your lonely self." % sender)
+        sendMessage(channel, "%s, you shouldn't quote yourself." % sender)
         return
     result = dbQuery('SELECT message FROM `lines` WHERE message = %s AND name = %s', [quotation, target])
     if len(result) == 0:
