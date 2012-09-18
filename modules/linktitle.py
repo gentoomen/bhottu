@@ -71,7 +71,7 @@ def searchLinks(channel, sender, message):
                 sendMessage(channel, '%s' % cache[0][0])
             else: 
                 sendMessage(channel, 'Site title: %s' % cache[0][0])
-        return
+            return
     try:
         title = _fetchTitle(url)
     except urllib2.URLError, e:
