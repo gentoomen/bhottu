@@ -1,6 +1,8 @@
 from api import *
 from utils.ompload import *
 
+from bs4 import BeautifulSoup # new in this version. BeautifulSoup is not that large and simplifies
+#the process a lot, while being much more accurate than regex
 import re
 import urllib2
 import HTMLParser
@@ -34,23 +36,24 @@ def _isBlacklisted(domain):
         domain = domain[pos+1:]
 
 def _parseTitle(html):
-    match = re.search('<title>(.*)<\/title>', html, re.I | re.S)
-    if match == None:
-        return None
-    titleHtml = match.group(1).replace('\n', '').replace('\r', '')
-    title = titleHtml
-    title = ' '.join(title.split())
-    title = HTMLParser.HTMLParser().unescape(title)
-    return title
+    dom = BeautifulSoup(html)
+    if dom.title is not None:
+        print dom.title.string
+        title = dom.title.string  
+    return title.encode("utf-8")
 
 def _fetchTitle(url):
+    global ismime
     response = urllib2.urlopen(url)
     mime = response.info().gettype()
     if mime != 'text/html':
+        ismime = True
         return mime
-    title = _parseTitle(response.read(5000))
+    title = _parseTitle(response.read(10240))
     if title == None:
+        ismime = True
         return mime
+    ismime = False
     return title
 
 def searchLinks(channel, sender, message):
@@ -76,7 +79,7 @@ def searchLinks(channel, sender, message):
         sendMessage(channel, 'Failed to fetch url: %s' % error)
         return
     dbExecute('INSERT INTO urls (url, title) VALUES (%s, %s)', [url, title])
-    sendMessage(channel, 'Site title: %s' % title)
+    sendMessage(channel, '%s: %s' % ("Content-Type" if ismime is True else "Site title", title))
 
 def showLinks(channel, sender, searchterm):
     """Shows URLs whose titles match a search term."""
