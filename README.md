@@ -99,7 +99,7 @@ Whenever somebody says 'linux' instead of 'GNU/linux' (or a similar version) bho
 Works without any specific commands.
 
 #### linktitle.py
-If somebody mentions a link, bhottu fetches that webpage and prints out _a)_ it's title or _b)_ it's mime-type. Bhottu also saves those links and gives them if someone asks for them.
+If somebody mentions a link, bhottu fetches that webpage and prints out _a)_ its title or _b)_ its mime-type. Bhottu also saves those links and gives them if someone asks for them.
 
 ```
 # Admin-only commands:
