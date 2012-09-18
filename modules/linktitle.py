@@ -5,6 +5,8 @@ import re
 import urllib2
 import HTMLParser
 
+_isHtml = False
+
 def load():
     """Shows page titles of all URLs spoken in channel."""
     dbExecute('''create table if not exists urls (
@@ -51,6 +53,7 @@ def _fetchTitle(url):
     title = _parseTitle(response.read(5000))
     if title == None:
         return mime
+    isHtml = True
     return title
 
 def searchLinks(channel, sender, message):
@@ -64,7 +67,10 @@ def searchLinks(channel, sender, message):
         return
     cache = dbQuery('SELECT title FROM urls WHERE url=%s LIMIT 1', [url])
     if len(cache) > 0:
-        sendMessage(channel, 'Site title: %s' % cache[0][0])
+            if _isHtml: 
+                sendMessage(channel, '%s' % cache[0][0])
+            else: 
+                sendMessage(channel, 'Site title: %s' % cache[0][0])
         return
     try:
         title = _fetchTitle(url)
@@ -76,7 +82,10 @@ def searchLinks(channel, sender, message):
         sendMessage(channel, 'Failed to fetch url: %s' % error)
         return
     dbExecute('INSERT INTO urls (url, title) VALUES (%s, %s)', [url, title])
-    sendMessage(channel, 'Site title: %s' % title)
+    if _isHtml:
+        sendMessage(channel, 'Site title: %s' % title)
+    else:
+        sendMessage(channel, '%s' % title)
 
 def showLinks(channel, sender, searchterm):
     """Shows URLs whose titles match a search term."""
