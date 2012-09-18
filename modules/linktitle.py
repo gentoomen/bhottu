@@ -44,7 +44,9 @@ def _parseTitle(html):
 
 def _fetchTitle(url):
     global ismime
-    response = urllib2.urlopen(url)
+    opener = urllib2.build_opener()
+    opener.addheaders = [('User-agent',"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1")]
+    response = opener.open(url)
     mime = response.info().gettype()
     if mime != 'text/html':
         ismime = True
