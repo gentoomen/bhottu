@@ -9,7 +9,7 @@ Install the dependencies. This bot depends on:
 * MySQL
 * python-mysqldb
 * Urllib2
-* BeautifulSoup (for linktitles.py)
+* BeautifulSoup (for linktitle.py)
 * python-simplejson
 
 ## Setting up
@@ -31,7 +31,7 @@ To run bhottu just open a shell, navigate it to the cloned git repo and run `pyt
 _All of the following commands have to be preceeded by bhottu's current name. E.g. 'bhottu, list admins'._
 
 #### admins.py
-Takes care of admin-related stuff.
+Takes care of admin-related stuff. Users in the `GODS` list are automatically admins.
 
 ```
 # Admin-only commands:
@@ -185,7 +185,20 @@ cite [nick]                    # returns a citation/quote by [nick]
 ```
 
 #### reply.py
-_I don't get this one..._
+A module for automatically replying to things that are said in the channel. Also provides suggestions from channel-contributed lists.
+
+```
+# Admin-only commands:
+list replies                   # lists replies and uploads them to Omploader for easy viewing
+stop that                      # stops the bot from triggering 
+yes, stop that                 # really stops the bot from triggering (can only be used after stop that)
+assign [term] to [variable]    # assigns a new possible suggestion to a variable
+
+#Public commands:
+what was that?                 # makes the bot tell you what triggered a certain event
+suggest a [variable]           # suggests a random entry from one of the predefined lists
+[term] <reply> [term]          # makes the bot say the term on the right when the term on the left is said in the channel
+```
 
 #### roulette.py
 A module for the users to play Russian Roulette.
@@ -213,6 +226,11 @@ top10ever                      # returns a list of the 10 most talkative people
 mpm                            # returns how many messages per minute are said
 line average of [nick]         # returns how long a message by [nick] is by average
 ```
+
+### weather.py
+```
+# Public commands:
+what's the weather in [city]   # returns current conditions in city
 
 ## Extending
 Bhottu is very extendable and it's quite simple to do that:
