@@ -1,11 +1,12 @@
 from api import *
 from utils.ompload import *
 
+from bs4 import BeautifulSoup # new in this version. BeautifulSoup is not that large and simplifies
+#the process a lot, while being much more accurate than regex
 import re
 import urllib2
 import HTMLParser
 
-_isHtml = False
 
 def load():
     """Shows page titles of all URLs spoken in channel."""
@@ -36,24 +37,26 @@ def _isBlacklisted(domain):
         domain = domain[pos+1:]
 
 def _parseTitle(html):
-    match = re.search('<title>(.*)<\/title>', html, re.I | re.S)
-    if match == None:
-        return None
-    titleHtml = match.group(1).replace('\n', '').replace('\r', '')
-    title = titleHtml
-    title = ' '.join(title.split())
-    title = HTMLParser.HTMLParser().unescape(title)
-    return title
+    dom = BeautifulSoup(html)
+    if dom.title is not None:
+        print dom.title.string
+        title = dom.title.string  
+    return title.encode("utf-8")
 
 def _fetchTitle(url):
-    response = urllib2.urlopen(url)
+    global ismime
+    opener = urllib2.build_opener()
+    opener.addheaders = [('User-agent',"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1")]
+    response = opener.open(url)
     mime = response.info().gettype()
     if mime != 'text/html':
+        ismime = True
         return mime
-    title = _parseTitle(response.read(5000))
+    title = _parseTitle(response.read(10240))
     if title == None:
+        ismime = True
         return mime
-    isHtml = True
+    ismime = False
     return title
 
 def searchLinks(channel, sender, message):
@@ -67,10 +70,7 @@ def searchLinks(channel, sender, message):
         return
     cache = dbQuery('SELECT title FROM urls WHERE url=%s LIMIT 1', [url])
     if len(cache) > 0:
-            if _isHtml: 
-                sendMessage(channel, '%s' % cache[0][0])
-            else: 
-                sendMessage(channel, 'Site title: %s' % cache[0][0])
+                sendMessage(channel, '%s: %s' % ("Content-Type" if ismimeis True else "Site title", cache[0][0]))
             return
     try:
         title = _fetchTitle(url)
@@ -82,10 +82,7 @@ def searchLinks(channel, sender, message):
         sendMessage(channel, 'Failed to fetch url: %s' % error)
         return
     dbExecute('INSERT INTO urls (url, title) VALUES (%s, %s)', [url, title])
-    if _isHtml:
-        sendMessage(channel, 'Site title: %s' % title)
-    else:
-        sendMessage(channel, '%s' % title)
+    sendMessage(channel, '%s: %s' % ("Content-Type" if ismime is True else "Site title", title))
 
 def showLinks(channel, sender, searchterm):
     """Shows URLs whose titles match a search term."""
