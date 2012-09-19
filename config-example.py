@@ -7,7 +7,8 @@
 #
 #
 SERVER = "irc.rizon.net" #server you wish for the bot to connect to
-PORT = 6667 #note that the bot does not yet support SSL
+PORT = 6667 #port that you want the bot to connect on. Note that 6697 is usually SSL, but not always. If in doubt leave default
+IS_SSL = False #whether or not to use SSL. If in doubt leave default, else set True
 NICK = "bhottu" #nick you want the bot to use
 IDENT = "bot" #ident you want the bot to send to the IRC server. note this value will be ignored if you have an identd installed
 MODE = 0 #numerical IRC mode. see section 3.1.3 of RFC2812. Common values are "0" and "8" (invisible)

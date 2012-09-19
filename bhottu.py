@@ -46,7 +46,7 @@ def makeConnection():
     while True:
         try:
             log.notice("Connecting to server %s:%i..." % (SERVER, PORT))
-            connect(SERVER, PORT)
+            connect(SERVER, PORT, IS_SSL)
             break
         except:
             if tries == 12:

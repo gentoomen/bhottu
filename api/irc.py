@@ -1,13 +1,21 @@
 import socket
 import log
+import ssl
 
 connection = None
 readbuffer = ''
 
-def connect(server, port):
+def connect(server, port, is_ssl):
     global connection
-    connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    connection.connect((server, port))
+
+    if is_ssl is True:
+        irc_unencrypted = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        connection = ssl.wrap_socket(irc_unencrypted)
+        connection.connect((server, port))
+        log.info("SSL enabled.")
+    else:
+        connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        connection.connect((server, port))
 
 def disconnect():
     global connection
