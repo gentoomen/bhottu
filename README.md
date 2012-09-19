@@ -2,10 +2,27 @@
 _A modular IRC bot_
 
 ## Installation
-Just clone the git repo and you're ready. Also you will need `MySQL` if you want to use all of the modules.
+Clone the github repo:
+    git clone https://github.com/gentoomen/bhottu.git
+
+Install the dependencies. This bot depends on:
+* MySQL
+* python-mysqldb
+* Urllib2
+* BeautifulSoup (for linktitles.py)
+* python-simplejson
 
 ## Setting up
 Set up a configuration by editing the `config_example.py` file to your liking and rename it to `config.py`. The comments in that file are very helpful.
+
+## Configuring the MySQL Database
+The majority of the modules in this bot make use of a central MySQL database in some way. Therefore, it is strongly recommended to set up a database. The bot does NOT do this automatically.
+
+Use the following commands:
+
+    mysqladmin create bhottu
+
+If you cannot remember your MySQL root password (this is **different** than system your root password), here are some [instructions on how to reset it that are Ubuntu-specific but that should work anywhere.](https://help.ubuntu.com/community/MysqlPasswordReset)
 
 ## Running
 To run bhottu just open a shell, navigate it to the cloned git repo and run `python bhottu.py` or just `./bhottu.py` if you're on \*nux/\*BSD.
