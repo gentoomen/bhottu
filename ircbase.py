@@ -7,6 +7,7 @@ _realname = None
 _channels = None
 _nickservPassword = None
 _shouldJoin = None
+_alreadyauthed = False
 
 def load(nick, ident, mode, realname, channels, nickservPassword):
     global _nick, _ident, _mode, _realname, _channels, _nickservPassword
@@ -16,14 +17,17 @@ def load(nick, ident, mode, realname, channels, nickservPassword):
     _realname = realname
     _channels = channels
     _nickservPassword = nickservPassword
-    registerCommandHandler('439', _identify)
+    registerCommandHandler('NOTICE', _identify)
     registerCommandHandler('376', _authorize)
     registerCommandHandler('MODE', _checkAuthorize)
     registerCommandHandler('PING', _pong)
 
 def _identify():
-    sendCommand('USER %s %s * :%s' % (_ident, _mode, _realname))
-    sendCommand('NICK %s' % _nick)
+    global _alreadyauthed
+    if _alreadyauthed is False:
+        sendCommand('USER %s %s * :%s' % (_ident, _mode, _realname))
+        sendCommand('NICK %s' % _nick)
+        _alreadyauthed = True
 
 def _authorize():
     global _shouldJoin

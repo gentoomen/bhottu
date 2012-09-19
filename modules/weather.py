@@ -1,41 +1,63 @@
+#!/usr/bin/env python
+#coding: utf-8
+
 from api import *
+import simplejson
 import urllib2
-import xml.etree.ElementTree
 
 def load():
-	"""Allows the bot to return weather information"""
-	registerFunction("weather current %S", current, "weather current <location>")
-	registerFunction("weather forecast %S", forecast, "weather forecast <location>")
+	registerFunction("what's the weather in %S", current)
 registerModule("Weather", load)
 
+def addcolor(color, string):
+	#ASCII char 3 is ^K, ASCII char 15 is ^O
+	return chr(3) + str(color) + string + chr(15)
+
+def getdata(message):
+	message = message.replace(" ","+")
+	jsondata = urllib2.urlopen("http://openweathermap.org/data/2.1/find/name?q=" + message)
+	data = simplejson.load(jsondata)
+	return data
+
 def current(channel, sender, message):
-	feed = urllib2.urlopen('http://www.google.com/ig/api?weather=%s' % message.replace(' ','+'))
-	XML = xml.etree.ElementTree.fromstring(feed.read())
-	feed.close()
-	
-	location = xml.etree.ElementTree.tostringlist(XML[0][0][0])[1].split('"')[1]
-	condition = xml.etree.ElementTree.tostringlist(XML[0][1][0])[1].split('"')[1]
-	tempf = xml.etree.ElementTree.tostringlist(XML[0][1][1])[1].split('"')[1]
-	tempc = xml.etree.ElementTree.tostringlist(XML[0][1][2])[1].split('"')[1]
-	humidity = xml.etree.ElementTree.tostringlist(XML[0][1][3])[1].split('"')[1]
+	data = getdata(message)
+	if "not found" in data.get("message"):
+		sendMessage(channel, "City %s not found! (´；ω；`)" % addcolor(4,message))
+		return
 
-	sendMessage(channel, 
-	'%s: The weather in %s is %s. The temperature is %sC | %sF. %s' % (sender,
-	 location, condition, tempc, tempf, humidity))
+	#this contains the weather values. it's a dictionary inside a dictionary. get() returns a 0 index list with a dictionary at index 0
+	listlist = data.get("list")
+	#city name API determined
+	name = listlist[0].get("name")
+	#temperature (current, min, max), humidity, pressure
+	mainweatherdict = listlist[0].get("main")
+	#wind speed (meters per second) and direction (degrees from azimuth)
+	windweatherdict = listlist[0].get("wind")
+	#cloudiness in %
+	cloudsweatherdict = listlist[0].get("clouds")
+	#current conditions, another list of dictionaries
+	weatherweatherlist = listlist[0].get("weather")
+	description = weatherweatherlist[0].get("description").title()
 
-def forecast(channel, sender, message):
-	feed = urllib2.urlopen('http://www.google.com/ig/api?weather=%s' % message.replace(' ','+'))
-	XML = xml.etree.ElementTree.fromstring(feed.read())
-	feed.close()
+	#finally get the temperature. it's in °K
+	temp = mainweatherdict.get("temp")
+	tempcelsius = temp - 273.15
+	tempfahr = (9.0/5.0) * tempcelsius + 32
 
-	forecast = '%s: 3 day forecast ' % sender
+	#wind speed
+	speed = windweatherdict.get("speed")
 
-	for i in range(2,5):
-		day = xml.etree.ElementTree.tostringlist(XML[0][i][0])[1].split('"')[1]
-		day_low = xml.etree.ElementTree.tostringlist(XML[0][i][1])[1].split('"')[1]
-		day_high = d1_high = xml.etree.ElementTree.tostringlist(XML[0][i][2])[1].split('"')[1]
-		day_condition =  xml.etree.ElementTree.tostringlist(XML[0][2][2])[1].split('"')[1]
-		
-		forecast = forecast + '| %sday: %s, temps: high %sF/low%sF' % (day, day_condition, day_high, day_low)
+	#wind direction
+	degrees = windweatherdict.get("deg")
 
-	sendMessage(channel, forecast)
+	#according to http://www.iac.es/weather/otdata/wind_dir.html
+	if degrees < 90:
+		direction = "North"
+	elif degrees < 180:
+		direction = "East"
+	elif degrees < 270:
+		direction = "South"
+	else:
+		direction = "West"
+
+	sendMessage(channel, "Current conditions in %s: %s ** Temperature: %d°C/%d°F ** Wind Speed: %.01f meters per second, %d degrees %s" % (addcolor(3,name), addcolor(4,description), tempcelsius, tempfahr, speed, degrees, direction))
