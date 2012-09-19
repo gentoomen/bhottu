@@ -2,10 +2,27 @@
 _A modular IRC bot_
 
 ## Installation
-Just clone the git repo and you're ready. Also you will need `MySQL` if you want to use all of the modules.
+Clone the github repo:
+    git clone https://github.com/gentoomen/bhottu.git
+
+Install the dependencies. This bot depends on:
+* MySQL
+* python-mysqldb
+* Urllib2
+* BeautifulSoup (for linktitle.py)
+* python-simplejson
 
 ## Setting up
 Set up a configuration by editing the `config_example.py` file to your liking and rename it to `config.py`. The comments in that file are very helpful.
+
+## Configuring the MySQL Database
+The majority of the modules in this bot make use of a central MySQL database in some way. Therefore, it is strongly recommended to set up a database. The bot does NOT do this automatically.
+
+Use the following commands:
+
+    mysqladmin create bhottu
+
+If you cannot remember your MySQL root password (this is **different** than system your root password), here are some [instructions on how to reset it that are Ubuntu-specific but that should work anywhere.](https://help.ubuntu.com/community/MysqlPasswordReset)
 
 ## Running
 To run bhottu just open a shell, navigate it to the cloned git repo and run `python bhottu.py` or just `./bhottu.py` if you're on \*nux/\*BSD.
@@ -14,7 +31,7 @@ To run bhottu just open a shell, navigate it to the cloned git repo and run `pyt
 _All of the following commands have to be preceeded by bhottu's current name. E.g. 'bhottu, list admins'._
 
 #### admins.py
-Takes care of admin-related stuff.
+Takes care of admin-related stuff. Users in the `GODS` list are automatically admins.
 
 ```
 # Admin-only commands:
@@ -99,7 +116,7 @@ Whenever somebody says 'linux' instead of 'GNU/linux' (or a similar version) bho
 Works without any specific commands.
 
 #### linktitle.py
-If somebody mentions a link, bhottu fetches that webpage and prints out _a)_ it's title or _b)_ it's mime-type. Bhottu also saves those links and gives them if someone asks for them.
+If somebody mentions a link, bhottu fetches that webpage and prints out _a)_ its title or _b)_ its mime-type. Bhottu also saves those links and gives them if someone asks for them.
 
 ```
 # Admin-only commands:
@@ -168,7 +185,20 @@ cite [nick]                    # returns a citation/quote by [nick]
 ```
 
 #### reply.py
-_I don't get this one..._
+A module for automatically replying to things that are said in the channel. Also provides suggestions from channel-contributed lists.
+
+```
+# Admin-only commands:
+list replies                   # lists replies and uploads them to Omploader for easy viewing
+stop that                      # stops the bot from triggering 
+yes, stop that                 # really stops the bot from triggering (can only be used after stop that)
+assign [term] to [variable]    # assigns a new possible suggestion to a variable
+
+#Public commands:
+what was that?                 # makes the bot tell you what triggered a certain event
+suggest a [variable]           # suggests a random entry from one of the predefined lists
+[term] <reply> [term]          # makes the bot say the term on the right when the term on the left is said in the channel
+```
 
 #### roulette.py
 A module for the users to play Russian Roulette.
@@ -197,6 +227,11 @@ mpm                            # returns how many messages per minute are said
 line average of [nick]         # returns how long a message by [nick] is by average
 ```
 
+### weather.py
+```
+# Public commands:
+what's the weather in [city]   # returns current conditions in city
+```
 ## Extending
 Bhottu is very extendable and it's quite simple to do that:
 

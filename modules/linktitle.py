@@ -1,11 +1,15 @@
 from api import *
 from utils.ompload import *
 
-from bs4 import BeautifulSoup # new in this version. BeautifulSoup is not that large and simplifies
+try:
+	from bs4 import BeautifulSoup # new in this version. BeautifulSoup is not that large and simplifies
+except ImportError, e:
+	from BeautifulSoup import BeautifulSoup
 #the process a lot, while being much more accurate than regex
 import re
 import urllib2
 import HTMLParser
+
 
 def load():
     """Shows page titles of all URLs spoken in channel."""
@@ -69,8 +73,8 @@ def searchLinks(channel, sender, message):
         return
     cache = dbQuery('SELECT title FROM urls WHERE url=%s LIMIT 1', [url])
     if len(cache) > 0:
-        sendMessage(channel, 'Site title: %s' % cache[0][0])
-        return
+    	sendMessage(channel, '%s: %s' % ("Content-Type" if ismime is True else "Site title", cache[0][0]))
+	return
     try:
         title = _fetchTitle(url)
     except urllib2.URLError, e:
