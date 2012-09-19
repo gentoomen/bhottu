@@ -70,8 +70,8 @@ def searchLinks(channel, sender, message):
         return
     cache = dbQuery('SELECT title FROM urls WHERE url=%s LIMIT 1', [url])
     if len(cache) > 0:
-                sendMessage(channel, '%s: %s' % ("Content-Type" if ismime is True else "Site title", cache[0][0]))
-            return
+    	sendMessage(channel, '%s: %s' % ("Content-Type" if ismime is True else "Site title", cache[0][0]))
+	return
     try:
         title = _fetchTitle(url)
     except urllib2.URLError, e:
