@@ -231,7 +231,7 @@ line average of [nick]         # returns how long a message by [nick] is by aver
 ```
 # Public commands:
 what's the weather in [city]   # returns current conditions in city
-
+```
 ## Extending
 Bhottu is very extendable and it's quite simple to do that:
 
