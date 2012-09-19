@@ -1,7 +1,10 @@
 from api import *
 from utils.ompload import *
 
-from bs4 import BeautifulSoup # new in this version. BeautifulSoup is not that large and simplifies
+try:
+	from bs4 import BeautifulSoup # new in this version. BeautifulSoup is not that large and simplifies
+except ImportError, e:
+	from BeautifulSoup import BeautifulSoup
 #the process a lot, while being much more accurate than regex
 import re
 import urllib2
