@@ -53,7 +53,7 @@ def sendMessage(receiver, message):
     sendPrivmsg(receiver, sanitize(str(message)))
 
 def sendAction(channel, message):
-    sendCommand(u"PRIVMSG %s :\u0001ACTION %s\u0001" % (channel, message))
+    sendCommand("PRIVMSG %s :\x01ACTION %s\x01" % (channel, message))
 
 def sendJoin(channel):
     sendCommand("JOIN %s" % channel)
