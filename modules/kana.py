@@ -150,12 +150,12 @@ def kanify(kanifyMe, preference):
 	kanifyMe = kanifyMe.decode('utf-8')
 	kanifyMe = list(kanifyMe)
 	if preference == "hiragana":
-		reversedDictionaries = [hiraganaReversed, katakana, alphanumericsReversed]
+		reversedDictionaries = [hiraganaReversed, katakanaReversed, alphanumericsReversed]
 	else:
 		reversedDictionaries = [katakanaReversed, hiraganaReversed, alphanumericsReversed]
 	for dictToUse in reversedDictionaries:
-		specialchars = list("!@#$%^&*().,/;'[]{}:<>?\"\\|-=_+")
-		vowels = list("aeiou")
+		specialchars = list(u'!@#$%^&*().,/;\'[]{}:<>?"\\|-=_+')
+		vowels = list(u'aeiouアエイオウあえいおう')
 		index = -1
 		for char in kanifyMe:
 			index += 1
@@ -168,7 +168,7 @@ def kanify(kanifyMe, preference):
 						value = dictToUse['n']
 						kanifyMe[index] = value
 					continue
-				if nextchar == char and dictToUse is not alphanumericsReversed and char not in specialchars:
+				if nextchar == char and dictToUse is not alphanumericsReversed and char not in specialchars and ord(char) < 128:
 					try:
 						value = dictToUse['sokuon']
 						kanifyMe[index] = value
