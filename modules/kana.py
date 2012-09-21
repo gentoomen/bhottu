@@ -155,7 +155,7 @@ def kanify(kanifyMe, preference):
 		reversedDictionaries = [katakanaReversed, hiraganaReversed, alphanumericsReversed]
 	for dictToUse in reversedDictionaries:
 		specialchars = list(u'!@#$%^&*().,/;\'[]{}:<>?"\\|-=_+')
-		vowels = list(u'aeiouアエイオウあえいおう')
+		vowels = list(u'aeiou')
 		index = -1
 		for char in kanifyMe:
 			index += 1
