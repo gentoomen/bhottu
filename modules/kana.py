@@ -14,7 +14,7 @@ hiragana={
 u'あ':u'a',u'い':u'i',u'う':u'u',u'え':u'e',u'お':u'o',
 u'か':u'ka',u'き':u'ki',u'く':u'ku',u'け':u'ke',u'こ':u'ko',
 u'さ':u'sa',u'し':u'si',u'す':u'su',u'せ':u'se',u'そ':u'so',
-u'た':u'ta',u'ち':u'ti',u'つ':u'tu',u'て':u'te',u'と':u'to',
+u'た':u'ta',u'ち':u'chi',u'つ':u'tu',u'て':u'te',u'と':u'to',
 u'な':u'na',u'に':u'ni',u'ぬ':u'nu',u'ね':u'ne',u'の':u'no',
 u'は':u'ha',u'ひ':u'hi',u'ふ':u'hu',u'へ':u'he',u'ほ':u'ho',
 u'ま':u'ma',u'み':u'mi',u'む':u'mu',u'め':u'me',u'も':u'mo',
@@ -28,13 +28,28 @@ u'だ':u'da',u'ぢ':u'di',u'づ':u'du',u'で':u'de',u'ど':u'do',
 u'ば':u'ba',u'び':u'bi',u'ぶ':u'bu',u'べ':u'be',u'ぼ':u'bo',
 u'ぱ':u'pa',u'ぴ':u'pi',u'ぷ':u'pu',u'ぺ':u'pe',u'ぽ':u'po',
 
-u'ぁ':u'a',u'ぃ':u'i',u'ぅ':u'u',u'ぇ':u'e',u'ぉ':u'o',
-u'っ':u'tu',
-u'ゃ':u'ya',u'ゅ':u'yu',u'ょ':u'yo',
-u'ゎ':u'wa',
+u'ぁ':u'xa',u'ぃ':u'xi',u'ぅ':u'xu',u'ぇ':u'xe',u'ぉ':u'xo',
+#u'ゃ':u'ya',u'ゅ':u'yu',u'ょ':u'yo',
+#u'ゎ':u'wa',
 
-u'ゐ':u'i',u'ゑ':u'e',
-u'ー':u''}
+u'ゐ':u'wi',u'ゑ':u'we',
+u'ー':u'',
+
+u'っ':u'sokuon',
+
+u'きゃ':u'kya',u'きゅ':u'kyu',u'きょ':u'kyo',
+u'しゃ':u'sha',u'しゅ':u'shu',u'しょ':u'sho',
+u'ちゃ':u'cha',u'ちゅ':u'chu',u'ちょ':u'cho',
+u'にゃ':u'nya',u'にゅ':u'nyu',u'にょ':u'nyo',
+u'ひゃ':u'hya',u'ひゅ':u'hyu',u'ひょ':u'hyo',
+u'みゃ':u'mya',u'みゅ':u'myu',u'みょ':u'myo',
+u'りゃ':u'rya',u'りゅ':u'ryu',u'りょ':u'ryo',
+u'ぎゃ':u'gya',u'ぎゅ':u'gyu',u'ぎょ':u'gyo',
+u'じゃ':u'ja',u'じゅ':u'ju',u'じょ':u'jo',
+u'びゃ':u'bya',u'びゅ':u'byu',u'びょ':u'byo',
+u'ぴゃ':u'pya',u'ぴゅ':u'pyu',u'ぴょ':u'pyo',
+u'ゔ':u'vu'
+}
 alphanumerics={
 u'０':u'0',u'１':u'1',u'２':u'2',u'３':u'3',u'４':u'4',
 u'５':u'5',u'６':u'6',u'７':u'7',u'８':u'8',u'９':u'9',
@@ -48,6 +63,7 @@ u'ｊ':u'j',u'ｋ':u'k',u'ｌ':u'l',u'ｍ':u'm',u'ｎ':u'n',u'ｏ':u'o',u'ｐ':u
 u'ｓ':u's',u'ｔ':u't',u'ｕ':u'u',u'ｖ':u'v',u'ｗ':u'w',u'ｘ':u'x',u'ｙ':u'y',u'ｚ':u'z',
 
 u'！':u'!',u'＂':u'"',u'＃':u'#',u'＄':u'$',u'％':u'%',u'＆':u'&',u'＇':u"'",u'（':u'(',u'）':u')',u'＊':u'*',u'＋':u'+',u'，':u',',u'－':u'-',u'．':u'.',u'／':u'/'
+
 }
 katakana={
 
@@ -82,7 +98,7 @@ u'ギャ':u'gya',u'ギュ':u'gyu',u'ギョ':u'gyo',
 u'ビャ':u'bya',u'ビュ':u'byu',u'ビョ':u'byo',
 u'ピャ':u'pya',u'ピュ':u'pyu',u'ピョ':u'pyo',
 
-u'ッ':u'tsu'}
+u'ッ':u'sokuon'}
 romanizeText = u''
 
 hiraganaReversed = dict((v,k) for k,v in hiragana.iteritems())
@@ -150,6 +166,13 @@ def kanify(kanifyMe, preference):
 					if char == "n" and dictToUse is not alphanumericsReversed:
 						value = dictToUse['n']
 						kanifyMe[index] = value
+					continue
+				if nextchar == char and dictToUse is not alphanumericsReversed:
+					try:
+						value = dictToUse['sokuon']
+						kanifyMe[index] = value
+					except KeyError, e:
+						continue
 					continue
 				if nextchar not in vowels:
 					try:
