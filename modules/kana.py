@@ -86,6 +86,7 @@ u'パ':u'pa',u'ピ':u'pi',u'プ':u'pu',u'ペ':u'pe',u'ポ':u'po',
 u'ジャ':u'ja',u'ju':u'ジュ',u'jo':u'ジョ',u'ジ':u'ji',
 u'ヴィ':u'vi',
 
+u'ァ':u'xa',u'ィ':u'xi',u'ゥ':u'xu',u'ェ':u'xe',u'ォ':u'xo',
 
 u'キャ':u'kya',u'キュ':u'kyu',u'キョ':u'kyo',
 u'シャ':u'sha',u'シュ':u'shu',u'ショ':u'sho',u'シ':u'shi',u'ツ':u'tsu',
