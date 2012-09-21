@@ -115,6 +115,15 @@ Whenever somebody says 'linux' instead of 'GNU/linux' (or a similar version) bho
 
 Works without any specific commands.
 
+#### kana.py
+Romanizes kana and turns romaji into kana.
+
+```
+Public commands:
+romanize [kana]                # turn kana string to romaji
+kana [syllabary] [romaji]      # turn romaji into katakana / hirgana
+```
+
 #### linktitle.py
 If somebody mentions a link, bhottu fetches that webpage and prints out _a)_ its title or _b)_ its mime-type. Bhottu also saves those links and gives them if someone asks for them.
 
@@ -227,7 +236,7 @@ mpm                            # returns how many messages per minute are said
 line average of [nick]         # returns how long a message by [nick] is by average
 ```
 
-### weather.py
+#### weather.py
 ```
 # Public commands:
 what's the weather in [city]   # returns current conditions in city
