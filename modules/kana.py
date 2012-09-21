@@ -154,7 +154,8 @@ def kanify(kanifyMe, preference):
 	else:
 		reversedDictionaries = [katakanaReversed, hiraganaReversed, alphanumericsReversed]
 	for dictToUse in reversedDictionaries:
-		vowels = ['a', 'i', 'e', 'o', 'u']
+		specialchars = list("!@#$%^&*().,/;'[]{}:<>?\"\\|-=_+")
+		vowels = list("aeiou")
 		index = -1
 		for char in kanifyMe:
 			index += 1
@@ -167,7 +168,7 @@ def kanify(kanifyMe, preference):
 						value = dictToUse['n']
 						kanifyMe[index] = value
 					continue
-				if nextchar == char and dictToUse is not alphanumericsReversed:
+				if nextchar == char and dictToUse is not alphanumericsReversed and char not in specialchars:
 					try:
 						value = dictToUse['sokuon']
 						kanifyMe[index] = value
