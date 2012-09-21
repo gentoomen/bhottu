@@ -22,3 +22,4 @@ import ignore
 import imagesearch
 import channels
 import weather
+import kana
