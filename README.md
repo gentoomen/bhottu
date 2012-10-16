@@ -8,6 +8,7 @@ Clone the github repo:
 Install the dependencies. This bot depends on:
 * MySQL
 * python-mysqldb
+* python-feedparser
 * Urllib2
 * BeautifulSoup (for linktitle.py)
 * python-simplejson

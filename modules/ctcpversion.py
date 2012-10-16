@@ -2,7 +2,7 @@ from api import *
 import os
 
 #git version hash
-f = open('../.git/refs/heads/master', 'r') 
+f = open('.git/refs/heads/master', 'r') 
 githash = f.read(7)
 
 version = "bhottu %s" % githash
