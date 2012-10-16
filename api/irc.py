@@ -61,6 +61,9 @@ def sendJoin(channel):
 def sendKick(channel, target, reason):
     sendCommand("KICK %s %s :%s" % (channel, target, reason))
 
+def sendNotice(target, message):
+    sendCommand("NOTICE %s :%s" % (target, message))
+
 def sendQuit(reason):
     sendCommand("QUIT :%s" % reason)
 
