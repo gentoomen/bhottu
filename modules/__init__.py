@@ -2,7 +2,7 @@ import quit
 import echo
 import help
 import floodcontrol
-import ctcpversion
+import ctcp
 import nickscore
 import linktitle
 import quotes

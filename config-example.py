@@ -42,7 +42,7 @@ ENABLED_MODULES = [
    
     'Admins',
     'Colors',
-    'CTCPVersion',
+    'CTCP',
     'Echo',
     'Greetings',
     'Help',
