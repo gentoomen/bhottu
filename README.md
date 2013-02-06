@@ -237,6 +237,18 @@ mpm                            # returns how many messages per minute are said
 line average of [nick]         # returns how long a message by [nick] is by average
 ```
 
+#### threadsearch.py
+Used for searching for threads on 4chan containing certain text.
+
+```
+# Admin-only commands:
+show searches by [nick]        # shows the terms that have been searched on 4chan by [nick]
+show who searched [term]       # shows which users have searched 4chan with the term [term]
+
+# Public commands:
+search [board] for [term]      # searches the 4chan JSON API on board [board] for the string [term]
+
+```
 #### weather.py
 ```
 # Public commands:
