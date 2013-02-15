@@ -23,10 +23,10 @@ Use the following commands:
 
     mysqladmin create bhottu
 
-If you cannot remember your MySQL root password (this is **different** than system your root password), here are some [instructions on how to reset it that are Ubuntu-specific but that should work anywhere.](https://help.ubuntu.com/community/MysqlPasswordReset)
+If you cannot remember your MySQL root password (this is **different** from your system root password), here are some [instructions on how to reset it that are Ubuntu-specific but that should work anywhere.](https://help.ubuntu.com/community/MysqlPasswordReset)
 
 ## Running
-To run bhottu just open a shell, navigate it to the cloned git repo and run `python bhottu.py` or just `./bhottu.py` if you're on \*nux/\*BSD.
+To run bhottu just open a shell, navigate it to the cloned git repo and run `python bhottu.py` or just `./bhottu.py` if you're on \*nux/\*BSD. In order to keep the bot running after you close your screen session, you might want to use screen or tmux. We currently do not supply init scripts.
 
 ### Default modules and their usage
 _All of the following commands have to be preceeded by bhottu's current name. E.g. 'bhottu, list admins'._
