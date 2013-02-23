@@ -103,13 +103,12 @@ def search_thread(string, board, thread_num):
 	sections = ["com", "name", "trip", "email", "sub", "filename"]
 	found_list = []
 	thread_json = get_json_data(json_url)
+	string = string.lower()
 	
 	for post in thread_json["posts"]:
-		# Converting things to lowercase takes a long time,
-		# so rather than doing it all at once, we'll step over each post.
-		for s in sections:
-			if s in post.keys() and re.search(string, post[s].lower()):
-				found_list.append("{0}#p{1}".format(thread_num, post["no"]))
+		user_text = "".join([post[s] for s in sections if s in post.keys()]).lower()
+		if re.search(string, .lower()) is not None:
+			found_list.append("{0}#p{1}".format(thread_num, user_text))
 	return found_list
 		
 def search_catalog(string, board):
@@ -121,12 +120,13 @@ def search_catalog(string, board):
 	sections = ["com", "name", "trip", "email", "sub", "filename"]
 	found_list = []
 	catalog_json = get_json_data(json_url)
+	string = string.lower()
 	
 	for page in catalog_json:
 		for thread in page['threads']:
-			for s in sections:
-				if s in thread.keys() and re.search(string, thread[s].lower()):
-					found_list.append(thread["no"])
+			user_text = "".join([thread[s] for s in sections if s in thread.keys()]).lower()
+			if re.search(string, user_text) is not None:
+				found_list.append(thread["no"])
 	return found_list
 	
 def search_board(string, board):
