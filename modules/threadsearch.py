@@ -103,6 +103,7 @@ def search_thread(string, board, thread_num):
 	sections = ["com", "name", "trip", "email", "sub", "filename"]
 	found_list = []
 	thread_json = get_json_data(json_url)
+	string = string.lower()
 	
 	for post in thread_json["posts"]:
 		# Converting things to lowercase takes a long time,
@@ -122,6 +123,7 @@ def search_catalog(string, board):
 	sections = ["com", "name", "trip", "email", "sub", "filename"]
 	found_list = []
 	catalog_json = get_json_data(json_url)
+	string = string.lower()
 	
 	for page in catalog_json:
 		for thread in page['threads']:
