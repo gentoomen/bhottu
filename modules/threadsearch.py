@@ -110,6 +110,7 @@ def search_thread(string, board, thread_num):
 		for s in sections:
 			if s in post.keys() and re.search(string, post[s].lower()):
 				found_list.append("{0}#p{1}".format(thread_num, post["no"]))
+				break
 	return found_list
 		
 def search_catalog(string, board):
@@ -127,6 +128,7 @@ def search_catalog(string, board):
 			for s in sections:
 				if s in thread.keys() and re.search(string, thread[s].lower()):
 					found_list.append(thread["no"])
+					break
 	return found_list
 	
 def search_board(string, board):
