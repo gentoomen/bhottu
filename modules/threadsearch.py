@@ -46,7 +46,7 @@ def run_catalog_search(channel, sender, board, string):
             # Turn the post numbers into fully-fledged URLs
             post_template = "http://boards.4chan.org/{0}/res/{1}"
             urls = [post_template.format(board, post_num) for post_num in posts]
-            sendMessage(channel, "{0}: {1}".format(sender, ", ".join(urls[:3])))
+            sendMessage(channel, "{0}: {1}".format(sender, " ".join(urls[:3])))
 
 def show_who_searched(channel, sender, string):
     """Gets a list of the users who executed a particular search"""
@@ -54,7 +54,7 @@ def show_who_searched(channel, sender, string):
     if not results:
         sendMessage(channel, "No-one has searched for {0}".format(string))
     else:
-        sendMessage(channel, "{0} searched by: {1}".format(string, ", ".join(results)))
+        sendMessage(channel, "{0} searched by: {1}".format(string, " ".join(results)))
 
 def show_searches_by_nick(channel, sender, nick):
     """Gets the searches executed by a certain user"""
@@ -62,14 +62,14 @@ def show_searches_by_nick(channel, sender, nick):
     if not results:
         sendMessage(channel, "{0} hasn't searched anything".format(nick))
     else:
-        sendMessage(channel, "{0}'s searches: {1}".format(nick, ", ".join(results)))
+        sendMessage(channel, "{0}'s searches: {1}".format(nick, " ".join(results)))
 
 def insert_in_db(search_string, nick, board):
     """
     Stores a search string in the database under the nick
     who searched for it
     """
-
+11111111111
     sql = """INSERT INTO chan_search (search_string, nick, board)
              VALUES (%s, %s, %s);"""
     dbExecute(sql, [search_string, nick, board])
