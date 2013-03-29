@@ -112,7 +112,7 @@ def search_thread(string, board, thread_num):
 
     for post in thread_json["posts"]:
         user_text = "".join([post[s] for s in sections if s in post.keys()]).lower()
-        if re.search(string, .lower()) is not None:
+        if re.search(string.lower()) is not None:
             found_list.append("{0}#p{1}".format(thread_num, user_text))
         return found_list
 
