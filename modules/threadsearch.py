@@ -33,20 +33,20 @@ def sanitise(string):
 def run_catalog_search(channel, sender, board, string):
     """Search 4chan posts for a search string and return
     the matching post numbers"""
-        # Strip unyieldly characters
-        board = sanitise(board)
+    # Strip unyieldly characters
+    board = sanitise(board)
 
-        posts = search_catalog(string, board)
-        posts = list(set(posts))
-        insert_in_db(string, sender, board)
+    posts = search_catalog(string, board)
+    posts = list(set(posts))
+    insert_in_db(string, sender, board)
 
-        if len(posts) <= 0:
-            sendMessage(channel, "{0}: No results for {1}".format(sender, string))
-        else:
-            # Turn the post numbers into fully-fledged URLs
-            post_template = "http://boards.4chan.org/{0}/res/{1}"
-            urls = [post_template.format(board, post_num) for post_num in posts]
-            sendMessage(channel, "{0}: {1}".format(sender, " ".join(urls[:3])))
+    if len(posts) <= 0:
+        sendMessage(channel, "{0}: No results for {1}".format(sender, string))
+    else:
+        # Turn the post numbers into fully-fledged URLs
+        post_template = "http://boards.4chan.org/{0}/res/{1}"
+        urls = [post_template.format(board, post_num) for post_num in posts]
+        sendMessage(channel, "{0}: {1}".format(sender, " ".join(urls[:3])))
 
 def show_who_searched(channel, sender, string):
     """Gets a list of the users who executed a particular search"""
@@ -69,7 +69,6 @@ def insert_in_db(search_string, nick, board):
     Stores a search string in the database under the nick
     who searched for it
     """
-11111111111
     sql = """INSERT INTO chan_search (search_string, nick, board)
              VALUES (%s, %s, %s);"""
     dbExecute(sql, [search_string, nick, board])
