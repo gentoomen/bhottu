@@ -44,7 +44,7 @@ def run_catalog_search(channel, sender, board, string):
         sendMessage(channel, "{0}: No results for {1}".format(sender, string))
     else:
         # Turn the post numbers into fully-fledged URLs
-        post_template = "http://boards.4chan.org/{0}/res/{1}"
+        post_template = "https://boards.4chan.org/{0}/res/{1}"
         urls = [post_template.format(board, post_num) for post_num in posts]
         sendMessage(channel, "{0}: {1}".format(sender, " ".join(urls[:3])))
 
