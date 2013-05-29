@@ -1,2 +1,2 @@
-import ompload
+import ix
 import imgur
