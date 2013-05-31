@@ -199,7 +199,7 @@ A module for automatically replying to things that are said in the channel. Also
 
 ```
 # Admin-only commands:
-list replies                   # lists replies and uploads them to Omploader for easy viewing
+list replies                   # lists replies and uploads them to ix.io for easy viewing
 stop that                      # stops the bot from triggering 
 yes, stop that                 # really stops the bot from triggering (can only be used after stop that)
 assign [term] to [variable]    # assigns a new possible suggestion to a variable

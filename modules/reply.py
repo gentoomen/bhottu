@@ -1,7 +1,7 @@
 from api import *
 import re
 import time
-from utils.ompload import *
+from utils.ix import *
 
 def load():
     """Lets the bot send scripted replies to certain messages."""
@@ -69,12 +69,12 @@ def listReplies(channel, sender):
     for reply in replies:
         replyList += '%s <reply> %s\n' % (reply[0], reply[1])
     try:
-        url = omploadData(replyList)
+        url = ix(replyList)
     except Exception:
         sendMessage(channel, "Uploading replies failed.")
         return
     sendMessage(channel, 'Current replies: %s' % (url))
-    
+
 def whatWasThat(channel, sender):
     if _lastReply == None:
         sendMessage(channel, "What was what?")
