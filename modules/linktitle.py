@@ -1,11 +1,6 @@
 from api import *
 from utils.ix import *
-
-try:
-	from bs4 import BeautifulSoup # new in this version. BeautifulSoup is not that large and simplifies
-except ImportError, e:
-	from BeautifulSoup import BeautifulSoup
-#the process a lot, while being much more accurate than regex
+from BeautifulSoup import BeautifulSoup
 import re
 import urllib2
 import HTMLParser
