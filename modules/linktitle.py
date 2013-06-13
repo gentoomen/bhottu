@@ -1,15 +1,11 @@
 from api import *
 from utils.ix import *
-
-try:
-	from bs4 import BeautifulSoup # new in this version. BeautifulSoup is not that large and simplifies
-except ImportError, e:
-	from BeautifulSoup import BeautifulSoup
-#the process a lot, while being much more accurate than regex
+from BeautifulSoup import BeautifulSoup
 import re
 import urllib2
 import HTMLParser
 
+htmlparser = HTMLParser.HTMLParser()
 
 def load():
     """Shows page titles of all URLs spoken in channel."""
@@ -44,7 +40,7 @@ def _parseTitle(html):
     if dom.title is not None:
         print dom.title.string
         title = dom.title.string
-    return title.encode("utf-8")
+    return htmlparser.unescape(title.string).encode("utf-8")
 
 def _fetchTitle(url):
     global ismime
