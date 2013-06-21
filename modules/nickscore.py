@@ -10,8 +10,10 @@ def load():
               unique(name) )''')
     registerMessageHandler("%s++", searchNickPlus, implicit=True)
     registerMessageHandler("%s--", searchNickMinus, implicit=True)
+    registerMessageHandler("++%s", searchNickPlus, implicit=True)
+    registerMessageHandler("--%s", searchNickMinus, implicit=True)
     registerFunction("tell me about %s", tellMeAbout, "tell me about <target>")
-    registerFunction("show me the top %!i", showTop, "show me the top [amount]")	
+    registerFunction("show me the top %!i", showTop, "show me the top [amount]")
 registerModule('NickScore', load)
 
 def searchNickPlus(channel, sender, target):
