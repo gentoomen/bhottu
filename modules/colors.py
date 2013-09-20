@@ -42,14 +42,4 @@ def searchColor(channel, sender, message):
         message = names[0][0]
     else:
         message = "I haven't heard about that color before."
-    if isAuthorized(sender):
-        procCmd = ['convert', '-size', '100x100', 'xc:#' + color, 'png:-']
-        proc = subprocess.Popen(procCmd, \
-                                stdout = subprocess.PIPE, \
-                                stderr = subprocess.PIPE, )
-        procOut, procErr = proc.communicate()
-        if len(procErr) == 0:
-            message += " (" + imgurData(procOut) + ")"
-        else:
-            message += " (-)"
     sendMessage(channel, message)
