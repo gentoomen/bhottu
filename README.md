@@ -190,7 +190,7 @@ A module for saving memorable quotes.
 quotes from [nick]             # returns all the citations/quotes from [nick]
 
 # Public commands:
-quote [nick] [citation]        # saves [citation] with author [nick]
+quote <[nick]> [citation]      # saves [citation] with author [nick]
 cite [nick]                    # returns a citation/quote by [nick]
 ```
 
