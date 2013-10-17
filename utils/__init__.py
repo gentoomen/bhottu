@@ -1,2 +1,1 @@
 import pastebin
-import imgur

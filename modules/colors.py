@@ -1,7 +1,5 @@
 from api import *
-from utils import *
 from config import *
-import subprocess
 import re
 
 def load():
