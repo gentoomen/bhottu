@@ -1,5 +1,5 @@
 from api import *
-from utils.ix import *
+from utils.pastebin import *
 from BeautifulSoup import BeautifulSoup
 import re
 import urllib2
@@ -100,7 +100,7 @@ def showLinks(channel, sender, searchterm):
         sendMessage(channel, '%s %s' % (link[0], link[1]))
 
 def showAllLinks(channel, sender, searchterm):
-    """Posts all URLs whose titles match a search term on ix.io."""
+    """Posts all URLs whose titles match a search term on a pastebin."""
     links = dbQuery('SELECT url, title FROM urls WHERE title like %s OR url like %s',
                     ['%' + searchterm + '%','%' + searchterm + '%'])
     if len(links) == 0:
@@ -110,7 +110,7 @@ def showAllLinks(channel, sender, searchterm):
     for link in links:
         linklist += "%s : %s\n" % (link[0], link[1])
     try:
-        url = ix(linklist)
+        url = pastebin(linklist)
     except:
         log.warning('Failed to upload link list')
         sendMessage(channel, "Error uploading link list")
@@ -123,7 +123,7 @@ def showBlacklist(channel, sender):
     for domain in dbQuery('SELECT domain FROM blacklists'):
         blacklist += domain[0] + "\n"
     try:
-        url = ix(blacklist)
+        url = pastebin(blacklist)
     except:
         log.warning('Failed to upload blacklist')
         sendMessage(channel, "Error uploading blacklist")

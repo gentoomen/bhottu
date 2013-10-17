@@ -1,7 +1,7 @@
 from api import *
 import re
 import time
-from utils.ix import *
+from utils.pastebin import *
 
 def load():
     """Lets the bot send scripted replies to certain messages."""
@@ -69,7 +69,7 @@ def listReplies(channel, sender):
     for reply in replies:
         replyList += '%s <reply> %s\n' % (reply[0], reply[1])
     try:
-        url = ix(replyList)
+        url = pastebin(replyList)
     except Exception:
         sendMessage(channel, "Uploading replies failed.")
         return

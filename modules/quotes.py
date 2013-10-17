@@ -1,5 +1,5 @@
 from api import *
-from utils.ix import *
+from utils.pastebin import *
 
 def load():
     """Records memorable quotes and cites them."""
@@ -37,7 +37,7 @@ def echoQuote(channel, sender, target):
     sendMessage(channel, '<%s> %s' % (target, quote[0][0]))
 
 def allQuotes(channel, sender, target):
-    """Fetches all quotes for target, uploads them to ix.io and echoes link to channel"""
+    """Fetches all quotes for target, uploads them to a pastebin and echoes link to channel"""
     quotes = dbQuery('SELECT quotation FROM quote WHERE name=%s', [target])
     if len(quotes) == 0:
         sendMessage(channel, "No quotes for %s" % target)
@@ -46,7 +46,7 @@ def allQuotes(channel, sender, target):
     for quote in quotes:
         quoteList += '<%s> %s\n' % (target, quote[0])
     try:
-        url = ix(quoteList)
+        url = pastebin(quoteList)
     except Exception:
         sendMessage(channel, "Uploading quotes for %s failed." % target)
         return

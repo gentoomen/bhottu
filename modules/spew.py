@@ -30,7 +30,7 @@ def lookupQuoteLike(channel, sender, message):
     if len(results) == 0:
         sendMessage(channel, "Nobody said that. Ever.")
         return
-    result = results[0] # ompload if len(results) more than 4
+    result = results[0]
     sendMessage(channel, "[%s] <%s> %s" % (formattime(result[1]), result[0], message))
 
 def recordMessage(channel, sender, message):

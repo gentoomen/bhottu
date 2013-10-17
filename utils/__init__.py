@@ -1,2 +1,2 @@
-import ix
+import pastebin
 import imgur
