@@ -241,13 +241,9 @@ line average of [nick]         # returns how long a message by [nick] is by aver
 Used for searching for threads on 4chan containing certain text.
 
 ```
-# Admin-only commands:
-show searches by [nick]        # shows the terms that have been searched on 4chan by [nick]
-show who searched [term]       # shows which users have searched 4chan with the term [term]
-
 # Public commands:
-search [board] for [term]      # searches the 4chan JSON API on board [board] for the string [term]
-
+catalog [board] [regex]        # searches the 4chan catalog on board [board] for matching regex [regex]
+board [board] [regex]          # searches every post on 4chan board [board] for matching regex [regex]
 ```
 #### weather.py
 ```
