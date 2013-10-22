@@ -6,3 +6,5 @@ mod_colors.png
 testing/
 #TRYING TO ignore config.py
 config.py
+#ignore logs
+log
