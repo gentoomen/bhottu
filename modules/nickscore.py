@@ -8,15 +8,35 @@ def load():
               name varchar(255),
               points int,
               unique(name) )''')
-    registerMessageHandler("%s++", searchNickPlus, implicit=True)
-    registerMessageHandler("%s--", searchNickMinus, implicit=True)
-    registerMessageHandler("++%s", searchNickPlus, implicit=True)
-    registerMessageHandler("--%s", searchNickMinus, implicit=True)
+    registerMessageHandler("%s", searchScore, implicit=True)
     registerFunction("tell me about %s", tellMeAbout, "tell me about <target>")
     registerFunction("show me the top %!i", showTop, "show me the top [amount]")
 registerModule('NickScore', load)
 
-def searchNickPlus(channel, sender, target):
+def searchScore(channel, sender, message):
+    pre  = re.search('^(\+\+|--)(.*)', message)
+    post = re.search('(.*)(\+\+|--)$', message)
+    match = None
+    if pre and post:
+        sendMessage(channel, "error: lvalue required as increment operand")
+        return
+
+    target, operator = "", ""
+    if pre:
+        target = pre.group(2)
+        operator = pre.group(1)
+    elif post:
+        target = post.group(1)
+        operator = post.group(2)
+    else:
+        return
+
+    if operator == "--":
+        nickMinus(channel, sender, target)
+    else:
+        nickPlus(channel, sender, target)
+
+def nickPlus(channel, sender, target):
     if target == sender:
         sendMessage(channel, "%s: Plussing yourself is a little sad, is it not?" % sender)
         return
@@ -26,7 +46,7 @@ def searchNickPlus(channel, sender, target):
         dbExecute('UPDATE nickscore SET points = points + 1 WHERE name = %s', [target])
     sendMessage(channel, "Incremented by one")
 
-def searchNickMinus(channel, sender, target):
+def nickMinus(channel, sender, target):
     if len(dbQuery('SELECT points FROM nickscore WHERE name = %s', [target])) == 0:
         dbExecute('INSERT INTO nickscore (name, points) VALUES (%s, -1)', [target])
     else:
