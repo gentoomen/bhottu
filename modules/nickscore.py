@@ -14,23 +14,22 @@ def load():
 registerModule('NickScore', load)
 
 def searchScore(channel, sender, message):
-    pre  = re.search('^(\+\+|--)(.*)', message)
-    post = re.search('(.*)(\+\+|--)$', message)
-    match = None
+    match = re.search("^(\+\+|--)?(.+?)??(\+\+|--)?$", message)
+    if not match or not match.group(2): return
+    pre, post = match.group(1), match.group(3)
     if pre and post:
         sendMessage(channel, "error: lvalue required as increment operand")
         return
 
-    target, operator = "", ""
+    operator = ""
     if pre:
-        target = pre.group(2)
-        operator = pre.group(1)
+        operator = pre
     elif post:
-        target = post.group(1)
-        operator = post.group(2)
+        operator = post
     else:
         return
 
+    target = match.group(2)
     if operator == "--":
         nickMinus(channel, sender, target)
     else:
