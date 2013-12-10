@@ -65,10 +65,14 @@ def get_json_data(url, sleep_time=0):
 		return json_data
 	except urllib2.HTTPError as e:
 		if e.getcode() == 404:
-			pass
+			log.error(e)
+			return None
 		else:
 			raise
+	except urllib2.URLError as e:
+		log.error(e)
 	except Exception as e:
+		log.error("url: {}".format(url))
 		log.error(e)
 		raise
 
@@ -79,14 +83,18 @@ def search_thread(mutex, results_queue, thread_num, search_specifics):
 	"""
 	json_url = "https://a.4cdn.org/{0}/res/{1}.json".format(search_specifics["board"], thread_num)
 	thread_json = get_json_data(json_url)
-	re_search = None
-	for post in thread_json["posts"]:
-		user_text = "".join([post[s] for s in search_specifics["sections"] if s in post.keys()])
-		re_search = re.search(search_specifics["string"], user_text, re.UNICODE)
-		if re_search is not None:
-			mutex.acquire()
-			found_list.append("{0}#p{1}".format(thread_num, post["no"]))
-			mutex.release()
+
+	if thread_json is not None:
+		re_search = None
+		for post in thread_json["posts"]:
+			user_text = "".join([post[s] for s in search_specifics["sections"] if s in post.keys()])
+			re_search = re.search(search_specifics["string"], user_text, re.UNICODE)
+			if re_search is not None:
+				mutex.acquire()
+				results_queue.put("{0}#p{1}".format(thread_num, post["no"]))
+				mutex.release()
+	else:
+		sleep(0.5)
 
 def search_page(mutex, results_queue, page, search_specifics):
 	"""Will be run by the threading module. Searches all the 
@@ -100,8 +108,9 @@ def search_page(mutex, results_queue, page, search_specifics):
 		
 def search_catalog(channel, sender, board, string):
 	"""Search all OP posts on the catalog of a board, and return matching results"""
+	thread_join_timeout_seconds = 10
 	results_queue = Queue()
-	mutex = RLock()
+	mutex = Rlock()
 	json_url = "https://a.4cdn.org/{0}/catalog.json".format(board)
 	sections = ["com", "name", "trip", "email", "sub", "filename"]
 	catalog_json = get_json_data(json_url)
@@ -115,12 +124,13 @@ def search_catalog(channel, sender, board, string):
 
 	for _thread in thread_pool:
 		if _thread.is_alive():
-			_thread.join()
-	
+			_thread.join(float(thread_join_timeout_seconds))
+
 	process_results(channel, sender, board, string, results_queue)
 
 def search_board(channel, sender, board, string):
 	"""Search all the posts on a board and return matching results"""
+	thread_join_timeout_seconds = 10
 	results_queue = Queue()
 	mutex = RLock()
 	json_url = "https://a.4cdn.org/{0}/threads.json".format(board)
@@ -137,15 +147,7 @@ def search_board(channel, sender, board, string):
 	
 	for _thread in thread_pool:
 		if _thread.is_alive():
-			_thread.join()
+			_thread.join(float(thread_join_timeout_seconds))
 
 	process_results(channel, sender, board, string, results_queue)
-
-
-
-
-
-
-
-
 
