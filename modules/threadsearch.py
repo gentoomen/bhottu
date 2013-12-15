@@ -41,14 +41,11 @@ def process_results(channel, sender, board, string, results_deque):
 	max_num_urls_displayed = 3
 	board = sanitise(board)
 	message = ""
-	posts = []	
-	while results_deque.qsize() > 0:
-		posts.append(results_deque.get())
-	if len(posts) <= 0:
+	if len(results_deque) <= 0:
 		sendMessage(channel, "{0}: No results for {1}".format(sender, string))
 	else:
 		post_template = "https://boards.4chan.org/{0}/res/{1}"
-		urls = [post_template.format(board, post_num) for post_num in posts]
+		urls = [post_template.format(board, post_num) for post_num in results_deque]
 		if len(urls) > max_num_urls_displayed:
 			message = output_to_sprunge('\n'.join(urls))
 		else:
@@ -125,8 +122,7 @@ def search_catalog(channel, sender, board, string):
 def search_board(channel, sender, board, string):
 	"""Search all the posts on a board and return matching results"""
 	thread_join_timeout_seconds = 10
-	results_deque = Queue()
-	mutex = RLock()
+	results_deque = deque()
 	json_url = "https://a.4cdn.org/{0}/threads.json".format(board)
 	sections = ["com", "name", "trip", "email", "sub", "filename"]
 	threads_json = get_json_data(json_url)
