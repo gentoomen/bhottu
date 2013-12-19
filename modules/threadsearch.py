@@ -4,7 +4,7 @@ url of any matching post
 
 :author Cody Harrington:
 """
-import simplejson
+import json
 import urllib
 import urllib2
 from api import *
@@ -15,6 +15,7 @@ from threading import *
 from Queue import *
 import time
 from collections import deque
+import requests
 
 def load():
 	"""Load the module"""
@@ -57,18 +58,12 @@ def get_json_data(url, sleep_time=0):
 	# Respect 4chan's rule of at most 1 JSON request per second
 	sleep(sleep_time)
 	try:
-		open_url = urllib2.urlopen(url)
-		json_data = simplejson.load(open_url.fp)
-		open_url.close()
-		return json_data
-	except urllib2.HTTPError as e:
-		if e.getcode() == 404:
-			log.error(e)
+		response = requests.get(url)
+		if response.status_code == 404:
+			log.error("url {} 404".format(url))
 			return None
-		else:
-			raise
-	except urllib2.URLError as e:
-		log.error(e)
+		json_data = json.loads(response.text.encode())
+		return json_data
 	except Exception as e:
 		log.error("url: {}".format(url))
 		log.error(e)
