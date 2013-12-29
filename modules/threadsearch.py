@@ -76,7 +76,7 @@ def search_thread(results_deque, thread_num, search_specifics):
         re_search = None
         for post in thread_json["posts"]:
             user_text = "".join([post[s] for s in search_specifics["sections"] if s in post.keys()])
-            re_search = re.search(search_specifics["string"], user_text, re.UNICODE)
+            re_search = re.search(search_specifics["string"], user_text, re.UNICODE + re.IGNORECASE)
             if re_search is not None:
                 results_deque.append("{0}#p{1}".format(thread_num, post["no"]))
 
@@ -85,7 +85,7 @@ def search_page(results_deque, page, search_specifics):
     4chan threads on a page and adds matching results to synchronised queue"""
     for thread in page['threads']:
         user_text = "".join([thread[s] for s in search_specifics["sections"] if s in thread.keys()])
-        if re.search(search_specifics["string"], user_text, re.UNICODE) is not None:
+        if re.search(search_specifics["string"], user_text, re.UNICODE + re.IGNORECASE) is not None:
             results_deque.append(thread["no"])
         
 def search_catalog(channel, sender, board, string):
