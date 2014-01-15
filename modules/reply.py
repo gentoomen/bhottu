@@ -16,6 +16,9 @@ def load():
               var varchar(255),
               replacement varchar(255),
               index(var) )''')
+    dbExecute('''create table if not exists banned_triggers (
+               bannedID int auto_increment primary key,
+               `trigger` varchar(255) )''')
     registerMessageHandler(None, reply)
     registerMessageHandler("%S <reply> %S", addReply)
     registerFunction("list triggers", listReplies, restricted = True)
@@ -25,6 +28,7 @@ def load():
     registerFunction("assign %S to %s", assign, "assign <term> to <variable>", restricted = True)
     registerFunction("suggest a %s", suggest, "suggest a <variable>")
     registerFunction("suggest an %s", suggest, "suggest an <variable>")
+    registerFunction("don't reply to %s", banTrigger, restricted=True)
 registerModule('Reply', load)
 
 _lastReply = None
@@ -56,8 +60,12 @@ def reply(channel, sender, message):
     sendMessage(channel, _expand(reply, sender))
 
 def addReply(channel, sender, trigger, reply):
-    dbExecute('INSERT INTO replies (`trigger`, reply, usageCount) VALUES (%s, %s, %s)', [trigger, reply, 0])
-    sendMessage(channel, "Trigger added")
+    banned_triggers = dbQuery('SELECT `trigger` FROM banned_triggers WHERE `trigger` = %s', [trigger])
+    if len(banned_triggers) == 0:
+        dbExecute('INSERT INTO replies (`trigger`, reply, usageCount) VALUES (%s, %s, %s)', [trigger, reply, 0])
+        sendMessage(channel, "Trigger added")
+    else:
+        sendKick(channel, sender, "We have enough botspam already")
 
 def listReplies(channel, sender):
     replies = dbQuery('SELECT `trigger`, reply FROM replies')
@@ -110,3 +118,7 @@ def suggest(channel, sender, variable):
         sendMessage(channel, "No %s found." % variable)
         return
     sendMessage(channel, "How about %s?" % result[0][0])
+
+def banTrigger(channel, sender, trigger):
+    dbExecute("INSERT INTO banned_triggers (`trigger`) VALUES (%s)", [trigger])
+    sendMessage(channel, "Trigger banned.")
