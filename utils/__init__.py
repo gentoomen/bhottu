@@ -1,1 +1,1 @@
-import pastebin
+import pastebins

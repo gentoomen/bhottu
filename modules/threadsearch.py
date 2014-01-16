@@ -10,6 +10,7 @@ import json
 import time
 import requests
 from api import *
+from utils.pastebins import sprunge
 from time import sleep
 from threading import *
 from collections import deque
@@ -24,14 +25,6 @@ def sanitise(string):
     """Strips a string of all non-alphanumeric characters"""
     return re.sub(r"[^a-zA-Z0-9 ]", "", string)
 
-def output_to_sprunge(string):
-    """Takes a string of data, sends it to http://sprunge.us 
-    as a POST request, and returns the URL that sprunge returns"""
-    data = {"sprunge": string}
-    response = requests.post("http://sprunge.us", data=data)
-    message = response.text.encode().strip('\n')
-    return message
-
 def process_results(channel, sender, board, string, results_deque):
     """Process the resulting data of a search and present it"""
     max_num_urls_displayed = 3
@@ -43,7 +36,7 @@ def process_results(channel, sender, board, string, results_deque):
         post_template = "https://boards.4chan.org/{0}/res/{1}"
         urls = [post_template.format(board, post_num) for post_num in results_deque]
         if len(urls) > max_num_urls_displayed:
-            message = output_to_sprunge('\n'.join(urls))
+            message = sprunge('\n'.join(urls))
         else:
             message = " ".join(urls[:max_num_urls_displayed])
         sendMessage(channel, "{0}: {1}".format(sender, message))

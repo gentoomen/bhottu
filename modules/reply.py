@@ -1,7 +1,7 @@
 from api import *
 import re
 import time
-from utils.pastebin import *
+from utils.pastebins import *
 
 def load():
     """Lets the bot send scripted replies to certain messages."""
@@ -77,7 +77,7 @@ def listReplies(channel, sender):
     for reply in replies:
         replyList += '%s <reply> %s\n' % (reply[0], reply[1])
     try:
-        url = pastebin(replyList)
+        url = sprunge(replyList)
     except Exception:
         sendMessage(channel, "Uploading replies failed.")
         return
