@@ -23,6 +23,9 @@ def addIgnore(channel, sender, target):
     if len(dbQuery("SELECT nick FROM ignores WHERE nick=%s", [target])) > 0:
         sendMessage(channel, "I'm already ignoring %s." % (target))
         return
+    if len(dbQuery("SELECT nick FROM admins WHERE nick=%s", [target])) > 0:
+        sendMessage(channel, "I can't ignore {} because they're an admin".format(target))
+        return
     timestamp = int(time.time())
     dbExecute("INSERT INTO ignores (nick, issuer, issuetime) VALUES (%s, %s, %s)", [target, sender, timestamp])
     ignorelist.addIgnore(target)

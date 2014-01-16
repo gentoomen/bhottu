@@ -12,6 +12,8 @@ Install the dependencies. This bot depends on:
 * Urllib2
 * BeautifulSoup (for linktitle.py)
 * python-simplejson
+* httplib2
+* requests
 
 ## Setting up
 Set up a configuration by editing the `config_example.py` file to your liking and rename it to `config.py`. The comments in that file are very helpful.

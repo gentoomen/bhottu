@@ -8,3 +8,4 @@ testing/
 config.py
 #ignore logs
 log
+.idea

@@ -22,6 +22,9 @@ def addAdmin(channel, sender, target):
     if len(dbQuery("SELECT nick FROM admins WHERE nick=%s", [target])) > 0:
         sendMessage(channel, "%s is already an admin." % (target))
         return
+    if len(dbQuery("SELECT nick FROM ignores WHERE nick=%s", [target])) > 0:
+        sendMessage(channel, "{} is being ignored. Remove from ignores first.".format(target))
+        return
     timestamp = int(time.time())
     dbExecute("INSERT INTO admins (nick, issuer, issuetime) VALUES (%s, %s, %s)", [target, sender, timestamp])
     authorize.addAdmin(target)
