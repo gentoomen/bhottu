@@ -201,15 +201,17 @@ A module for automatically replying to things that are said in the channel. Also
 
 ```
 # Admin-only commands:
-list replies                   # lists replies and uploads them to ix.io for easy viewing
+list replies                   # lists replies and uploads them to sprunge.us for easy viewing
 stop that                      # stops the bot from triggering 
 yes, stop that                 # really stops the bot from triggering (can only be used after stop that)
 assign [term] to [variable]    # assigns a new possible suggestion to a variable
+don't reply to [trigger]       # kicks users who try add a reply for this trigger
+reply to [trigger]             # makes it okay to add a reply for this trigger again
 
 #Public commands:
+[term] <reply> [term]          # makes the bot say the term on the right when the term on the left is said in the channel
 what was that?                 # makes the bot tell you what triggered a certain event
 suggest a [variable]           # suggests a random entry from one of the predefined lists
-[term] <reply> [term]          # makes the bot say the term on the right when the term on the left is said in the channel
 ```
 
 #### roulette.py

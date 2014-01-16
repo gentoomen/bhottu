@@ -29,6 +29,9 @@ def load():
     registerFunction("suggest a %s", suggest, "suggest a <variable>")
     registerFunction("suggest an %s", suggest, "suggest an <variable>")
     registerFunction("don't reply to %s", banTrigger, restricted=True)
+    registerFunction("reply to %s", unbanTrigger, restricted=True)
+    registerFunction("list banned triggers", listBannedTriggers, restricted=True)
+
 registerModule('Reply', load)
 
 _lastReply = None
@@ -122,3 +125,23 @@ def suggest(channel, sender, variable):
 def banTrigger(channel, sender, trigger):
     dbExecute("INSERT INTO banned_triggers (`trigger`) VALUES (%s)", [trigger])
     sendMessage(channel, "Trigger banned.")
+
+def listBannedTriggers(channel, sender):
+    triggers = dbQuery('SELECT `trigger` FROM banned_triggers')
+    if len(triggers) == 0:
+        sendMessage(channel, "No banned triggers found.")
+        return
+    log.debug('Rows in triggers: %s' % (len(triggers)))
+    triggerList = ''
+    for trigger in triggers:
+        triggerList += trigger[0] + '\n'
+    try:
+        url = sprunge(triggerList)
+    except Exception:
+        sendMessage(channel, "Uploading banned triggers failed.")
+        return
+    sendMessage(channel, 'Current banned triggers: %s' % (url))
+
+def unbanTrigger(channel, sender, trigger):
+    rows = dbExecute("DELETE FROM banned_triggers WHERE `trigger` = %s", (trigger))
+    sendMessage(channel, "Trigger unbanned." if rows > 0 else "That trigger wasn't banned.")
