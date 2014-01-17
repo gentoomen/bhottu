@@ -64,9 +64,13 @@ def reply(channel, sender, message):
 
 def addReply(channel, sender, trigger, reply):
     banned_triggers = dbQuery('SELECT `trigger` FROM banned_triggers WHERE `trigger` = %s', [trigger])
-    if len(banned_triggers) == 0:
+    existing_responses = dbQuery('SELECT reply FROM replies WHERE `trigger` = %s AND reply = %s', [trigger, reply])
+    responses = [_reply[0] for _reply in existing_responses]
+    if len(banned_triggers) == 0 and reply not in responses:
         dbExecute('INSERT INTO replies (`trigger`, reply, usageCount) VALUES (%s, %s, %s)', [trigger, reply, 0])
         sendMessage(channel, "Trigger added")
+    elif reply in responses:
+        sendMessage(channel, "A trigger with that reply already exists")
     else:
         sendKick(channel, sender, "We have enough botspam already")
 
