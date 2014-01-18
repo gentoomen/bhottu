@@ -21,4 +21,5 @@ def dbExecute(sql, arguments=[]):
     cursor = db().cursor()
     affected = cursor.execute(sql, arguments)
     cursor.close()
+    db().commit()
     return affected
