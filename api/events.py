@@ -1,8 +1,5 @@
 import stringmatcher
-import ignorelist
-import authorize
 import irc
-import ircstatus
 import log
 import traceback
 
@@ -205,6 +202,11 @@ def moduleUnloadEvent(module):
             continue
         callFunction(handler.function, [])
 
+import authorize
+import ignorelist
+import ircstatus
+
+
 #
 # incomingIrcEvent is responsible for acting on incoming irc events
 # by parsing them and calling the appropriate handlers.
@@ -212,6 +214,7 @@ def moduleUnloadEvent(module):
 
 def incomingIrcEvent(event):
     (sender, command, arguments) = parseEvent(event)
+
     if None in _commandHandlers:
         for handler in _commandHandlers[None][:]:
             if not handler.enabled:
@@ -266,13 +269,19 @@ def incomingIrcMessage(sender, channel, fullMessage):
             continue
         # If we get here, the function was matched.
         # If the user is not authorized to invoke this function, abort.
-        if handler.restricted and not authorized:
-            if handler.errorMessages:
-                if handler.restrictedErrorMessage != None:
-                    irc.sendMessage(channel, handler.restrictedErrorMessage)
-                else:
-                    irc.sendMessage(channel, "%s, %s03>implying" % (nickname, chr(3)))
+
+        # If the function is restricted, pass it to authorize.py, who will verify the user and execute it later
+        if handler.restricted:
+            if authorized:
+                authorize.doIfAuthenticated(handler.function, channel, nickname, arguments)
+            else:
+                if handler.errorMessages:
+                    if handler.restrictedErrorMessage != None:
+                        irc.sendMessage(channel, handler.restrictedErrorMessage)
+                    else:
+                        irc.sendMessage(channel, "%s, %s03>implying" % (nickname, chr(3)))
             continue
+
         # Everything checks out, we can execute the function.
         callFunction(handler.function, [channel, nickname] + arguments)
     

@@ -67,6 +67,9 @@ def sendNotice(target, message):
 def sendQuit(reason):
     sendCommand("QUIT :%s" % reason)
 
+def sendWho(target):
+    sendCommand("WHO %s" % target)
+
 def sanitize(message):
     # TODO: Improve
     characters = range(0, 32)
