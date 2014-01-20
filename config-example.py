@@ -36,7 +36,6 @@ DB_DATABASE = "bhottu"
 #recommended modules. For more, browse modules/. There is documentation about writing them in the README and the default ones serve as good examples
 ENABLED_MODULES = [
     'Admins',
-    'Colors',
     'CTCP',
     'Echo',
     'FloodControl',
