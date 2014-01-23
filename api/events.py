@@ -99,6 +99,14 @@ def registerFunction(format, function, syntax = None, module = None, implicit = 
     registration.errorMessages = errorMessages
     registration.noIgnore = noIgnore
     return registration
+#
+# decorators, it's what all the cool kids are doing these days
+# use @register(format, ...) before a function definition to register it
+#
+def register(format, syntax = None, module = None, implicit = False, restricted = False, errorMessages = True, noIgnore = False):
+    def register_deco(function):
+        registerFunction(format, function, syntax, module, implicit, restricted, errorMessages, noIgnore)
+    return register_deco    
 
 def functionList():
     return _functionHandlers
