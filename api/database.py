@@ -5,6 +5,7 @@ databaseConnection = None
 def dbConnect(hostname, username, password, database):
     global databaseConnection
     databaseConnection = MySQLdb.connect(host = hostname, user = username, passwd = password, db = database)
+    databaseConnection.autocommit(True)
 
 def db():
     global databaseConnection
@@ -21,5 +22,4 @@ def dbExecute(sql, arguments=[]):
     cursor = db().cursor()
     affected = cursor.execute(sql, arguments)
     cursor.close()
-    db().commit()
     return affected
