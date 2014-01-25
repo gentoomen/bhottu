@@ -19,6 +19,12 @@ def registerModule(name, loadFunction):
     _modules[name] = module
     return True
 
+# Decorator for syntax sugar
+def registerMod(name):
+    def registerMod_deco(loadFunction):
+        registerModule(name, loadFunction)
+    return registerMod_deco
+
 def loadModule(name):
     if name not in _modules:
         return False
