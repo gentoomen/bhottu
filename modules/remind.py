@@ -1,5 +1,7 @@
 from api import *
 import time
+import threading
+from config import *
 
 ## Units in seconds
 units = {
@@ -23,7 +25,7 @@ def load():
               time int,
               index(nick) )''')
     registerFunction("remind %s in %i %s %S", addReminder, "remind <nick> in <times> <unit> <message>")
-    registerMessageHandler(None, remind)
+    registerService(checkForReminder, unCheckForHandler)
 registerModule("Remind", load)
 
 def addReminder(channel, sender, target, times, unit, message):
@@ -37,10 +39,23 @@ def addReminder(channel, sender, target, times, unit, message):
     dbExecute("INSERT INTO remind (nick, sender, message, time) VALUES (%s, %s, %s, %s)", [target, sender, message, remind_time])
     sendMessage(channel, "will do")
 
-def remind(channel, sender, message):
-    now = int(time.time())
-    result = dbQuery("SELECT message, nick FROM remind WHERE time <= %s AND nick = %s", [now, sender])
-    if result:
-        for (message, nick) in result:
-            sendMessage(channel, "%s, %s reminds you: %s" % (nick, sender, message))
-        dbExecute("DELETE FROM remind WHERE time <= %s AND nick = %s", [now, sender])
+def checkForReminder():
+    dbConnect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE, connection="checkForRemainder")
+
+    while True:
+        now = int(time.time())
+        allusers = {}
+        for channel in joinedChannels():
+            for user in channelUserList(channel):
+                allusers[user] = channel
+        reminders = dbQuery("SELECT sender, message, nick FROM remind WHERE time <= %s", [now], connection="checkForRemainder")
+        if reminders:
+            for (sender, message, nick) in reminders:
+                if nick in allusers:
+                    sendMessage(allusers[nick], "%s, %s reminds you: %s" % (nick, sender, message))
+                    dbExecute("DELETE FROM remind WHERE time <= %s AND nick = %s", [now, nick], connection="checkForRemainder")
+
+def unCheckForHandler():
+    db(connection = "checkForRemainder").close()
+    log.notice("Cleaned up after checkForRemainder")
+

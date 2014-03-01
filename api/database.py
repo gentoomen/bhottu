@@ -1,25 +1,31 @@
 import MySQLdb
 
-databaseConnection = None
+## Neded for multithreading to be possible
+databaseConnections = {
+        "main": None
+        }
 
-def dbConnect(hostname, username, password, database):
-    global databaseConnection
-    databaseConnection = MySQLdb.connect(host = hostname, user = username, passwd = password, db = database)
-    databaseConnection.autocommit(True)
+def dbConnect(hostname, username, password, database, connection = "main"):
+    global databaseConnections
+    databaseConnections[connection] = MySQLdb.connect(host = hostname, user = username, passwd = password, db = database)
+    databaseConnections[connection].autocommit(True)
 
-def db():
-    global databaseConnection
-    return databaseConnection
+def db(connection = None):
+    global databaseConnections
+    if connection == None:
+        connection = "main"
+    return databaseConnections[connection]
 
-def dbQuery(sql, arguments=[]):
-    cursor = db().cursor()
+def dbQuery(sql, arguments=[], connection = "main"):
+    cursor = db(connection = connection).cursor()
     cursor.execute(sql, arguments)
     result = cursor.fetchall()
     cursor.close()
     return result
 
-def dbExecute(sql, arguments=[]):
-    cursor = db().cursor()
+def dbExecute(sql, arguments=[], connection = "main"):
+    cursor = db(connection = connection).cursor()
     affected = cursor.execute(sql, arguments)
     cursor.close()
     return affected
+

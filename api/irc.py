@@ -5,6 +5,8 @@ import ssl
 connection = None
 readbuffer = ''
 
+## Connects to an irc server, optionally using ssl.
+## Makes use of a global $connection
 def connect(server, port, is_ssl):
     global connection
 
@@ -17,12 +19,14 @@ def connect(server, port, is_ssl):
         connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connection.connect((server, port))
 
+## Disconnects the global $connection from the server
 def disconnect():
     global connection
     connection.shutdown(SHUT_RDWR)
     connection.close()
     connection = None
 
+## 
 def readEvent():
     global connection
     global readbuffer
@@ -70,6 +74,7 @@ def sendQuit(reason):
 def sendWho(target):
     sendCommand("WHO %s" % target)
 
+## Seems like it just removes special characters
 def sanitize(message):
     # TODO: Improve
     characters = range(0, 32)

@@ -2,6 +2,7 @@ import stringmatcher
 import irc
 import log
 import traceback
+import threading
 
 class Handler(object):
     pass
@@ -22,6 +23,21 @@ def _effectiveModule(module):
     if module == None:
         return _loadingModule
     return module
+
+def _registerService(function, cleanup, module, type = "service"):
+    service = threading.Thread(target=function)
+    service.daemon = True
+    service.module = _effectiveModule(module)
+    service.enabled = True
+    service.type = type
+    service.cleanup = cleanup
+    if service.module != None:
+        service.module.services.append(service)
+    return service
+
+def registerService(function, cleanup, module = None):
+    service = _registerService(function, cleanup, module)
+    return service
 
 def _registerHandler(function, module, list, type = None):
     if type == None:
@@ -154,6 +170,11 @@ def unregister(registration):
         registration.module.handlers.remove(registration)
         registration.enabled = False
         return True
+    if registration.type == "service":
+        registration.module.services.remove(registration)
+        registration._Thread__stop()
+        registration.cleanup()
+        registration.enabled = False
     return False
 
 def parseEvent(event):
