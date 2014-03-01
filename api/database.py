@@ -10,6 +10,11 @@ def dbConnect(hostname, username, password, database, connection = "main"):
     databaseConnections[connection] = MySQLdb.connect(host = hostname, user = username, passwd = password, db = database)
     databaseConnections[connection].autocommit(True)
 
+def dbDisconnect(connection = "main"):
+    global databaseConnections
+    if databaseConnections.get(connection):
+        databaseConnections[connection].close()
+
 def db(connection = "main"):
     global databaseConnections
     return databaseConnections[connection]
