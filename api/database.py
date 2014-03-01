@@ -14,6 +14,7 @@ def dbDisconnect(connection = "main"):
     global databaseConnections
     if databaseConnections.get(connection):
         databaseConnections[connection].close()
+        databaseConnections.pop(connection)
 
 def db(connection = "main"):
     global databaseConnections
