@@ -10,10 +10,8 @@ def dbConnect(hostname, username, password, database, connection = "main"):
     databaseConnections[connection] = MySQLdb.connect(host = hostname, user = username, passwd = password, db = database)
     databaseConnections[connection].autocommit(True)
 
-def db(connection = None):
+def db(connection = "main"):
     global databaseConnections
-    if connection == None:
-        connection = "main"
     return databaseConnections[connection]
 
 def dbQuery(sql, arguments=[], connection = "main"):
