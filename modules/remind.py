@@ -56,6 +56,6 @@ def checkForReminder():
                     dbExecute("DELETE FROM remind WHERE time <= %s AND nick = %s", [now, nick], connection="checkForRemainder")
 
 def unCheckForHandler():
-    db(connection = "checkForRemainder").close()
+    dbDisconnect(connection = "checkForRemainder")
     log.notice("Cleaned up after checkForRemainder")
 
