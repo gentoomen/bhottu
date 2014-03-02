@@ -24,7 +24,13 @@ def load():
               message text,
               time int,
               index(nick) )''')
+
+    # registerModule("remind %s every %i %s %S", ..., "remind <nick> every <times> <unit> <message>")
+    # registerModule("%s stop reminding me", ..., "<nick> stop reminding me")
+
     registerFunction("remind %s in %i %s %S", addReminder, "remind <nick> in <times> <unit> <message>")
+    registerFunction("list reminders for %s", listReminders, syntax="list reminders for <nick>")
+    registerFunction("clear reminders for %s", clearReminders, syntax="clear reminders for <nick>")
     registerService(checkForReminder, unCheckForHandler)
 registerModule("Remind", load)
 
@@ -38,6 +44,22 @@ def addReminder(channel, sender, target, times, unit, message):
         return
     dbExecute("INSERT INTO remind (nick, sender, message, time) VALUES (%s, %s, %s, %s)", [target, sender, message, remind_time])
     sendMessage(channel, "will do")
+
+def clearReminders(channel, sender, nick):
+    reminders = dbQuery("SELECT time, message FROM remind WHERE sender = %s AND nick = %s", [sender, nick])
+    if not reminders:
+        sendMessage(channel, "No reminders for {} from {}".format(nick, sender))
+        return
+    dbExecute("DELETE FROM remind WHERE sender = %s AND nick = %s", [sender, nick])
+    sendMessage(channel, "Cleared all reminders for {}".format(nick))
+
+def listReminders(channel, sender, nick):
+    """Displays all reminders set for a particular user (by the sender)"""
+    reminders = dbQuery("SELECT time, message FROM remind WHERE sender = %s AND nick = %s", [sender, nick])
+    for (when, reminder) in reminders:
+        sendMessage(channel, "[{}] Reminder for {}: \"{}\"".format(time.ctime(when), nick, reminder))
+    if not reminders:
+        sendMessage(channel, "No reminders for {}".format(nick))
 
 def checkForReminder():
     dbConnect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE, connection="checkForRemainder")
@@ -54,6 +76,8 @@ def checkForReminder():
                 if nick in allusers:
                     sendMessage(allusers[nick], "%s, %s reminds you: %s" % (nick, sender, message))
                     dbExecute("DELETE FROM remind WHERE time <= %s AND nick = %s", [now, nick], connection="checkForRemainder")
+
+        time.sleep(SLEEPTIME)
 
 def unCheckForHandler():
     dbDisconnect(connection = "checkForRemainder")
