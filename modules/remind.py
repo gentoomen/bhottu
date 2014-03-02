@@ -54,6 +54,8 @@ def checkForReminder():
                 if nick in allusers:
                     sendMessage(allusers[nick], "%s, %s reminds you: %s" % (nick, sender, message))
                     dbExecute("DELETE FROM remind WHERE time <= %s AND nick = %s", [now, nick], connection="checkForRemainder")
+        
+        time.sleep(SLEEPTIME)
 
 def unCheckForHandler():
     dbDisconnect(connection = "checkForRemainder")
