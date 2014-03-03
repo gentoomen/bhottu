@@ -7,8 +7,7 @@ from api import *
 MAX_LENGTH = 255
 
 def load():
-    registerFunction("rot13 %S", sayRot13, "rot13 <message>")
-    registerFunction("rot by %i %S", sayRotN, "rot by <places> <message>")
+    registerFunction("rot%i %S", sayRotN, "rot<places> <message>")
 registerModule("Rot13", load)
 
 def sayRotN(channel, sender, places, message):
@@ -16,9 +15,6 @@ def sayRotN(channel, sender, places, message):
         sendMessage(channel, "May not rotate by more than 13 places")
         return
     sendMessage(channel, "{} says, {}".format(sender, rotNChars(message, places)))
-
-def sayRot13(channel, sender, message):
-    sendMessage(channel, "{} says, {}".format(sender, rotNChars(message, 13)))
 
 def rotNChars(chars, n):
     """ Pure function which "rotates" a strings alphabetic characters """

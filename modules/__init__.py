@@ -26,4 +26,4 @@ import weather
 import threadsearch
 import remind
 import managemodules
-import rot13
+import rotByN
