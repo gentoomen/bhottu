@@ -36,10 +36,9 @@ def load():
 
     registerFunction("remind %s %i times every %i %s %S", addReminder, "remind <nick> <times> times every <multiple> <unit> <message>")
     registerFunction("remind %s %i time every %i %s %S", addReminder, "remind <nick> <times> times every <multiple> <unit> <message>")
-    # registerFunction("remind %s indefinitely every %i %s %S", ..., "remind <nick> every <times> <unit> <message>")
-    # registerFunction("remind %s every %i %s %S", ..., "remind <nick> every <times> <unit> <message>")
     registerFunction("stop reminding me", stopRemindingSender, "stop reminding me")
-    # registerFunction("stop reminding %s", stopRemindingUser, "stop reminding <nick>", restricted = True)
+    registerFunction("list reminders for %s", listReminders, "list reminders for <nick>")
+    registerFunction("clear reminders for %s", clearReminders, "list reminders for <nick>", restricted = True)
 
     registerService(checkForReminder, unCheckForHandler)
 registerModule("Remind", load)
