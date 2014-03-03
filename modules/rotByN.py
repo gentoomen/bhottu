@@ -8,7 +8,7 @@ MAX_LENGTH = 255
 
 def load():
     registerFunction("rot%i %S", sayRotN, "rot<places> <message>")
-registerModule("Rot13", load)
+registerModule("RotByN", load)
 
 def sayRotN(channel, sender, places, message):
     if places > 13:
@@ -19,24 +19,23 @@ def sayRotN(channel, sender, places, message):
 def rotNChars(chars, n):
     """ Pure function which "rotates" a strings alphabetic characters """
 
-    if n > 13:
-        raise TypeError("May not rotate by more than 13 places")
+    if n > 13 or n < 1:
+        raise TypeError("May not rotate by more than 13 places or less than one place")
 
     def modChar(char, mod):
         return chr(ord(char) + mod)
 
-    WRAPS_AROUND_LOWER = modChar("a", n)
-    WRAPS_AROUND_UPPER = modChar("A", n)
+    WRAPS_AROUND_LOWER = modChar("a", 26 - n)
+    WRAPS_AROUND_UPPER = modChar("A", 26 - n)
 
     def rotN(char, n):
         if char.isupper() and char >= WRAPS_AROUND_UPPER:
             return modChar("A", ord(char) - ord(WRAPS_AROUND_UPPER))
         if char.islower() and char >= WRAPS_AROUND_LOWER:
             return modChar("a", ord(char) - ord(WRAPS_AROUND_LOWER))
-        if char.islower() or char.isupper():
+        if char.isalpha():
             return modChar(char, n)
-        else:
-            return char
+        return char
 
     return "".join(
             [rotN(char, n) for char in chars])

@@ -55,5 +55,5 @@ ENABLED_MODULES = [
     'ThreadSearch',
     'Weather',
     'Remind',
-    'Rot13',
+    'RotByN',
 ]
