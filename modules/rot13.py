@@ -4,32 +4,44 @@ from api import *
 ##       requesting rot13, and the bot will then send a public
 ##       message to everyone in the chatroom.
 
-WRAPS_AROUND_UPPER = "N"
-WRAPS_AROUND_LOWER = "n"
 MAX_LENGTH = 255
 
 def load():
     registerFunction("rot13 %S", sayRot13, "rot13 <message>")
+    registerFunction("rot by %i %S", sayRotN, "rot by <places> <message>")
 registerModule("Rot13", load)
 
-def sayRot13(channel, sender, message):
-    sendMessage(channel, "{} says, {}".format(sender, rot13Chars(message)))
+def sayRotN(channel, sender, places, message):
+    if places > 13:
+        sendMessage(channel, "May not rotate by more than 13 places")
+        return
+    sendMessage(channel, "{} says, {}".format(sender, rotNChars(message, places)))
 
-def rot13Chars(chars):
-    """ Pure function that rot13's a string """
+def sayRot13(channel, sender, message):
+    sendMessage(channel, "{} says, {}".format(sender, rotNChars(message, 13)))
+
+def rotNChars(chars, n):
+    """ Pure function which "rotates" a strings alphabetic characters """
+
+    if n > 13:
+        raise TypeError("May not rotate by more than 13 places")
+
     def modChar(char, mod):
         return chr(ord(char) + mod)
 
-    def rot13(char):
+    WRAPS_AROUND_LOWER = modChar("a", n)
+    WRAPS_AROUND_UPPER = modChar("A", n)
+
+    def rotN(char, n):
         if char.isupper() and char >= WRAPS_AROUND_UPPER:
             return modChar("A", ord(char) - ord(WRAPS_AROUND_UPPER))
         if char.islower() and char >= WRAPS_AROUND_LOWER:
             return modChar("a", ord(char) - ord(WRAPS_AROUND_LOWER))
         if char.islower() or char.isupper():
-            return modChar(char, 13)
+            return modChar(char, n)
         else:
             return char
 
     return "".join(
-            [rot13(char) for char in chars])
+            [rotN(char, n) for char in chars])
 
