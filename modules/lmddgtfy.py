@@ -22,10 +22,10 @@ def load():
 registerModule('Lmddgtfy', load)
 
 def lmstfy(channel, sender, message):
-    match = re.search(r"what\W*is\W*(\w*)", message, re.IGNORECASE)
+    match = re.search(r"((what\W*is)|(what's))\W*(\w*)", message, re.IGNORECASE)
     if match:
-        word = match.groups()[0]
+        word = match.groups()[-1]
         if word in NOSEARCH:
             return
-        sendMessage(channel, LINK.format(match.groups()[0]))
+        sendMessage(channel, LINK.format(word))
 
