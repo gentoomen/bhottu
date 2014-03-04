@@ -56,4 +56,5 @@ ENABLED_MODULES = [
     'Weather',
     'Remind',
     'RotByN',
+    'Lmddgtfy',
 ]
