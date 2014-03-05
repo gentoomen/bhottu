@@ -29,7 +29,7 @@ def load():
 registerModule('Lmddgtfy', load)
 
 def lmstfy(channel, sender, message):
-    if any(x for x in message if x == "\0"):
+    if any(x for x in message if ord(x) < 0x20):
         sendMessage(channel, "Fak u {}".format(sender))
         return
 
