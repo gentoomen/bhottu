@@ -28,3 +28,4 @@ import remind
 import managemodules
 import rotByN
 import lmddgtfy
+import chanboard

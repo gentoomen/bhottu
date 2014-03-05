@@ -29,10 +29,6 @@ def load():
 registerModule('Lmddgtfy', load)
 
 def lmstfy(channel, sender, message):
-    if any(x for x in message if ord(x) < 0x20):
-        sendMessage(channel, "Fak u {}".format(sender))
-        return
-
     match = re.search(r"^what(?:'| i)?s (.+)", message, re.IGNORECASE)
     if match:
         usernames = channelUserList(channel)
@@ -41,12 +37,10 @@ def lmstfy(channel, sender, message):
         term = re.split(r"\s+", term)
         if term[0] in BINDINGS:
             term = term[1:]
-        if '' in term:
-            return
-        term = "%20".join(
-                [word for word in term if word not in usernames])
         if not term:
             sendMessage(channel, "Fak u {}".format(sender))
             return
+        term = "%20".join(
+                [word for word in term if word not in usernames and word])
         sendMessage(channel, LINK.format(term))
 

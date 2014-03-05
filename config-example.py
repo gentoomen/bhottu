@@ -57,4 +57,5 @@ ENABLED_MODULES = [
     'Remind',
     'RotByN',
     'Lmddgtfy',
+    'ChanBoard',
 ]
