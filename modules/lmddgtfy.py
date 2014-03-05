@@ -34,11 +34,9 @@ def removeParenthezised(string):
     for char in string:
         if char == "(":
             level += 1
-            continue
-        if char == ")":
+        elif char == ")":
             level -= 1
-            continue
-        if not level:
+        elif not level:
             ret += char
     return ret
 
