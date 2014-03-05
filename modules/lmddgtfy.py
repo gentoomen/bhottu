@@ -28,12 +28,27 @@ def load():
     registerMessageHandler(None, lmstfy)
 registerModule('Lmddgtfy', load)
 
+## Will deal with nested parentheses
+def removeParenthezised(string):
+    ret = ""; level = 0
+    for char in string:
+        if char == "(":
+            level += 1
+            continue
+        if char == ")":
+            level -= 1
+            continue
+        if not level:
+            ret += char
+    return ret
+
 def lmstfy(channel, sender, message):
     match = re.search(r"^what(?:'| i)?s (.+)", message, re.IGNORECASE)
     if match:
         usernames = channelUserList(channel)
+        term = removeParenthezised(match.groups()[0])
         term = "".join(
-                [char for char in match.groups()[0] if char not in NOT_ALLOWED])
+                [char for char in term if char not in NOT_ALLOWED])
         term = re.split(r"\s+", term)
         if term[0] in BINDINGS:
             term = term[1:]
