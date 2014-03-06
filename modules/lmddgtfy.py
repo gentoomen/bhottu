@@ -41,7 +41,7 @@ def removeParenthezised(string):
     return ret
 
 def lmstfy(channel, sender, message):
-    match = re.search(r"^what(?:'| i)?s (.+)", message, re.IGNORECASE)
+    match = re.search(r"what(?:'| i)?s (.+)", message, re.IGNORECASE)
     if match:
         usernames = channelUserList(channel)
         term = removeParenthezised(match.groups()[0])

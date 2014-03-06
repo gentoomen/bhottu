@@ -37,11 +37,11 @@ def _trackJoin(arguments, sender):
     channel = arguments[0]
     if nickname == currentNickname():
         if channel not in _joinedChannels:
-            _joinedChannels[channel] = []
+            _joinedChannels[channel] = set()
     else:
         if channel in _joinedChannels:
             if nickname not in _joinedChannels[channel]:
-                _joinedChannels[channel].append(nickname)
+                _joinedChannels[channel].add(nickname)
 
 def _track353(arguments):
     global _joinedChannels
@@ -51,7 +51,7 @@ def _track353(arguments):
     for nick in arguments[3].split(' '):
         realNick = nick.lstrip('@+&%~!#$^*=')
         if realNick not in _joinedChannels[channel]:
-            _joinedChannels[channel].append(realNick)
+            _joinedChannels[channel].add(realNick)
 
 def _trackPartQuit(arguments, sender):
     global _joinedChannels
@@ -72,7 +72,7 @@ def _trackNick(arguments, sender):
     for channel in _joinedChannels.keys():
         if nickname in _joinedChannels[channel]:
             _joinedChannels[channel].remove(nickname)
-            _joinedChannels[channel].append(newNick)
+            _joinedChannels[channel].add(newNick)
 
 registerCommandHandler('JOIN', _trackJoin)
 registerCommandHandler('353', _track353)

@@ -108,7 +108,7 @@ def checkForReminder():
                 )
 
         for (ID, sender, message, nick, channel, remind_in) in reminders:
-            if nick in allusers and channel in allusers.get(nick):
+            if nick in allusers and channel in allusers.get(nick, {}):
                 sendMessage(channel, "%s, %s reminds you: %s" % (nick, sender, message))
                 newtime = int(time.time()) + remind_in
                 last_remind[nick] = ID
