@@ -1,0 +1,21 @@
+BeautifulSoup==3.2.1
+MySQL-python==1.2.3
+RPi.GPIO==0.5.4
+argparse==1.2.1
+beautifulsoup4==4.1.0
+chardet==2.0.1
+## FIXME: could not find svn URL in dependency_links for this package:
+distribute==0.6.24dev-r0
+feedparser==5.1.2
+gevent==0.13.6
+greenlet==0.3.1
+httplib2==0.7.4
+oauthlib==0.1.2
+pycrypto==2.6
+requests==0.12.1
+simplejson==2.5.2
+six==1.1.0
+uTidylib==0.2
+urwid==1.0.1
+wicd==1.7.2.4
+wsgiref==0.1.2
