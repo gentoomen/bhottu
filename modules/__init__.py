@@ -5,6 +5,7 @@ import floodcontrol
 import ctcp
 import nickscore
 import linktitle
+import tweetreader
 import quotes
 import reply
 import spew
