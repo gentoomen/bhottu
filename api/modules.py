@@ -16,6 +16,7 @@ def registerModule(name, loadFunction):
     module.loaded = False
     module.handlers = []
     module.unloadHandlers = []
+    module.services = []
     _modules[name] = module
     return True
 
@@ -34,6 +35,8 @@ def loadModule(name):
     log.notice('Loading module %s' % name)
     events.setLoadingModule(module)
     module.loadFunction()
+    for service in module.services:
+        service.start()
     events.setLoadingModule(None)
     module.loaded = True
     return True
@@ -46,6 +49,8 @@ def unloadModule(name):
         return True
     log.notice('Unloading module %s' % name)
     events.moduleUnloadEvent(module)
+    for service in module.services:
+        events.unregister(service)
     for registration in module.handlers[:]:
         events.unregister(registration)
     module.loaded = False

@@ -36,6 +36,12 @@ from modules import *
 from api import *
 import ircbase
 
+try:
+    from setproctitle import setproctitle
+    setproctitle("bhottu")
+except ImportError:
+    pass
+
 def sigint_handler(signum,  frame):
     """Handles SIGINT signal (<C-c>). Quits program."""
     #raise RuntimeError("Aborted.")

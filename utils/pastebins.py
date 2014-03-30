@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import requests
+import requests, urllib2
 
 def sprunge(data):
     sprunge_data = {"sprunge": data}
@@ -9,3 +9,6 @@ def sprunge(data):
 
 def pastebin(data):
     raise NotImplementedError
+
+def nnmm(data):
+    return urllib2.urlopen("https://nnmm.nl", data).read()

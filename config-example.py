@@ -6,7 +6,7 @@
 #     \/     \/                         
 #
 #
-SERVER = "irc.rizon.net" #server you wish for the bot to connect to
+SERVER = "localhost" #server you wish for the bot to connect to
 PORT = 6667 #port that you want the bot to connect on. Note that 6697 is usually SSL, but not always. If in doubt leave default
 IS_SSL = False #whether or not to use SSL. If in doubt leave default, else set True
 NICK = "bhottu" #nick you want the bot to use
@@ -36,7 +36,7 @@ DB_DATABASE = "bhottu"
 #recommended modules. For more, browse modules/. There is documentation about writing them in the README and the default ones serve as good examples
 ENABLED_MODULES = [
     'Admins',
-	'AutoUpdate',
+    'AutoUpdate',
     'CTCP',
     'Echo',
     'FloodControl',
@@ -54,4 +54,7 @@ ENABLED_MODULES = [
     'Statistics',
     'ThreadSearch',
     'Weather',
+    'Remind',
+    'RotByN',
+    'Lmddgtfy',
 ]

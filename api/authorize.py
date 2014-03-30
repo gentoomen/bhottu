@@ -42,3 +42,4 @@ def executeBuffer(arguments, sender):
 				irc.sendMessage(_buf["channel"], "%s: authenticate before using restricted commands." % _buf["nick"])
 
 events.registerCommandHandler('352', executeBuffer)
+

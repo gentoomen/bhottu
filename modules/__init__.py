@@ -25,3 +25,8 @@ import imagesearch
 import channels
 import weather
 import threadsearch
+import remind
+import managemodules
+import rotByN
+import lmddgtfy
+import chanboard

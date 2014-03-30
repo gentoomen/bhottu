@@ -24,6 +24,7 @@ def load():
     registerFunction("list triggers", listReplies, restricted = True)
     registerFunction("what was that?", whatWasThat)
     registerFunction("stop that", stopThat, restricted = True)
+    registerFunction("forget that", stopThat, restricted = True)
     registerFunction("yes, stop that", yesStopThat, restricted = True)
     registerFunction("assign %S to %s", assign, "assign <term> to <variable>", restricted = True)
     registerFunction("suggest a %s", suggest, "suggest a <variable>")

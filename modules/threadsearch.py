@@ -10,7 +10,7 @@ import json
 import time
 import requests
 from api import *
-from utils.pastebins import sprunge
+from utils.pastebins import nnmm
 from time import sleep
 from threading import *
 from collections import deque
@@ -36,7 +36,7 @@ def process_results(channel, sender, board, string, results_deque):
         post_template = "https://boards.4chan.org/{0}/res/{1}"
         urls = [post_template.format(board, post_num) for post_num in results_deque]
         if len(urls) > max_num_urls_displayed:
-            message = sprunge('\n'.join(urls))
+            message = nnmm('\n'.join(urls))
         else:
             message = " ".join(urls[:max_num_urls_displayed])
         sendMessage(channel, "{0}: {1}".format(sender, message))
