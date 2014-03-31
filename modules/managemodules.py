@@ -3,7 +3,7 @@
 from api import *
 
 def load():
-    """Leave a message for someone that's triggered when they speak"""
+    """Enable and disable modules on the fly"""
     registerFunction("disable %s", disableModule, "disable <module>", restricted = True)
     registerFunction("enable %s", enableModule, "enable <module>", restricted = True)
 registerModule("ManageModules", load)
