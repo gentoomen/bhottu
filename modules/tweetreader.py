@@ -22,6 +22,6 @@ def searchTwitterLink(channel, sender, message):
 def _fetch(url):
 	r = requests.get(url)
 	soup = bs(r.content)
-	tweet = soup.find(class_="js-original-tweet").find(class_="tweet-text").string
+	tweet = soup.find(class_="tweet-text").get_text()
 	user = soup.find("strong", class_="fullname").next
 	return user, tweet
