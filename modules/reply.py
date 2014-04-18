@@ -29,8 +29,8 @@ def load():
     registerFunction("assign %S to %s", assign, "assign <term> to <variable>", restricted = True)
     registerFunction("suggest a %s", suggest, "suggest a <variable>")
     registerFunction("suggest an %s", suggest, "suggest an <variable>")
-    registerFunction("don't reply to %s", banTrigger, restricted=True)
-    registerFunction("reply to %s", unbanTrigger, restricted=True)
+    registerFunction("don't reply to %S", banTrigger, restricted=True)
+    registerFunction("reply to %S", unbanTrigger, restricted=True)
     registerFunction("list banned triggers", listBannedTriggers, restricted=True)
 
 registerModule('Reply', load)
