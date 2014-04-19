@@ -25,6 +25,7 @@ def load():
     registerFunction("what was that?", whatWasThat)
     registerFunction("stop that", stopThat, restricted = True)
     registerFunction("forget that", stopThat, restricted = True)
+    registerFunction("remove reply to %S", sudoStopThat, restricted = True)
     registerFunction("yes, stop that", yesStopThat, restricted = True)
     registerFunction("assign %S to %s", assign, "assign <term> to <variable>", restricted = True)
     registerFunction("suggest a %s", suggest, "suggest a <variable>")
@@ -111,6 +112,13 @@ def yesStopThat(channel, sender):
     dbExecute('DELETE FROM replies WHERE replyID = %s', _removes[sender][0])
     sendMessage(channel, "Removed '%s <reply> %s'." % (_removes[sender][2], _removes[sender][3]))
     del _removes[sender]
+
+def sudoStopThat(channel, sender, trigger):
+    if _lastReply == None or _lastReply[2] != trigger:
+        sendMessage(channel, "Remove what?")
+        return
+    dbExecute('DELETE FROM replies where replyID = %s', _lastReply[1])
+    sendMessage(channel, "Removed '%s <reply> %s'." % (_lastReply[2], _lastReply[3]))
 
 def assign(channel, sender, term, variable):
     """Adds a new value to a variable."""

@@ -204,6 +204,7 @@ A module for automatically replying to things that are said in the channel. Also
 list replies                   # lists replies and uploads them to sprunge.us for easy viewing
 stop that                      # stops the bot from triggering 
 yes, stop that                 # really stops the bot from triggering (can only be used after stop that)
+remove reply to [trigger]      # stops the bot from triggering without asking for confirmation
 assign [term] to [variable]    # assigns a new possible suggestion to a variable
 don't reply to [trigger]       # kicks users who try add a reply for this trigger
 reply to [trigger]             # makes it okay to add a reply for this trigger again
