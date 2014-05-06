@@ -26,3 +26,4 @@ import channels
 import weather
 import threadsearch
 import managemodules
+import kana
