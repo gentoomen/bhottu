@@ -44,8 +44,8 @@ def process_results(channel, sender, results_data):
     post_numbers = results_data["post_numbers"]
 
     if len(post_numbers) <= 0:
-        sendMessage(channel, "{0}: No results for {1} on that board".format(sender, search_parameters["string"],
-                                                                  search_parameters["board"]))
+        sendMessage(channel, "{0}: No results for {1} on that board".format(sender, search_parameters["string"]))
+
     else:
         post_template = "https://boards.4chan.org/{0}/thread/{1}"
         urls = [post_template.format(search_parameters["board"], post_num) for post_num in post_numbers]
