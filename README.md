@@ -5,18 +5,15 @@ _A modular IRC bot_
 Clone the github repo:
     git clone https://github.com/gentoomen/bhottu.git
 
-Install the dependencies. This bot depends on:
-* MySQL
-* python-mysqldb
-* python-feedparser
-* Urllib2
-* BeautifulSoup (for linktitle.py)
-* python-simplejson
-* httplib2
-* requests
+Install MySQL and python-pip if you haven't already.
+
+## Requirements
+A list of the required python packages is provided in requirements.txt. You can load these into a virtualenv.
 
 ## Setting up
-Set up a configuration by editing the `config_example.py` file to your liking and rename it to `config.py`. The comments in that file are very helpful.
+Make a new copy of `config_example.py` and name it config.py.
+
+Editing config.py`to your liking. The comments in that file are very helpful.
 
 ## Configuring the MySQL Database
 The majority of the modules in this bot make use of a central MySQL database in some way. Therefore, it is strongly recommended to set up a database. The bot does NOT do this automatically.

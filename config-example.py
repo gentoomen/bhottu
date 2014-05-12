@@ -55,6 +55,7 @@ ENABLED_MODULES = [
     'Reply',
     'Spew',
     'Statistics',
+    'Tell',
     'ThreadSearch',
     'Weather',
 ]
