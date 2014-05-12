@@ -9,6 +9,7 @@ import math
 import json
 import time
 import requests
+import traceback
 from api import *
 from utils.pastebins import nnmm
 from time import sleep
@@ -33,7 +34,7 @@ def process_results(channel, sender, board, string, results_deque):
     if len(results_deque) <= 0:
         sendMessage(channel, "{0}: No results for {1}".format(sender, string))
     else:
-        post_template = "https://boards.4chan.org/{0}/res/{1}"
+        post_template = "https://boards.4chan.org/{0}/thread/{1}"
         urls = [post_template.format(board, post_num) for post_num in results_deque]
         if len(urls) > max_num_urls_displayed:
             message = nnmm('\n'.join(urls))
@@ -43,18 +44,19 @@ def process_results(channel, sender, board, string, results_deque):
 
 def get_json_data(url, sleep_time=0):
     """Returns a json data object from a given url."""
-    # Respect 4chan's rule of at most 1 JSON request per second
     sleep(sleep_time)
     try:
         response = requests.get(url)
         if response.status_code == 404:
-            log.error("url {} 404".format(url))
+            log.error("url {}: 404".format(url))
             return None
         json_data = json.loads(response.text.encode())
         return json_data
     except Exception as e:
-        log.error("url: {}".format(url))
-        log.error(e)
+        exception_string = "url: {0} status_code: {1}\n{2}".format(url,
+                response.status_code, traceback.format_exec)
+        log.error(exception_string)
+        print(exception_string)
         raise
 
 def search_thread(results_deque, thread_num, search_specifics):
@@ -62,23 +64,24 @@ def search_thread(results_deque, thread_num, search_specifics):
     Searches every post in thread thread_num on board board for the
     string provided. Returns a list of matching post numbers.
     """
-    json_url = "https://a.4cdn.org/{0}/res/{1}.json".format(search_specifics["board"], thread_num)
+    json_url = "https://a.4cdn.org/{0}/thread/{1}.json".format(search_specifics["board"], thread_num)
     thread_json = get_json_data(json_url)
+    if thread_json is None:
+        return
 
-    if thread_json is not None:
-        re_search = None
-        for post in thread_json["posts"]:
-            user_text = "".join([post[s] for s in search_specifics["sections"] if s in post.keys()])
-            re_search = re.search(search_specifics["string"], user_text, re.UNICODE + re.IGNORECASE)
-            if re_search is not None:
-                results_deque.append("{0}#p{1}".format(thread_num, post["no"]))
+    regex_match = search_specifics["compiled_regex"].match
+    for post in thread_json["posts"]:
+        user_text = "".join([post[s] for s in search_specifics["sections"] if s in post])
+        if regex_match(user_text) is not None:
+            results_deque.append("{0}#p{1}".format(thread_num, post["no"]))
 
 def search_page(results_deque, page, search_specifics):
     """Will be run by the threading module. Searches all the 
     4chan threads on a page and adds matching results to synchronised queue"""
+    regex_match = search_specifics["regex"].match
     for thread in page['threads']:
-        user_text = "".join([thread[s] for s in search_specifics["sections"] if s in thread.keys()])
-        if re.search(search_specifics["string"], user_text, re.UNICODE + re.IGNORECASE) is not None:
+        user_text = "".join([thread[s] for s in search_specifics["sections"] if s in thread])
+        if regex_match(user_text) is not None:
             results_deque.append(thread["no"])
         
 def search_catalog(channel, sender, board, string):
@@ -88,7 +91,9 @@ def search_catalog(channel, sender, board, string):
     json_url = "https://a.4cdn.org/{0}/catalog.json".format(board)
     sections = ["com", "name", "trip", "email", "sub", "filename"]
     catalog_json = get_json_data(json_url)
-    search_specifics = {"sections" : sections, "board" : board, "string" : string}
+    search_regex = re.compile(string, re.UNICODE + re.IGNORECASE)
+    search_specifics = {"sections": sections, "board": board, "string": string,
+            "compiled_regex": search_regex}
     thread_pool = []
 
     for page in catalog_json:
@@ -109,7 +114,9 @@ def search_board(channel, sender, board, string):
     json_url = "https://a.4cdn.org/{0}/threads.json".format(board)
     sections = ["com", "name", "trip", "email", "sub", "filename"]
     threads_json = get_json_data(json_url)
-    search_specifics = {"sections" : sections, "board" : board, "string" : string}
+    search_regex = re.compile(string, re.UNICODE + re.IGNORECASE)
+    search_specifics = {"sections": sections, "board": board, "string": string,
+            "compiled_regex": search_regex}
     thread_pool = []
 
     for page in threads_json:
