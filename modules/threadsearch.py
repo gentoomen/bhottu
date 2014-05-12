@@ -27,13 +27,11 @@ def sanitise(string):
 
 def catalog_search_handler(channel, sender, board, user_regex):
     """Handler for initiating catalog search"""
-    board = sanitise(board)
     results_data = perform_concurrent_4chan_search(board, user_regex, catalog_search=True)
     process_results(channel, sender, results_data)
 
 def board_search_handler(channel, sender, board, user_regex):
     """Handler for initiating full board search"""
-    board = sanitise(board)
     results_data = perform_concurrent_4chan_search(board, user_regex, catalog_search=False)
     process_results(channel, sender, results_data)
 
@@ -44,8 +42,8 @@ def process_results(channel, sender, results_data):
     post_numbers = results_data["post_numbers"]
 
     if len(post_numbers) <= 0:
-        sendMessage(channel, "{0}: No results for {1} on that board".format(sender, search_parameters["string"]))
-
+        sendMessage(channel, "{0}: No results for {1} on {2}".format(sender, search_parameters["string"],
+                                                                     search_parameters["user_board"]))
     else:
         post_template = "https://boards.4chan.org/{0}/thread/{1}"
         urls = [post_template.format(search_parameters["board"], post_num) for post_num in post_numbers]
@@ -104,8 +102,8 @@ def perform_concurrent_4chan_search(board, user_regex, catalog_search=False):
     sections = ["com", "name", "trip", "email", "sub", "filename"]
     json_data = get_json_data(json_url)
     search_regex = re.compile(user_regex, re.UNICODE + re.IGNORECASE)
-    search_parameters = {"sections": sections, "board": board, "string": user_regex,
-            "compiled_regex": search_regex}
+    search_parameters = {"sections": sections, "board": sanitise(board), "string": user_regex,
+            "compiled_regex": search_regex, "user_board": board}
     results_data = {"post_numbers": results_deque, "search_parameters": search_parameters}
     thread_pool = []
 
