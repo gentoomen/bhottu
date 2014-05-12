@@ -78,7 +78,7 @@ def search_thread(results_deque, thread_num, search_specifics):
 def search_page(results_deque, page, search_specifics):
     """Will be run by the threading module. Searches all the 
     4chan threads on a page and adds matching results to synchronised queue"""
-    regex_match = search_specifics["regex"].match
+    regex_match = search_specifics["compiled_regex"].match
     for thread in page['threads']:
         user_text = "".join([thread[s] for s in search_specifics["sections"] if s in thread])
         if regex_match(user_text) is not None:
