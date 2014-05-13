@@ -55,6 +55,7 @@ def process_results(channel, sender, results_data):
 
 def get_json_data(url):
     """Returns a json data object from a given url."""
+    response = None
     try:
         response = requests.get(url)
         if response.status_code == 404:
@@ -63,8 +64,11 @@ def get_json_data(url):
         json_data = json.loads(response.text.encode())
         return json_data
     except Exception as e:
-        exception_string = "url: {0} status_code: {1}\n{2}".format(url,
-                response.status_code, traceback.format_exec())
+        if response is None:
+            exception_string = "url: {0}\n{1}".format(url, traceback.format_exc())
+        else:
+            exception_string = "url: {0} status_code: {1}\nresponse: {2}\n{3}".format(
+                    url, response.status_code, resonse.text, traceback.format_exc())
         log.error(exception_string)
         print(exception_string)
         raise
