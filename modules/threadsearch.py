@@ -67,8 +67,8 @@ def get_json_data(url):
         if response is None:
             exception_string = "url: {0}\n{1}".format(url, traceback.format_exc())
         else:
-            exception_string = "url: {0} status_code: {1}\nresponse: {2}\n{3}".format(
-                    url, response.status_code, resonse.text, traceback.format_exc())
+            exception_string = "url: {0} status_code: {1}\n{2}".format(
+                    url, response.status_code, traceback.format_exc())
         log.error(exception_string)
         print(exception_string)
         raise
