@@ -4,7 +4,7 @@ url of any matching post
 
 :author Cody Harrington:
 """
-import re
+import regex as re
 import json
 import time
 import requests
