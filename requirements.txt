@@ -2,7 +2,7 @@ BeautifulSoup==3.2.1
 MySQL-python==1.2.5
 feedparser==5.1.3
 httplib2==0.9
-regex==2014.04.10
+re2==0.2.20
 requests==2.2.1
 simplejson==3.4.1
 ujson==1.33
