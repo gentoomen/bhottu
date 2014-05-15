@@ -83,11 +83,11 @@ def search_thread(results_deque, thread_num, search_parameters):
 	if thread_json is None:
 		return
 
-	regex_match = search_parameters["compiled_regex"].match
+	regex_search = search_parameters["compiled_regex"].search
 	sections = search_parameters["sections"]
 	deque_append = results_deque.append
 	for post in thread_json["posts"]:
-		[deque_append("{0}#p{1}".format(thread_num, post["no"])) for item in map(post.__getitem__, filter(post.__contains__, sections)) if regex_match(item)]
+		[deque_append("{0}#p{1}".format(thread_num, post["no"])) for item in map(post.__getitem__, filter(post.__contains__, sections)) if regex_search(item)]
 		#user_text = "".join([post[s] for s in search_parameters["sections"] if s in post])
 		#if regex_match(user_text) is not None:
 		#	results_deque.append("{0}#p{1}".format(thread_num, post["no"]))
@@ -95,11 +95,11 @@ def search_thread(results_deque, thread_num, search_parameters):
 def search_catalog_page(results_deque, page, search_parameters):
 	"""Will be run by the threading module. Searches all the 
 	4chan threads on a page and adds matching results to synchronised queue"""
-	regex_match = search_parameters["compiled_regex"].match
+	regex_search = search_parameters["compiled_regex"].search
 	sections = search_parameters["sections"]
 	deque_append = results_deque.append
 	for thread in page["threads"]:
-		[deque_append(thread["no"]) for item in map(thread.__getitem__, filter(thread.__contains__, sections)) if regex_match(item)]
+		[deque_append(thread["no"]) for item in map(thread.__getitem__, filter(thread.__contains__, sections)) if regex_search(item)]
 		#user_text = "".join([thread[s] for s in search_parameters["sections"] if s in thread])
 		#if regex_match(user_text) is not None:
 		#	results_deque.append(thread["no"])
