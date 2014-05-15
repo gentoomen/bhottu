@@ -86,10 +86,12 @@ def search_thread(results_deque, thread_num, search_parameters):
     regex_search = search_parameters["compiled_regex"].search
     sections = search_parameters["sections"]
     deque_append = results_deque.append
-    post_getitem = post.__getitem__
-    post_haskey = post.__contains__
     for post in thread_json["posts"]:
-        [deque_append("{0}#p{1}".format(thread_num, post_getitem("no"))) for item in map(post_getitem, filter(post_haskey, sections)) if regex_search(item)]
+        post_getitem = post.__getitem__
+        post_haskey = post.__contains__
+        [deque_append("{0}#p{1}".format(thread_num, post_getitem("no")))
+                for item in map(post_getitem, filter(post_haskey, sections))
+                if regex_search(item)]
 
 def search_catalog_page(results_deque, page, search_parameters):
     """Will be run by the threading module. Searches all the 
@@ -97,10 +99,12 @@ def search_catalog_page(results_deque, page, search_parameters):
     regex_search = search_parameters["compiled_regex"].search
     sections = search_parameters["sections"]
     deque_append = results_deque.append
-    thread_getitem = thread.__getitem__
-    thread_haskey = thread.__contains__
     for thread in page["threads"]:
-        [deque_append(thread_getitem("no")) for item in map(thread_getitem, filter(thread_haskey, sections)) if regex_search(item)]
+        thread_getitem = thread.__getitem__
+        thread_haskey = thread.__contains__
+        [deque_append(thread_getitem("no"))
+                for item in map(thread_getitem, filter(thread_haskey, sections))
+                if regex_search(item)]
 
 def perform_concurrent_4chan_search(board, user_regex, catalog_search=False):
     """Search a thread or catalog on 4chan using several threads concurrently, then return relevant data"""
