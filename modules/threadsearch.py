@@ -78,7 +78,7 @@ def search_thread(results_deque, thread_num, search_parameters):
     Searches every post in thread thread_num on a board for the
     string provided. Returns a list of matching post numbers.
     """
-    json_url = "https://a.4cdn.org/%s/thread/%d.json" % (search_parameters["board"], thread_num)
+    json_url = "https://a.4cdn.org/%s/thread/%s.json" % (search_parameters["board"], thread_num)
     thread_json = get_json_data(json_url)
     if thread_json is None:
         return
@@ -89,7 +89,7 @@ def search_thread(results_deque, thread_num, search_parameters):
     for post in thread_json["posts"]:
         post_getitem = post.__getitem__
         post_haskey = post.__contains__
-        [deque_append("%d#p%d" % (thread_num, post_getitem("no")))
+        [deque_append("%s#p%s" % (thread_num, post_getitem("no")))
                 for item in map(post_getitem, filter(post_haskey, sections))
                 if regex_search(item)]
 
