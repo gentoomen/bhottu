@@ -21,7 +21,7 @@ def load():
                `trigger` varchar(255) )''')
     registerMessageHandler(None, reply)
     registerMessageHandler("%S <reply> %S", addReply)
-    registerFunction("list triggers", listReplies, restricted = True)
+    registerFunction("list triggers", listReplies)
     registerFunction("what was that?", whatWasThat)
     registerFunction("stop that", stopThat, restricted = True)
     registerFunction("forget that", stopThat, restricted = True)
