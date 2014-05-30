@@ -8,11 +8,9 @@ def load():
               name varchar(255),
               quotation text,
               index(name) )''')
-    registerFunction("quote <%s> %S", addQuote, "quote <nick> citation")
-    registerFunction("cite %s", echoQuote, "cite <nick>")
-    registerFunction("quotes from %s", allQuotes, "quotes from <nick>", restricted = True)
 registerModule('Quotes', load)
 
+@register("quote <%s> %S", syntax="quote <nick> citation")
 def addQuote(channel, sender, target, quotation):
     """Quotes a nick on the channel and stores it to the DB"""
     target = target.lstrip('~&@%+')
@@ -28,6 +26,7 @@ def addQuote(channel, sender, target, quotation):
         dbExecute('INSERT INTO quote (name, quotation) VALUES (%s, %s)', [target, quotation])
         sendMessage(channel, "Quote recorded")
 
+@register("cite %s", syntax="cite <nick>")
 def echoQuote(channel, sender, target):
     """Fetches a random quote from DB for target and echoes it to channel"""
     quote = dbQuery('SELECT quotation FROM quote WHERE name=%s ORDER BY RAND() LIMIT 1', [target])
@@ -36,6 +35,7 @@ def echoQuote(channel, sender, target):
         return
     sendMessage(channel, '<%s> %s' % (target, quote[0][0]))
 
+@register("quotes from <%s>", syntax="quotes from <nick>", restricted=True)
 def allQuotes(channel, sender, target):
     """Fetches all quotes for target, uploads them to a pastebin and echoes link to channel"""
     quotes = dbQuery('SELECT quotation FROM quote WHERE name=%s', [target])
