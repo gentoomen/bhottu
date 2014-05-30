@@ -26,12 +26,22 @@ def addQuote(channel, sender, target, quotation):
         dbExecute('INSERT INTO quote (name, quotation) VALUES (%s, %s)', [target, quotation])
         sendMessage(channel, "Quote recorded")
 
-@register("cite %s", syntax="cite <nick>")
+@register("cite %s")
 def echoQuote(channel, sender, target):
     """Fetches a random quote from DB for target and echoes it to channel"""
     quote = dbQuery('SELECT quotation FROM quote WHERE name=%s ORDER BY RAND() LIMIT 1', [target])
     if len(quote) == 0:
         sendMessage(channel, "No quotes for %s" % target)
+        return
+    sendMessage(channel, '<%s> %s' % (target, quote[0][0]))
+
+@register("cite %s %S")
+def searchQuote(channel, sender, target, keyword):
+    """Fetches a quote from target containing the keyword(s) from the DB and echoes it to the channel"""
+    quote = dbQuery('SELECT quotation FROM quote WHERE name=%s AND quotation LIKE %s ORDER BY RAND() LIMIT 1',
+                    [target, '%'+keyword+'%'])
+    if len(quote) == 0:
+        sendMessage(channel, "No quotes for %s matching %s" % (target, keyword))
         return
     sendMessage(channel, '<%s> %s' % (target, quote[0][0]))
 
