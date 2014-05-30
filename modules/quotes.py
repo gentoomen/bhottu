@@ -45,7 +45,7 @@ def searchQuote(channel, sender, target, keyword):
         return
     sendMessage(channel, '<%s> %s' % (target, quote[0][0]))
 
-@register("quotes from <%s>", syntax="quotes from <nick>", restricted=True)
+@register("quotes from %s", syntax="quotes from <nick>", restricted=True)
 def allQuotes(channel, sender, target):
     """Fetches all quotes for target, uploads them to a pastebin and echoes link to channel"""
     quotes = dbQuery('SELECT quotation FROM quote WHERE name=%s', [target])
