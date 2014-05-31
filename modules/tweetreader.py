@@ -1,5 +1,5 @@
 from api import *
-import BeautifulSoup as bs
+from BeautifulSoup import BeautifulSoup as bs
 import requests
 import re
 
@@ -17,11 +17,12 @@ def searchTwitterLink(channel, sender, message):
 		return
 
 	user, tweet = _fetch(match.group(0))
-	sendMessage(channel, '%s: "%s"' % (user, tweet))
+	sendMessage(channel, '%s: %s' % (user, tweet))
 
 def _fetch(url):
 	r = requests.get(url)
 	soup = bs(r.content)
-	tweet = soup.find(class_="tweet-text").get_text()
-	user = soup.find("strong", class_="fullname").next
+	container = soup.find("div", "permalink-tweet")
+	tweet = container.find("p", "tweet-text").text
+	user = container.find("strong", "fullname").text
 	return user, tweet
