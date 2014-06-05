@@ -27,3 +27,4 @@ import weather
 import threadsearch
 import managemodules
 import kana
+import bpcontroller
