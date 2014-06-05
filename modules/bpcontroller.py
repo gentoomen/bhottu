@@ -15,12 +15,10 @@ def BPControl(channel, sender, message):
     BPName = dbQuery('SELECT currentname FROM bpname')
     if len(BPName) is 0:
         sendPrivmsg("chown", "NO NAME SET") # So I don't annoy other people
-    if sender.lower() == BPName[0].lower() 
+    if sender.lower() == BPName[0].lower():
         if "chown" in message or "sell" in message:
             sendKick(channel, sender, "Wasn't ever funny")
-    else:
-        return
-
+            
 def BPNameChange(sender, message):
     result = dbExecute('UPDATE bpname SET currentname = %s', message)
     sendMessage(channel, "BP's name has been updated. Thanks for fighting the good fight.")
