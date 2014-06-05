@@ -14,7 +14,7 @@ registerModule("BPController", load)
 def BPControl(channel, sender, message):
     BPName = dbQuery('SELECT currentname FROM bpname')
     if len(BPName) = 0:
-        sendprivmg
+        sendPrivmsg("chown", "NO NAME SET") # So I don't annoy other people
     if sender.lower() == BPName[0].lower() 
         if "chown" in message or "sell" in message:
             sendKick(channel, sender, "Wasn't ever funny")
