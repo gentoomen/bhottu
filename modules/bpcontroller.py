@@ -15,5 +15,6 @@ def BPControl(channel, sender, message):
             sendKick(channel, sender, "Wasn't ever funny")
             
 def BPNameChange(sender, message):
-    global _currentName = message
+    global _currentName
+    _currentName = message
     sendMessage(channel, "BP's name has been updated. Thanks for fighting the good fight.")
