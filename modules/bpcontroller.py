@@ -17,4 +17,4 @@ def BPControl(channel, sender, message):
 def BPNameChange(sender, message):
     global _currentName
     _currentName = message
-    sendMessage(channel, "BP's name has been updated. Thanks for fighting the good fight.")
+    sendPrivmsg(sender, "BP's name has been updated. Thanks for fighting the good fight.")
