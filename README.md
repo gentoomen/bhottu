@@ -12,9 +12,20 @@ You will need to install these packages (or their equivalents) on your OS before
 * libmysqlclient-dev
 * python-pip
 * python-dev
+* python-virtualenv
 
 ## Python packages required
-A list of the required python packages is provided in requirements.txt. You can load these into a virtualenv.
+A list of the required python packages is provided in requirements.txt. Firstly set up a virtualenv:
+
+    virtualenv testing
+
+Then enter the virtualenv:
+
+    source testing/bin/activate
+
+Now install the python packages:
+
+    pip install -r requirements.txt
 
 ## Setting up
 Make a new copy of `config_example.py` and name it config.py.
