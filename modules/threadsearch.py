@@ -14,6 +14,10 @@ from utils.pastebins import nnmm
 from time import sleep
 from threading import *
 from collections import deque
+import time
+
+search_times = []
+total_time = 0
 
 def load():
     """Load the module"""
@@ -37,6 +41,8 @@ def board_search_handler(channel, sender, board, user_regex):
 
 def process_results(channel, sender, results_data):
     """Process the resulting data of a search and present it"""
+    global search_times
+    global total_time
     max_num_urls_displayed = 3
     search_parameters = results_data["search_parameters"]
     post_numbers = results_data["post_numbers"]
@@ -52,6 +58,10 @@ def process_results(channel, sender, results_data):
         else:
             message = " ".join(urls[:max_num_urls_displayed])
         sendMessage(channel, "{0}: {1}".format(sender, message))
+    if len(search_times) > 0:
+        sendMessage(
+            channel, "{0}: Thread count: {1} | Average thread time: {2}s | Overall time: {3}s".format(
+                sender, len(search_times), sum(search_times) / len(search_times), total_time))
 
 def get_json_data(url):
     """Returns a json data object from a given url."""
@@ -78,6 +88,8 @@ def search_thread(results_deque, thread_num, search_parameters):
     Searches every post in thread thread_num on a board for the
     string provided. Returns a list of matching post numbers.
     """
+    global search_times
+    start = time.time()
     json_url = "https://a.4cdn.org/%s/thread/%s.json" % (search_parameters["board"], thread_num)
     thread_json = get_json_data(json_url)
     if thread_json is None:
@@ -87,29 +99,34 @@ def search_thread(results_deque, thread_num, search_parameters):
     sections = search_parameters["sections"]
     deque_append = results_deque.append
     for post in thread_json["posts"]:
-        post_getitem = post.__getitem__
-        post_haskey = post.__contains__
-        for item in map(post_getitem, filter(post_haskey, sections)):
+        for item in map(post.__getitem__, filter(post.has_key, sections)):
             if regex_search(item):
-                deque_append("%s#p%s" % (thread_num, post_getitem("no")))
+                deque_append("%s#p%s" % (thread_num, post.__getitem__("no")))
                 break
+    end = time.time()
+    search_times.append(end - start)
+
 
 def search_catalog_page(results_deque, page, search_parameters):
     """Will be run by the threading module. Searches all the 
     4chan threads on a page and adds matching results to synchronised queue"""
+    global search_times
+    start = time.time()
     regex_search = search_parameters["compiled_regex"].search
     sections = search_parameters["sections"]
     deque_append = results_deque.append
     for thread in page["threads"]:
-        thread_getitem = thread.__getitem__
-        thread_haskey = thread.__contains__
-        for item in map(thread_getitem, filter(thread_haskey, sections)):
+        for item in map(thread.__getitem__, filter(thread.has_key, sections)):
             if regex_search(item):
-                deque_append(thread_getitem("no"))
+                deque_append(thread.__getitem__("no"))
                 break
+    end = time.time()
+    search_times.append(end - start)
 
 def perform_concurrent_4chan_search(board, user_regex, catalog_search=False):
     """Search a thread or catalog on 4chan using several threads concurrently, then return relevant data"""
+    global search_times
+    global total_time
     thread_join_timeout_seconds = 10
     results_deque = deque()
     json_url = "https://a.4cdn.org/{0}/{1}.json".format(board, "catalog" if catalog_search else "threads")
@@ -120,6 +137,9 @@ def perform_concurrent_4chan_search(board, user_regex, catalog_search=False):
             "compiled_regex": search_regex, "user_board": board}
     results_data = {"post_numbers": results_deque, "search_parameters": search_parameters}
     thread_pool = []
+
+    search_times = []
+    start = time.time()
 
     if json_data is None:
         return results_data
@@ -138,7 +158,8 @@ def perform_concurrent_4chan_search(board, user_regex, catalog_search=False):
     for _thread in thread_pool:
         if _thread.is_alive():
             _thread.join(float(thread_join_timeout_seconds))
-
+    end = time.time()
+    total_time = end - start
     return results_data
 
 
