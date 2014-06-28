@@ -16,7 +16,6 @@ from threading import *
 from collections import deque
 import time
 
-search_times = []
 total_time = 0
 
 def load():
@@ -41,7 +40,6 @@ def board_search_handler(channel, sender, board, user_regex):
 
 def process_results(channel, sender, results_data):
     """Process the resulting data of a search and present it"""
-    global search_times
     global total_time
     max_num_urls_displayed = 3
     search_parameters = results_data["search_parameters"]
@@ -57,11 +55,7 @@ def process_results(channel, sender, results_data):
             message = nnmm('\n'.join(urls))
         else:
             message = " ".join(urls[:max_num_urls_displayed])
-        sendMessage(channel, "{0}: {1}".format(sender, message))
-    if len(search_times) > 0:
-        sendMessage(
-            channel, "{0}: Thread count: {1} | Average thread time: {2}s | Overall time: {3}s".format(
-                sender, len(search_times), sum(search_times) / len(search_times), total_time))
+        sendMessage(channel, "{0}: {1} | Total time {2}s ".format(sender, message, total_time))
 
 def get_json_data(url):
     """Returns a json data object from a given url."""
@@ -88,8 +82,6 @@ def search_thread(results_deque, thread_num, search_parameters):
     Searches every post in thread thread_num on a board for the
     string provided. Returns a list of matching post numbers.
     """
-    global search_times
-    start = time.time()
     json_url = "https://a.4cdn.org/%s/thread/%s.json" % (search_parameters["board"], thread_num)
     thread_json = get_json_data(json_url)
     if thread_json is None:
@@ -103,15 +95,11 @@ def search_thread(results_deque, thread_num, search_parameters):
             if regex_search(item):
                 deque_append("%s#p%s" % (thread_num, post.__getitem__("no")))
                 break
-    end = time.time()
-    search_times.append(end - start)
 
 
 def search_catalog_page(results_deque, page, search_parameters):
     """Will be run by the threading module. Searches all the 
     4chan threads on a page and adds matching results to synchronised queue"""
-    global search_times
-    start = time.time()
     regex_search = search_parameters["compiled_regex"].search
     sections = search_parameters["sections"]
     deque_append = results_deque.append
@@ -120,12 +108,9 @@ def search_catalog_page(results_deque, page, search_parameters):
             if regex_search(item):
                 deque_append(thread.__getitem__("no"))
                 break
-    end = time.time()
-    search_times.append(end - start)
 
 def perform_concurrent_4chan_search(board, user_regex, catalog_search=False):
     """Search a thread or catalog on 4chan using several threads concurrently, then return relevant data"""
-    global search_times
     global total_time
     thread_join_timeout_seconds = 10
     results_deque = deque()
@@ -138,7 +123,6 @@ def perform_concurrent_4chan_search(board, user_regex, catalog_search=False):
     results_data = {"post_numbers": results_deque, "search_parameters": search_parameters}
     thread_pool = []
 
-    search_times = []
     start = time.time()
 
     if json_data is None:
