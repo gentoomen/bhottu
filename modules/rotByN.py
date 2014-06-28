@@ -11,8 +11,8 @@ def load():
 registerModule("RotByN", load)
 
 def sayRotN(channel, sender, places, message):
-    if places > 13:
-        sendMessage(channel, "May not rotate by more than 13 places")
+    if places > 13 or places < 1:
+        sendMessage(channel, "May not rotate by more than 13 places or less than one place")
         return
     sendMessage(channel, "{} says, {}".format(sender, rotNChars(message, places)))
 
