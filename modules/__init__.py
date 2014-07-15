@@ -28,3 +28,4 @@ import threadsearch
 import managemodules
 import kana
 import bpcontroller
+import choose
