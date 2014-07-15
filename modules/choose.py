@@ -14,4 +14,4 @@ def Choose(channel, sender, message):
         sendMessage(channel, "Only one option or no options present")
         return
     options = message.split("or")
-    sendMessage(channel, random.Choice(options).strip())
+    sendMessage(channel, random.choice(options).strip())
