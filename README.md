@@ -5,10 +5,27 @@ _A modular IRC bot_
 Clone the github repo:
     git clone https://github.com/gentoomen/bhottu.git
 
-Install MySQL and python-pip if you haven't already.
+## Prerequisite packages
+You will need to install these packages (or their equivalents) on your OS before continuing:
 
-## Requirements
-A list of the required python packages is provided in requirements.txt. You can load these into a virtualenv.
+* mysql-server
+* libmysqlclient-dev
+* python-pip
+* python-dev
+* python-virtualenv
+
+## Python packages required
+A list of the required python packages is provided in requirements.txt. Firstly set up a virtualenv:
+
+    virtualenv testing
+
+Then enter the virtualenv:
+
+    source testing/bin/activate
+
+Now install the python packages:
+
+    pip install -r requirements.txt
 
 ## Setting up
 Make a new copy of `config_example.py` and name it config.py.
