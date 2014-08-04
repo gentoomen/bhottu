@@ -13,9 +13,8 @@ def load():
 @register("tell %s %S", syntax="tell <nick> <message>")
 def addTell(channel, sender, target, message):
     """Adds a message for someone."""
-    reserved = ['me'] # to avoid conflict with the nickscore module, which has a similar syntax
-    if target in reserved:
-        return
+    if target == 'me':
+        return # to avoid conflict with the nickscore module, which has a similar syntax
     if sender == target:
         sendMessage(channel, "Talking to yourself isn't healthy, %s" % sender)
         return
