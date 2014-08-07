@@ -30,3 +30,4 @@ import kana
 import bpcontroller
 import choose
 import kickban
+import books
