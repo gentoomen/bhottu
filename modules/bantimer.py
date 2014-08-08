@@ -6,7 +6,7 @@ def load():
 	"""Set bans that expire after a given timespan"""
 registerModule("BanTimer", load)
 
-@register("ban %s for %s %s", syntax="ban <ident> for <timespan> <unit>")
+@register("ban %s for %s %s", syntax="ban <ident> for <timespan> <unit>", restricted=True)
 def ban(channel, sender, ident, timespan, unit):
 	sendCommand("MODE %s +b %s" % (channel, ident))
 	seconds = parseTimespan(timespan, unit)
