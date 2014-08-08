@@ -70,6 +70,7 @@ def main():
         if not makeConnection():
             break
         while True:
+            sendAllCommands()
             event = readEvent()
             if event == None:
                 break

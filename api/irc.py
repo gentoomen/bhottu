@@ -1,14 +1,17 @@
 import socket
 import log
 import ssl
+import Queue
 
 connection = None
+commandQueue = None
 readbuffer = ''
 
 ## Connects to an irc server, optionally using ssl.
 ## Makes use of a global $connection
 def connect(server, port, is_ssl):
     global connection
+    global commandQueue
 
     if is_ssl is True:
         irc_unencrypted = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,6 +21,7 @@ def connect(server, port, is_ssl):
     else:
         connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connection.connect((server, port))
+    commandQueue = Queue.Queue()
 
 ## Disconnects the global $connection from the server
 def disconnect():
@@ -42,13 +46,19 @@ def readEvent():
             return None
         readbuffer += data
 
-def sendCommand(command):
+def sendAllCommands():
+    global commandQueue
     global connection
+    while not commandQueue.empty():
+        connection.sendall(commandQueue.get())
+
+def sendCommand(command):
+    global commandQueue
     command = command.replace('\r', '').replace('\n', '')[:510]
     log.debug('>> ' + command)
     if command.find(':') < 0:
         command = command[:509] + ' '
-    connection.sendall(command + '\r\n')
+    commandQueue.put(command + '\r\n')
 
 def sendPrivmsg(receiver, message):
     sendCommand("PRIVMSG %s :%s" % (receiver, message))
