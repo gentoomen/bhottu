@@ -7,7 +7,7 @@ class Module(object):
 _modules = {}
 
 def registerModule(name, loadFunction):
-    if name in _modules:
+    if name.lower() in _modules:
         return False
     module = Module()
     module.name = name
@@ -17,7 +17,7 @@ def registerModule(name, loadFunction):
     module.handlers = []
     module.unloadHandlers = []
     module.services = []
-    _modules[name] = module
+    _modules[name.lower()] = module
     return True
 
 # Decorator for syntax sugar
@@ -27,9 +27,9 @@ def registerMod(name):
     return registerMod_deco
 
 def loadModule(name):
-    if name not in _modules:
+    if name.lower() not in _modules:
         return False
-    module = _modules[name]
+    module = _modules[name.lower()]
     if module.loaded:
         return True
     log.notice('Loading module %s' % name)
@@ -42,9 +42,9 @@ def loadModule(name):
     return True
 
 def unloadModule(name):
-    if name not in _modules:
+    if name.lower() not in _modules:
         return False
-    module = _modules[name]
+    module = _modules[name.lower()]
     if not module.loaded:
         return True
     log.notice('Unloading module %s' % name)
