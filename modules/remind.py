@@ -14,7 +14,8 @@ units = {
 ## SLEEPTIME Will define how accurately the messages can be planned
 SLEEPTIME = 1
 MAX_HOLD = units["day"] * 2 ## The maximum interval
-MIN_HOLD = units["minute"] * 15 ## The minimum interval
+# MIN_HOLD = units["minute"] * 15 ## The minimum interval
+MIN_HOLD = 1
 MAX_TIMES = 12 ## How many times someone may be reminded
 
 last_remind = {
@@ -22,7 +23,6 @@ last_remind = {
         }
 
 def load():
-    """Leave a message for someone that's triggered when they speak"""
     dbExecute('''CREATE TABLE IF NOT EXISTS reminders (
               remindID int auto_increment primary key,
               nick varchar(255),
@@ -35,12 +35,12 @@ def load():
               index(nick) )''')
 
     registerFunction("remind %s %i times every %i %s %S", addReminder, "remind <nick> <times> times every <multiple> <unit> <message>")
-    registerFunction("remind %s %i time every %i %s %S", addReminder, "remind <nick> <times> times every <multiple> <unit> <message>")
+    # registerFunction("remind %s %i time every %i %s %S", addReminder, "remind <nick> <times> times every <multiple> <unit> <message>")
     registerFunction("stop reminding me", stopRemindingSender, "stop reminding me")
     registerFunction("list reminders for %s", listReminders, "list reminders for <nick>")
     registerFunction("clear reminders for %s", clearReminders, "list reminders for <nick>", restricted = True)
 
-    registerService(checkForReminder, unCheckForHandler)
+    registerService(checkForReminderSetup, checkForReminder, checkForReminderCleanup)
 registerModule("Remind", load)
 
 def addReminder(channel, sender, target, times, mul, unit, message):
@@ -89,35 +89,35 @@ def listReminders(channel, sender, nick):
     if not reminders:
         sendMessage(channel, "No reminders for {}".format(nick))
 
-def checkForReminder():
-    dbConnect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE, connection="checkForReminder")
+from threading import currentThread
+def checkForReminderSetup(service):
+    ## Establish connection in thread
+    dbConnect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE)
 
-    while True:
-        now = int(time.time())
-        allusers = {}
+def checkForReminder(service, state):
+    now = int(time.time())
+    allusers = {}
 
-        for channel in joinedChannels():
-            for user in channelUserList(channel):
-                if not allusers.get(user):
-                    allusers[user] = set()
-                allusers[user].add(channel)
+    for channel in joinedChannels():
+        for user in channelUserList(channel):
+            if not allusers.get(user):
+                allusers[user] = set()
+            allusers[user].add(channel)
 
-        reminders = dbQuery(
-                "SELECT remindID, sender, message, nick, channel, remind_in FROM reminders WHERE time <= %s AND times > 0", [now],
-                connection="checkForReminder"
-                )
+    reminders = dbQuery(
+            "SELECT remindID, sender, message, nick, channel, remind_in FROM reminders WHERE time <= %s AND times > 0", [now],
+            )
 
-        for (ID, sender, message, nick, channel, remind_in) in reminders:
-            if nick in allusers and channel in allusers.get(nick, {}):
-                sendMessage(channel, "%s, %s reminds you: %s" % (nick, sender, message))
-                newtime = int(time.time()) + remind_in
-                last_remind[nick] = ID
-                dbExecute("UPDATE reminders SET times = times - 1, time = %s WHERE remindID = %s", (newtime, ID), connection="checkForReminder")
+    for (ID, sender, message, nick, channel, remind_in) in reminders:
+        if nick in allusers and channel in allusers.get(nick, {}):
+            sendMessage(channel, "%s, %s reminds you: %s" % (nick, sender, message))
+            newtime = int(time.time()) + remind_in
+            last_remind[nick] = ID
+            dbExecute("UPDATE reminders SET times = times - 1, time = %s WHERE remindID = %s", (newtime, ID))
 
-        dbExecute("DELETE FROM reminders WHERE times <= 0", (), connection="checkForReminder")
-        time.sleep(SLEEPTIME)
+    dbExecute("DELETE FROM reminders WHERE times <= 0", ())
 
-def unCheckForHandler():
-    dbDisconnect(connection = "checkForReminder")
-    log.notice("Cleaned up after checkForReminder")
+    return state
 
+def checkForReminderCleanup(service):
+    dbDisconnect()

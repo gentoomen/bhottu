@@ -4,6 +4,7 @@ import help
 import floodcontrol
 import ctcp
 import nickscore
+import remind
 #import linktitle
 import tweetreader
 import quotes

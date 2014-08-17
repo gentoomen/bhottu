@@ -3,6 +3,7 @@ import irc
 import log
 import traceback
 import threading
+import time
 
 class Handler(object):
     pass
@@ -24,19 +25,55 @@ def _effectiveModule(module):
         return _loadingModule
     return module
 
-def _registerService(function, cleanup, module, type = "service"):
+class Service(threading.Thread):
+    """
+    Simple service, will run until it is aborted, or function returns None
+
+    ## Minimal example:
+    def serviceSetup(service):
+        pass
+    def serviceFunction(service, state):
+        return state
+    def serviceCleanup(service):
+        pass
+    registerService(serviceSetup, serviceFunction, serviceCleanup)
+    """
+    def __init__(self, setup, function, cleanup, state=True):
+        super(Service, self).__init__()
+        self.daemon = True
+        self._cleanup = cleanup
+        self._aborted = False
+        self._function = function
+        self._setup_finished = False
+        self.state = state
+        self.sleeptime = 1
+        self.setup = setup
+
+    def abort(self):
+        self._aborted = True
+
+    def run(self):
+        if not self._setup_finished:
+            self.setup(self)
+            self._setup_finished = True
+
+        while self.state != None and not self._aborted:
+            time.sleep(self.sleeptime)
+            self.state = self._function(self, self.state)
+        self._cleanup(self.state)
+
+def _registerService(setup, function, cleanup, module, type = "service"):
     service = threading.Thread(target=function)
-    service.daemon = True
+    service = Service(setup, function, cleanup)
     service.module = _effectiveModule(module)
     service.enabled = True
     service.type = type
-    service.cleanup = cleanup
     if service.module != None:
         service.module.services.append(service)
     return service
 
-def registerService(function, cleanup, module = None):
-    service = _registerService(function, cleanup, module)
+def registerService(setup, function, cleanup, module = None):
+    service = _registerService(setup, function, cleanup, module)
     return service
 
 def _registerHandler(function, module, list, type = None):
@@ -172,8 +209,7 @@ def unregister(registration):
         return True
     if registration.type == "service":
         registration.module.services.remove(registration)
-        registration._Thread__stop()
-        registration.cleanup()
+        registration.abort()
         registration.enabled = False
     return False
 
