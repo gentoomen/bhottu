@@ -26,7 +26,7 @@ def connect(server, port, is_ssl):
 ## Disconnects the global $connection from the server
 def disconnect():
     global connection
-    connection.shutdown(SHUT_RDWR)
+    connection.shutdown(socket.SHUT_RDWR)
     connection.close()
     connection = None
 
