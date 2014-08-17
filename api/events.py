@@ -63,7 +63,6 @@ class Service(threading.Thread):
         self._cleanup(self.state)
 
 def _registerService(setup, function, cleanup, module, type = "service"):
-    service = threading.Thread(target=function)
     service = Service(setup, function, cleanup)
     service.module = _effectiveModule(module)
     service.enabled = True
