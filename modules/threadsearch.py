@@ -55,7 +55,7 @@ def process_results(channel, sender, results_data):
             message = nnmm('\n'.join(urls))
         else:
             message = " ".join(urls[:max_num_urls_displayed])
-        sendMessage(channel, "{0}: {1} | Total time {2.2f}s ".format(sender, message, total_time))
+        sendMessage(channel, "{0}: {1} | Total time {2:.2f}s ".format(sender, message, total_time))
 
 def get_json_data(url):
     """Returns a json data object from a given url."""
