@@ -41,7 +41,7 @@ def board_search_handler(channel, sender, board, user_regex):
 def process_results(channel, sender, results_data):
     """Process the resulting data of a search and present it"""
     global total_time
-    max_num_urls_displayed = 3
+    max_num_urls_displayed = 1
     search_parameters = results_data["search_parameters"]
     post_numbers = results_data["post_numbers"]
 
@@ -55,7 +55,7 @@ def process_results(channel, sender, results_data):
             message = nnmm('\n'.join(urls))
         else:
             message = " ".join(urls[:max_num_urls_displayed])
-        sendMessage(channel, "{0}: {1} | Total time {2:.2f}s ".format(sender, message, total_time))
+        sendMessage(channel, "{0}: {1} | Search time {2:.2f}s | {3} matches".format(sender, message, total_time, len(urls)))
 
 def get_json_data(url):
     """Returns a json data object from a given url."""
@@ -115,7 +115,7 @@ def perform_concurrent_4chan_search(board, user_regex, catalog_search=False):
     thread_join_timeout_seconds = 10
     results_deque = deque()
     json_url = "https://a.4cdn.org/{0}/{1}.json".format(board, "catalog" if catalog_search else "threads")
-    sections = ["com", "name", "ext", "email", "sub", "filename"]
+    sections = ["com", "name", "filename", "sub", "ext"]
     json_data = get_json_data(json_url)
     search_regex = re.compile(user_regex, re.UNICODE + re.IGNORECASE)
     search_parameters = {"sections": sections, "board": sanitise(board), "string": user_regex,
