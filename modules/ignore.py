@@ -47,6 +47,11 @@ def listIgnores(channel, sender):
     if len(dbQuery('SELECT nick FROM ignores')) <= 0:
         sendMessage(channel, "I'm listening to everyone!")
         return
-    sendMessage(sender, "The following people are currently ignored: ")
+    ignores = []
     for (nick, issuer, issuetime) in dbQuery("SELECT nick, issuer, issuetime FROM ignores"):
-        sendMessage(sender, "%s: set by %s on %s" % (nick, issuer, time.strftime("%Y/%m/%d %H:%M:%S", time.gmtime(issuetime))))
+        ignores.append("%s: set by %s on %s" % (nick, issuer, time.strftime("%Y/%m/%d %H:%M:%S", time.gmtime(issuetime))))
+    try:
+        url = nnmm('\n'.join(ignores))
+        sendMessage(channel, "The following people are currently ignored: %s" % url)
+    except Exception as e:
+        sendMessage(channel, "Uploading list of ignored people failed: %s" % (e,))
