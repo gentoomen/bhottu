@@ -80,6 +80,7 @@ def sendNotice(target, message):
 
 def sendQuit(reason):
     sendCommand("QUIT :%s" % reason)
+    sendAllCommands()
 
 def sendWho(target):
     sendCommand("WHO %s" % target)
