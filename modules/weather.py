@@ -57,6 +57,3 @@ def current(channel, sender, message):
         direction = "West"
 
     sendMessage(channel, "Current conditions in %s: %s ** Temperature: %d°C/%d°F ** Wind Speed: %.01f meters per second, %d degrees %s" % (addcolor(3,name), addcolor(4,description), tempc, tempf, speed, degrees, direction))
-
-
-
