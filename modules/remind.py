@@ -14,8 +14,7 @@ units = {
 ## SLEEPTIME Will define how accurately the messages can be planned
 SLEEPTIME = 1
 MAX_HOLD = units["day"] * 2 ## The maximum interval
-# MIN_HOLD = units["minute"] * 15 ## The minimum interval
-MIN_HOLD = 1
+MIN_HOLD = units["minute"] * 2
 MAX_TIMES = 12 ## How many times someone may be reminded
 
 last_remind = {
