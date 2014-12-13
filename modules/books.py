@@ -21,7 +21,7 @@ def addBook(channel, sender, booktitle):
         dbExecute('INSERT INTO books (title, added_by) VALUES (%s, %s)', [booktitle, sender])
         sendMessage(channel, "Book recorded")
 
-@register("dumpbooks", syntax="dumpbooks", restricted=True)
+@register("dumpbooks", syntax="dumpbooks")
 def allBooks(channel, sender):
     """Fetches all books in database, upload them on nnmml or whatever, not featured not scalable fuckyou"""
     books = dbQuery('SELECT title, added_by FROM books')
