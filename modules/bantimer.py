@@ -8,12 +8,12 @@ registerModule("BanTimer", load)
 
 @register("ban %s for %s %s", syntax="ban <ident> for <timespan> <unit>", restricted=True)
 def ban(channel, sender, ident, timespan, unit):
-	sendCommand("MODE %s +b %s" % (channel, ident))
 	seconds = parseTimespan(timespan, unit)
 	if seconds == None:
 		sendMessage(channel, "I don't know the unit %s. Try seconds, minutes, hours or days." % unit)
 		return
 
+	sendCommand("MODE %s +b %s" % (channel, ident))
 	t = threading.Thread(target=unban, args=(channel, ident, seconds))
 	t.setDaemon(True)
 	t.start()
