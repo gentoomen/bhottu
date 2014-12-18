@@ -33,4 +33,4 @@ def allBooks(channel, sender):
     except Exception:
         sendMessage(channel, "Uploading book list failed.")
         return
-    sendMessage(channel, "%s, Books: %s" % (sender, url))
+    sendMessage(sender, "Books: %s" % url)
