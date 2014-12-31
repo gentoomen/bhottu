@@ -34,10 +34,12 @@ def happy_chan(chan):
         t.start()
 
 def happy_join(argument, sender):
-    nick, ident, host = parseSender(sender)
-    chan = arguments[0]
-    try:
-        dbExecute('insert into happy2015 (nick) values (%s)', [nick]) # exception if already inside because unique
-        sendMessage(chan, '%s: Happy new year!' % nick)
-    except Exception:
-        pass
+    delta = (TARGET_DATE - datetime.datetime.utcnow()).seconds
+    if delta > 0:
+        nick, ident, host = parseSender(sender)
+        chan = arguments[0]
+        try:
+            dbExecute('insert into happy2015 (nick) values (%s)', [nick]) # exception if already inside because unique
+            sendMessage(chan, '%s: Happy new year!' % nick)
+        except Exception:
+            pass
