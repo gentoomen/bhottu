@@ -117,8 +117,11 @@ def sudoStopThat(channel, sender, trigger):
     if _lastReply == None or _lastReply[2] != trigger:
         sendMessage(channel, "Remove what?")
         return
-    dbExecute('DELETE FROM replies where replyID = %s', _lastReply[1])
-    sendMessage(channel, "Removed '%s <reply> %s'." % (_lastReply[2], _lastReply[3]))
+    affected = dbExecute('DELETE FROM replies where replyID = %s', _lastReply[1])
+    if affected == 0:
+        sendMessage(channel, "I have no reply to %s" % (trigger))
+    else:   
+        sendMessage(channel, "Removed '%s <reply> %s'." % (_lastReply[2], _lastReply[3]))
 
 def assign(channel, sender, term, variable):
     """Adds a new value to a variable."""
