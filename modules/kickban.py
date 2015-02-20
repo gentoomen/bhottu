@@ -26,7 +26,7 @@ def kickUser(channel, sender, target):
     for user in split[0].strip().split():
         try:
             sendKick(channel, user, split[1].strip())
-        except:
+        except IndexError:
             sendKick(channel, user, random.choice(replies))
 
 
