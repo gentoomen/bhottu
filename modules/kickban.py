@@ -71,7 +71,7 @@ def clearBans(channel):
     bans = dbQuery('SELECT banID, `nick` from autobans')
     for banID, nick in bans:
         sendCommand("MODE %s -b %s" % (channel, nick))
-        dbExecute('DELETE FROM autobans WHERE banID=%s', [banID])
+    dbExecute('DELETE FROM autobans')
     sendMessage(channel, "Cleared all bans.")
 
 
