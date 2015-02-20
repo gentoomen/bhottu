@@ -81,4 +81,3 @@ def checkBan(channel, sender):
     if len(isBanned) > 0:
         sendKick(channel[0], nick, random.choice(replies))
         sendCommand("MODE %s +b %s" % (channel[0], nick))
-        dbExecute('INSERT INTO autobans (`nick`) VALUES (%s)', [nick])
