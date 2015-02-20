@@ -12,6 +12,7 @@ def load():
     registerFunction("autoban %s", autoBan, restricted=True)
     registerFunction("clear bans", clearBans, restricted=True)
     registerFunction("list bans", listBans)
+    registerFunction("unban %s", unbanUser)
     registerCommandHandler("JOIN", checkBan)
 registerModule("KickBan", load)
 
@@ -56,6 +57,14 @@ def listBans(channel, sender):
         sendMessage(channel, "%s: %s" % (sender, listUsers))
     else:
         sendMessage(channel, "No auto bans set.")
+
+
+def unbanUser(channel, sender, target):
+    isBanned = dbQuery('SELECT banID FROM autobans WHERE `nick`=%s',
+                       [target])
+    if len(isBanned) > 0:
+        sendCommand("MODE %s -b %s" % (channel, target))
+        dbExecute('DELETE FROM autobans WHERE `nick`=%s', [target])
 
 
 def clearBans(channel):
