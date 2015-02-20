@@ -9,10 +9,10 @@ def load():
               `nick` varchar(255) )''')
     registerFunction("kick %S", kickUser, restricted=True)
     registerFunction("ban %S", banUser, restricted=True)
+    registerFunction("unban %s", unbanUser, restricted=True)
     registerFunction("autoban %s", autoBan, restricted=True)
     registerFunction("clear bans", clearBans, restricted=True)
     registerFunction("list bans", listBans)
-    registerFunction("unban %s", unbanUser)
     registerCommandHandler("JOIN", checkBan)
 registerModule("KickBan", load)
 
