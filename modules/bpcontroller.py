@@ -24,9 +24,7 @@ registerModule("BPController", load)
 
 def load_controlled_nicks():
     global name_mappings
-    print "NAME MAPPINGS: {}".format(name_mappings)
     currently_controlled = dbQuery("SELECT nick, regex, alternate_nick FROM controlledusers")
-    print "CONTROLLED: {}".format(currently_controlled)
     for (nick, regex, alternate_nick) in currently_controlled:
         print "Nick: {} regex: {} alternate_nick: {}".format(nick, regex, alternate_nick)
         name_mappings[nick.lower()] = regex
@@ -75,7 +73,6 @@ def update_control_regex(channel, sender, controlled_user, regex):
     sendMessage(channel, "Updated {} regex to {}".format(controlled_user, regex))
 
 def BPControl(channel, sender, message):
-    print "NAME MAPPINGS: {}".format(name_mappings)
     if sender.lower() in name_mappings:
         if re.search(name_mappings[sender.lower()], message, re.UNICODE + re.IGNORECASE):
             sendMessage(channel, "MATCH {} on {}".format(sender, name_mappings[sender.lower()]))
