@@ -49,7 +49,7 @@ def control_stop(channel, sender, target):
     current = len(dbQuery('SELECT user_id from controlled_users WHERE nick=%s UNION SELECT alt_id from controlled_alts WHERE alt=%s', [target, target]))
     if current:
         dbExecute('DELETE FROM controlled_users WHERE nick=%s', [target])
-        dbExecute('DELETE FROM controlled_alts WHERE alt=%s OR orig=%s', [target])
+        dbExecute('DELETE FROM controlled_alts WHERE alt=%s OR orig=%s', [target, target])
         control_reload();
         sendMessage(channel, "Did {} start acting like a normal person then?".format(target))
     else:
