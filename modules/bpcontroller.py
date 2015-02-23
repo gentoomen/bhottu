@@ -17,14 +17,18 @@ def load():
     registerFunction("stop controlling %S", stop_control_user, "stop controlling <nick>", restricted=True)
     registerFunction("update control %s %S", update_control_regex, "update control <nick> <regex>", restricted=True)
     registerMessageHandler(None, BPControl)
+    load_controlled_nicks()
 
 
 registerModule("BPController", load)
 
 def load_controlled_nicks():
     global name_mappings
+    print "NAME MAPPINGS: {}".format(name_mappings)
     currently_controlled = dbQuery("SELECT nick, regex, alternate_nick FROM controlledusers")
+    print "CONTROLLED: {}".format(currently_controlled)
     for (nick, regex, alternate_nick) in currently_controlled:
+        print "Nick: {} regex: {} alternate_nick: {}".format(nick, regex, alternate_nick)
         name_mappings[nick.lower()] = regex
         if alternate_nick not in [None, ""]:
             alt_nick_lower = alternate_nick.lower()
@@ -39,7 +43,7 @@ def add_controlled_user(channel, sender, user_to_control, regex):
     if len(currently_controlled) > 0:
         sendMessage(channel, "{} is already in my database".format(user_to_control))
         return
-    dbExecute("INSERT INTO controlledusers (nick, regex) VALUES (%s, %s)", [user_to_control, regex])
+    dbExecute("INSERT INTO controlledusers (nick, regex) VALUES (%s, %s)", [user_to_control.strip(), regex])
     load_controlled_nicks()
     sendMessage(channel, "{}: BradPitt^W {} is now being controlled".format(sender, user_to_control))
 
@@ -71,7 +75,8 @@ def update_control_regex(channel, sender, controlled_user, regex):
     sendMessage(channel, "Updated {} regex to {}".format(controlled_user, regex))
 
 def BPControl(channel, sender, message):
-    global name_mappings
+    print "NAME MAPPINGS: {}".format(name_mappings)
     if sender.lower() in name_mappings:
-        if re.search(name_mappings[sender.lower()], message, re.UNICODE + re.IGNORE_CASE):
+        if re.search(name_mappings[sender.lower()], message, re.UNICODE + re.IGNORECASE):
+            sendMessage(channel, "MATCH {} on {}".format(sender, name_mappings[sender.lower()]))
             sendKick(channel, sender, "Wasn't ever funny")
