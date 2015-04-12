@@ -34,6 +34,8 @@ def floodCheck(channel):
 def massHighlightCheck(channel, sender, message):
     mentioned_nicks = 0
     channel_user_list = channelUserList(channel)
+    if channel_user_list is None:
+        return
 
     words = message.split()
     for word in words:
