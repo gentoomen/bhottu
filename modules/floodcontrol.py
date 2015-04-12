@@ -3,9 +3,12 @@ import time
 
 _MAX_MESSAGES_PER_SECOND = 3
 _BURST_SECONDS = 5
+_MAX_NICKS_HIGHLIGHTED = 6
 
 def load():
     registerMessageHandler(None, floodCheck, noIgnore = True)
+    registerMessageHandler(None, massHighlightCheck, noIgnore=True)
+
 registerModule('FloodControl', load)
 
 _counters = {}
@@ -25,5 +28,18 @@ def floodCheck(channel):
     if messages <= _MAX_MESSAGES_PER_SECOND * _BURST_SECONDS:
         _counters[channel] = (currentTime, messages)
         return
-    sendMessage(channel, "Pool's closed.")
+    sendMessage(channel, "Poole's closed.")
     sendCommand("MODE %s +m" % channel)
+
+def massHighlightCheck(channel, sender, message):
+    mentioned_nicks = 0
+    channel_user_list = channelUserList(channel)
+
+    words = message.split()
+    for word in words:
+        if word in channel_user_list:
+            mentioned_nicks += 1
+        if mentioned_nicks > _MAX_NICKS_HIGHLIGHTED:
+            sendKick(channel, sender, "Don't mass highlight, you stain")
+            sendCommand("MODE %s +b %s" % (channel, sender))
+            break
