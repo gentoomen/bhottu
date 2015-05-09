@@ -109,7 +109,7 @@ def yesStopThat(channel, sender):
     if sender not in _removes or time.time() - _removes[sender][1] > _REMOVE_TIMEOUT:
         sendMessage(channel, "Stop what?")
         return
-    dbExecute('DELETE FROM replies WHERE replyID = %s', _removes[sender][0])
+    dbExecute('DELETE FROM replies WHERE replyID = %s', [_removes[sender][0]])
     sendMessage(channel, "Removed '%s <reply> %s'." % (_removes[sender][2], _removes[sender][3]))
     del _removes[sender]
 
@@ -117,7 +117,7 @@ def sudoStopThat(channel, sender, trigger):
     if _lastReply == None or _lastReply[2] != trigger:
         sendMessage(channel, "Remove what?")
         return
-    affected = dbExecute('DELETE FROM replies where replyID = %s', _lastReply[1])
+    affected = dbExecute('DELETE FROM replies where replyID = %s', [_lastReply[1]])
     if affected == 0:
         sendMessage(channel, "I have no reply to %s" % (trigger))
     else:   
