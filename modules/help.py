@@ -11,7 +11,7 @@ def help(channel, sender, command):
     """Provides help on the bot's commands."""
     msg_lines = []
     if command == None:
-        sendMessage(sender, "The following commands are available:")
+        msg_lines.append("The following commands are available:")
         for function in functionList():
             syntax = function.syntax
             if function.description:
@@ -26,10 +26,10 @@ def help(channel, sender, command):
             if syntax is not None:
                 command_line = "{} {} {}".format(syntax, description, admin_command)
                 msg_lines.append(command_line)
+        msg_lines.append("You can use `help <command>` for specific help.")
         msg = "\n\n".join(msg_lines)
         url = pastebins.sprunge(msg)
-        sendMessage(sender, url)
-        sendMessage(sender, "You can use `help <command>` for specific help.")
+        sendMessage(channel, "{}: {}".format(sender, url))
 
     else:
         for function in functionList():
