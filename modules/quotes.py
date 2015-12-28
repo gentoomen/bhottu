@@ -10,9 +10,12 @@ def load():
               index(name) )''')
 registerModule('Quotes', load)
 
+_lastAddAttempt = None
+
 @register("quote <%s> %S", syntax="quote <nick> citation")
 def addQuote(channel, sender, target, quotation):
     """Quotes a nick on the channel and stores it to the DB"""
+    global _lastAddAttempt
     target = target.lstrip('~&@%+')
     if sender == target:
         sendMessage(channel, "%s, you shouldn't quote yourself." % sender)
@@ -20,11 +23,23 @@ def addQuote(channel, sender, target, quotation):
     result = dbQuery('SELECT message FROM `lines` WHERE message = %s AND name = %s', [quotation, target])
     if len(result) == 0:
         sendMessage(channel, "%s, %s never said that, dude..." % (sender, target))
+        _lastAddAttempt = target, quotation
         return
     else:
         log.info('Trying to insert quote: %s' % quotation)
         dbExecute('INSERT INTO quote (name, quotation) VALUES (%s, %s)', [target, quotation])
         sendMessage(channel, "Quote recorded")
+
+@register("yes they did", restricted=True)
+def yesTheyDid(channel, sender):
+    """Force-adds a quote to the DB"""
+    global _lastAddAttempt
+    if _lastAddAttempt:
+        target, quotation = _lastAddAttempt 
+        log.info('Trying to insert quote: %s' % quotation)
+        dbExecute('INSERT INTO quote (name, quotation) VALUES (%s, %s)', [target, quotation])
+        sendMessage(channel, "Quote recorded")
+        _lastAddAttempt = None
 
 @register("cite %s")
 def echoQuote(channel, sender, target):
