@@ -1,8 +1,6 @@
 """
 Searches posts on 4chan using the 4chan JSON API and returns the post
 url of any matching post
-
-:author Cody Harrington:
 """
 import regex as re
 import ujson as json
