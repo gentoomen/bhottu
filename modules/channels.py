@@ -16,8 +16,8 @@ def joinChannel(channel, sender, target):
         sendMessage(channel, "I'm already in %s." % (target))
         return
     if not target.startswith("#"):
-		sendMessage(channel, "%s is not a valid channel name." % (target))
-		return
+        sendMessage(channel, "%s is not a valid channel name." % (target))
+        return
     sendJoin(target)
     sendMessage(channel, "Joined %s!" % (target))
     log.notice('Joined %s, as commanded by %s.' % (target, sender))
@@ -37,4 +37,4 @@ def listChannels(channel, sender):
         sendMessage(channel, "I'm not in a single channel right now.")
         return
     for channel in joinedChannels():
-		sendPrivmsg(sender, channel + " " + str(len(channelUserList(channel))))
+        sendPrivmsg(sender, channel + " " + str(len(channelUserList(channel))))

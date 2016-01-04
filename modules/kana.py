@@ -4,9 +4,9 @@ from api import *
 import sys
 
 def load():
-	"""Converts to and from kana."""
-	registerFunction('romanize %S', romanize, "romanize <kana>")
-	registerFunction('kana %s %S', kanifier, "<kanatype> for <romaji>")
+    """Converts to and from kana."""
+    registerFunction('romanize %S', romanize, "romanize <kana>")
+    registerFunction('kana %s %S', kanifier, "<kanatype> for <romaji>")
 registerModule('Kana', load)
 
 hiragana={
@@ -109,19 +109,19 @@ dictionaries = [hiragana, katakana, alphanumerics]
 
 
 def romanizer(romanizeMe):
-	global romanizeText
-	romanizeMe = romanizeMe.decode('utf-8')
-	for dictToUse in dictionaries:
-		for char in romanizeMe: 
-			try:
-				value = dictToUse[char]
-				romanizeMe = romanizeMe.replace(char, value)
-			except KeyError, e:
-				continue
-	romanizeMe = romanizeMe.encode('utf-8')
-	return romanizeMe
+    global romanizeText
+    romanizeMe = romanizeMe.decode('utf-8')
+    for dictToUse in dictionaries:
+        for char in romanizeMe: 
+            try:
+                value = dictToUse[char]
+                romanizeMe = romanizeMe.replace(char, value)
+            except KeyError, e:
+                continue
+    romanizeMe = romanizeMe.encode('utf-8')
+    return romanizeMe
 def romanize(channel, sender, message):
-	sendMessage(channel, "%s" % romanizer(message))
+    sendMessage(channel, "%s" % romanizer(message))
 
 """
 This function is a little hard to understand, but I'll do my best:
@@ -129,14 +129,14 @@ First, make kanifyMe into a list that can be iterated through. Then, act on each
 
 * if the char is a vowel, skip to the end and switch it with its kana
 * if the char is a consonant:
-	*first, try to get the next character. If we're at the last character, obviously an IndexError will be raised, so we continue
-		*if the next character is not a vowel, get the character after that. This is important because of things like "chi" and "pyu"
-		*store it in temp, be it 2 or 3 characters
-	*once we have our possibly valid kana, find it in the dictionary. Then, try to set the index in the list to it.
-		*the function would go on to the next character next, which is bad because it will result in repetition (e.g. "はあ")
-		*take the length of nextchar (it can be either 1 or 2) and remove that many chars from the next index in the list.
-		*an IndexError may be raised if we're at the end and we try to remove two characters, so pass on that.
-		*take advantage of index errors as well. if one is raised, and the character is an "n", we know it's a consonant n.
+    *first, try to get the next character. If we're at the last character, obviously an IndexError will be raised, so we continue
+        *if the next character is not a vowel, get the character after that. This is important because of things like "chi" and "pyu"
+        *store it in temp, be it 2 or 3 characters
+    *once we have our possibly valid kana, find it in the dictionary. Then, try to set the index in the list to it.
+        *the function would go on to the next character next, which is bad because it will result in repetition (e.g. "はあ")
+        *take the length of nextchar (it can be either 1 or 2) and remove that many chars from the next index in the list.
+        *an IndexError may be raised if we're at the end and we try to remove two characters, so pass on that.
+        *take advantage of index errors as well. if one is raised, and the character is an "n", we know it's a consonant n.
 * once we finally have our value, try to find it in the dictionary if it is not an "n" character. If it were, it would replace the correct kana with just an n kana.
 
 For instance, if the user typed "asdfgh", the program would parse it as
@@ -148,61 +148,61 @@ and return it as:
 
 """
 def kanify(kanifyMe, preference):
-	kanifyMe = kanifyMe.decode('utf-8')
-	kanifyMe = list(kanifyMe)
-	if preference == "hiragana":
-		reversedDictionaries = [hiraganaReversed, katakanaReversed, alphanumericsReversed]
-	else:
-		reversedDictionaries = [katakanaReversed, hiraganaReversed, alphanumericsReversed]
-	for dictToUse in reversedDictionaries:
-		specialchars = list(u'!@#$%^&*().,/;\'[]{}:<>?"\\|-=_+')
-		vowels = list(u'aeiou')
-		index = -1
-		for char in kanifyMe:
-			index += 1
-			if char not in vowels:
-				try:
-					nextchar = kanifyMe[index + 1]
-				except IndexError, e:
-					#deal with single "n" at the end of a phrase
-					if char == "n" and dictToUse is not alphanumericsReversed:
-						value = dictToUse['n']
-						kanifyMe[index] = value
-					continue
-				if nextchar == char and dictToUse is not alphanumericsReversed and char not in specialchars and ord(char) < 128:
-					try:
-						value = dictToUse['sokuon']
-						kanifyMe[index] = value
-					except KeyError, e:
-						continue
-					continue
-				if nextchar not in vowels:
-					try:
-						nextchar += kanifyMe[index + 2]
-					except IndexError, e:
-						continue
-				temp = char + nextchar
-				try:
-					value = dictToUse[temp]
-					kanifyMe[index] = value
-					try:
-						for x in range(0,len(nextchar)):
-							kanifyMe.remove(kanifyMe[index + 1])
-					except IndexError, e:
-						pass
-				except KeyError, e:
-					if char == "n" and dictToUse is not alphanumericsReversed:
-						value = dictToUse['n']
-						kanifyMe[index] = value
-					continue
-			if char != "n":
-				try: 		
-					value = dictToUse[char]
-					kanifyMe[index] = value
-				except KeyError, e:
-					pass
-	kanifyMe = ''.join(kanifyMe)
-	return kanifyMe.encode('utf-8')
+    kanifyMe = kanifyMe.decode('utf-8')
+    kanifyMe = list(kanifyMe)
+    if preference == "hiragana":
+        reversedDictionaries = [hiraganaReversed, katakanaReversed, alphanumericsReversed]
+    else:
+        reversedDictionaries = [katakanaReversed, hiraganaReversed, alphanumericsReversed]
+    for dictToUse in reversedDictionaries:
+        specialchars = list(u'!@#$%^&*().,/;\'[]{}:<>?"\\|-=_+')
+        vowels = list(u'aeiou')
+        index = -1
+        for char in kanifyMe:
+            index += 1
+            if char not in vowels:
+                try:
+                    nextchar = kanifyMe[index + 1]
+                except IndexError, e:
+                    #deal with single "n" at the end of a phrase
+                    if char == "n" and dictToUse is not alphanumericsReversed:
+                        value = dictToUse['n']
+                        kanifyMe[index] = value
+                    continue
+                if nextchar == char and dictToUse is not alphanumericsReversed and char not in specialchars and ord(char) < 128:
+                    try:
+                        value = dictToUse['sokuon']
+                        kanifyMe[index] = value
+                    except KeyError, e:
+                        continue
+                    continue
+                if nextchar not in vowels:
+                    try:
+                        nextchar += kanifyMe[index + 2]
+                    except IndexError, e:
+                        continue
+                temp = char + nextchar
+                try:
+                    value = dictToUse[temp]
+                    kanifyMe[index] = value
+                    try:
+                        for x in range(0,len(nextchar)):
+                            kanifyMe.remove(kanifyMe[index + 1])
+                    except IndexError, e:
+                        pass
+                except KeyError, e:
+                    if char == "n" and dictToUse is not alphanumericsReversed:
+                        value = dictToUse['n']
+                        kanifyMe[index] = value
+                    continue
+            if char != "n":
+                try:         
+                    value = dictToUse[char]
+                    kanifyMe[index] = value
+                except KeyError, e:
+                    pass
+    kanifyMe = ''.join(kanifyMe)
+    return kanifyMe.encode('utf-8')
 
 def kanifier(channel, sender, preference, message):
-	sendMessage(channel, "%s" % kanify(message, preference))
+    sendMessage(channel, "%s" % kanify(message, preference))

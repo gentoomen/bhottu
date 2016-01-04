@@ -17,8 +17,8 @@ def replyToCTCPRequest(message, sender):
     global version
     if message[1].startswith("\x01"):
         #split the sender so it's usable by sendPrivmsg, gives sender nick and sender host
-	senderInformation = sender.split("!")
-	senderNick = senderInformation[0]
+    senderInformation = sender.split("!")
+    senderNick = senderInformation[0]
     if message[1] == "\x01VERSION\x01":
         sendNotice(senderNick, "\x01VERSION %s\x01" % version)
     elif message[1] == "\x01TIME\x01":

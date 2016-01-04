@@ -46,8 +46,8 @@ def _fetchTitle(url):
     global ismime
     opener = urllib2.build_opener()
     opener.addheaders = [
-    	('User-agent',"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1"),
-    	('Accept-Language','en-us')
+        ('User-agent',"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1"),
+        ('Accept-Language','en-us')
     ]
     response = opener.open(url)
     mime = response.info().gettype()
@@ -72,8 +72,8 @@ def searchLinks(channel, sender, message):
         return
     cache = dbQuery('SELECT title FROM urls WHERE url=%s LIMIT 1', [url])
     if len(cache) > 0:
-    	sendMessage(channel, '%s: %s' % ("Content-Type" if ismime is True else "Site title", cache[0][0]))
-	return
+        sendMessage(channel, '%s: %s' % ("Content-Type" if ismime is True else "Site title", cache[0][0]))
+        return
     try:
         title = _fetchTitle(url)
     except urllib2.URLError, e:
