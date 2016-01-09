@@ -65,6 +65,18 @@ def _trackPartQuit(arguments, sender):
             if nickname in _joinedChannels[channel]:
                 _joinedChannels[channel].remove(nickname)
 
+def _trackKick(arguments, sender):
+    global _joinedChannels
+    channel = arguments[0]
+    target = arguments[1]
+    if target == currentNickname():
+        if channel in _joinedChannels:
+            del _joinedChannels[channel]
+    else:
+        if channel in _joinedChannels:
+            if target in _joinedChannels[channel]:
+                _joinedChannels[channel].remove(target)
+
 def _trackNick(arguments, sender):
     global _joinedChannels
     (nickname, ident, hostname) = parseSender(sender)
@@ -78,4 +90,5 @@ registerCommandHandler('JOIN', _trackJoin)
 registerCommandHandler('353', _track353)
 registerCommandHandler('PART', _trackPartQuit)
 registerCommandHandler('QUIT', _trackPartQuit)
+registerCommandHandler('KICK', _trackKick)
 registerCommandHandler('NICK', _trackNick)
