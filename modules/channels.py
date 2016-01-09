@@ -12,9 +12,6 @@ registerModule('Channels', load)
 
 def joinChannel(channel, sender, target):
     """Joins a channel and adds it to the channel list"""
-    if target in joinedChannels():
-        sendMessage(channel, "I'm already in %s." % (target))
-        return
     if not target.startswith("#"):
         sendMessage(channel, "%s is not a valid channel name." % (target))
         return
@@ -24,9 +21,6 @@ def joinChannel(channel, sender, target):
 
 def partChannel(channel, sender, target):
     """Parts from a channel and removes it from the channel list"""
-    if not target in joinedChannels():
-        sendMessage(channel, "I'm not in %s right now." % (target))
-        return
     sendMessage(channel, "Parted from %s!" % (target))
     sendCommand("PART " + target + " :ohgod i am not good with computer")
     log.notice('Parted from %s, as commanded by %s.' % (target, sender))
