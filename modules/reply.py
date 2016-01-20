@@ -44,7 +44,7 @@ def _expand(reply, sender):
     currentTime = time.strftime("%H:%M:%S", time.gmtime())
     def _replace(match):
         var = match.group(1)
-        if var.upper() == 'NICK':
+        if var.upper() in ['NICK', 'USER', 'NAME']:
             return sender
         if var.upper() == 'TIME':
             return currentTime
