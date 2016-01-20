@@ -28,13 +28,17 @@ def sanitise(string):
 
 def catalog_search_handler(channel, sender, board, user_regex):
     """Handler for initiating catalog search"""
-    results_data = perform_concurrent_4chan_search(board, user_regex, catalog_search=True)
-    process_results(channel, sender, results_data)
+    def do(channel, sender, board, user_regex):
+        results_data = perform_concurrent_4chan_search(board, user_regex, catalog_search=True)
+        process_results(channel, sender, results_data)
+    Thread(target=do, args=(channel, sender, board, user_regex)).start()
 
 def board_search_handler(channel, sender, board, user_regex):
     """Handler for initiating full board search"""
-    results_data = perform_concurrent_4chan_search(board, user_regex, catalog_search=False)
-    process_results(channel, sender, results_data)
+    def do(channel, sender, board, user_regex):
+        results_data = perform_concurrent_4chan_search(board, user_regex, catalog_search=False)
+        process_results(channel, sender, results_data)
+    Thread(target=do, args=(channel, sender, board, user_regex)).start()
 
 def process_results(channel, sender, results_data):
     """Process the resulting data of a search and present it"""
