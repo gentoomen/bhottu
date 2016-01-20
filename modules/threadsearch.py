@@ -14,8 +14,6 @@ from threading import *
 from collections import deque
 import time
 
-total_time = 0
-
 def load():
     """Load the module"""
     registerFunction("catalog %s %S", catalog_search_handler, "catalog <board> <regex>")
@@ -42,10 +40,10 @@ def board_search_handler(channel, sender, board, user_regex):
 
 def process_results(channel, sender, results_data):
     """Process the resulting data of a search and present it"""
-    global total_time
     max_num_urls_displayed = 1
     search_parameters = results_data["search_parameters"]
     post_numbers = results_data["post_numbers"]
+    total_time = results_data["total_time"]
 
     if len(post_numbers) <= 0:
         sendMessage(channel, "{0}: No results for {1} on {2}".format(sender, search_parameters["string"],
@@ -113,7 +111,6 @@ def search_catalog_page(results_deque, page, search_parameters):
 
 def perform_concurrent_4chan_search(board, user_regex, catalog_search=False):
     """Search a thread or catalog on 4chan using several threads concurrently, then return relevant data"""
-    global total_time
     thread_join_timeout_seconds = 10
     results_deque = deque()
     json_url = "https://a.4cdn.org/{0}/{1}.json".format(board, "catalog" if catalog_search else "threads")
@@ -122,7 +119,7 @@ def perform_concurrent_4chan_search(board, user_regex, catalog_search=False):
     search_regex = re.compile(user_regex, re.UNICODE + re.IGNORECASE)
     search_parameters = {"sections": sections, "board": sanitise(board), "string": user_regex,
             "compiled_regex": search_regex, "user_board": board}
-    results_data = {"post_numbers": results_deque, "search_parameters": search_parameters}
+    results_data = {"post_numbers": results_deque, "search_parameters": search_parameters, "total_time": 0}
     thread_pool = []
 
     start = time.time()
@@ -145,7 +142,7 @@ def perform_concurrent_4chan_search(board, user_regex, catalog_search=False):
         if _thread.is_alive():
             _thread.join(float(thread_join_timeout_seconds))
     end = time.time()
-    total_time = end - start
+    results_data['total_time'] = end - start
     return results_data
 
 
