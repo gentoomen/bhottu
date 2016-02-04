@@ -2,6 +2,7 @@ import socket
 import log
 import ssl
 import Queue
+import threading
 
 connection = None
 commandQueue = None
@@ -29,6 +30,7 @@ def disconnect():
     connection.shutdown(socket.SHUT_RDWR)
     connection.close()
     connection = None
+    commandQueue = None
 
 ## 
 def readEvent():
@@ -46,11 +48,16 @@ def readEvent():
             return None
         readbuffer += data
 
-def sendAllCommands():
+def consumeAndSendCommands():
     global commandQueue
     global connection
-    while not commandQueue.empty():
-        connection.sendall(commandQueue.get())
+    while True:
+        connection.sendall(commandQueue.get(block=True))
+
+def startOutputThread():
+    consumer = threading.Thread(target=consumeAndSendCommands)
+    consumer.setDaemon(True)
+    consumer.start()
 
 def sendCommand(command):
     global commandQueue

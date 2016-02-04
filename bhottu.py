@@ -69,8 +69,8 @@ def main():
     while True:
         if not makeConnection():
             break
+        startOutputThread()
         while True:
-            sendAllCommands()
             event = readEvent()
             if event == None:
                 break
