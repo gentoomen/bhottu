@@ -30,7 +30,7 @@ def kickUser(channel, sender, target):
             sendKick(channel, user, random.choice(replies))
 
 
-def banUser(channel, sender, target)::
+def banUser(channel, sender, target):
     sendKick(channel, user, random.choice(replies))
     sendCommand("MODE %s +b %s" % (channel, user))
 

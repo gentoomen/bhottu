@@ -25,6 +25,7 @@ def load(nick, ident, mode, realname, channels, nickservPassword):
 def _identify():
     global _alreadyauthed
     if _alreadyauthed is False:
+        _ax
         sendCommand('USER %s %s * :%s' % (_ident, _mode, _realname))
         sendCommand('NICK %s' % _nick)
         _alreadyauthed = True
