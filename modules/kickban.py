@@ -31,7 +31,7 @@ def kickUser(channel, sender, target):
 
 
 def banUser(channel, sender, target):
-    targets == target.split()
+    targets = target.split()
     if len(targets) == 4 and targets[1] == 'for' and targets[2].isdigit() and targets[3].rstrip('s') in ('second', 'minute', 'hour', 'day', 'week', 'month', 'year'):
         sendMessage(channel, '%s: did you mean: tempban %s' % (sender, target))
         return
