@@ -55,11 +55,12 @@ def unban(channel, ident, sleeptime):
 
 def parseTimespan(count, unit):
     values = {
-        "seconds": 1,
-        "minutes": 60,
-        "hours": 60 * 60,
-        "days": 60 * 60 * 24
+        "second": 1,
+        "minute": 60,
+        "hour": 60 * 60,
+        "day": 60 * 60 * 24
     }
+    unit = unit.rstrip('s')
     if not unit in values:
         return None
     return int(count) * values[unit]
