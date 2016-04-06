@@ -8,7 +8,7 @@ def load():
               banID int auto_increment primary key,
               `nick` varchar(255) )''')
     registerFunction("kick %S", kickUser, restricted=True)
-    registerFunction("ban %s", banUser, restricted=True)
+    registerFunction("ban %S", banUser, restricted=True)
     registerFunction("unban %s", unbanUser, restricted=True)
     registerFunction("autoban %s", autoBan, restricted=True)
     registerFunction("clear bans", clearBans, restricted=True)
@@ -30,9 +30,14 @@ def kickUser(channel, sender, target):
             sendKick(channel, user, random.choice(replies))
 
 
-def banUser(channel, sender, target)::
-    sendKick(channel, user, random.choice(replies))
-    sendCommand("MODE %s +b %s" % (channel, user))
+def banUser(channel, sender, target):
+    targets == target.split()
+    if len(targets) == 4 and targets[1] == 'for' and targets[2].isdigit() and targets[3].rstrip('s') in ('second', 'minute', 'hour', 'day', 'week', 'month', 'year'):
+        sendMessage(channel, '%s: did you mean: tempban %s' % (sender, target))
+        return
+    for user in targets():
+        sendKick(channel, user, random.choice(replies))
+        sendCommand("MODE %s +b %s" % (channel, user))
 
 
 def autoBan(channel, sender, target):
