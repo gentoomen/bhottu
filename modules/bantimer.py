@@ -28,6 +28,7 @@ registerModule("BanTimer", load)
 @register("tempban %s for %s %s", syntax="tempban <ident> for <timespan> <unit>", restricted=True)
 def ban(channel, sender, ident, timespan, unit):
     seconds = parseTimespan(timespan, unit)
+    ident = makeHostMask(ident)
     if seconds == None:
         sendMessage(channel, "I don't know the unit %s. Try seconds, minutes, hours or days." % unit)
         return
@@ -64,3 +65,11 @@ def parseTimespan(count, unit):
     if not unit in values:
         return None
     return int(count) * values[unit]
+
+def makeHostMask(partial):
+    # turn asdf into asdf!*@*
+    if not '!' in partial:
+        return "%s!*@*" % partial
+    if not '@' in partial:
+        return "%s@*" % partial
+    return partial
