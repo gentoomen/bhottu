@@ -35,7 +35,7 @@ def banUser(channel, sender, target):
     if len(targets) == 4 and targets[1] == 'for' and targets[2].isdigit() and targets[3].rstrip('s') in ('second', 'minute', 'hour', 'day', 'week', 'month', 'year'):
         sendMessage(channel, '%s: did you mean: tempban %s' % (sender, target))
         return
-    for user in targets():
+    for user in targets:
         sendKick(channel, user, random.choice(replies))
         sendCommand("MODE %s +b %s" % (channel, user))
 
