@@ -110,7 +110,7 @@ def showAllLinks(channel, sender, searchterm):
     for link in links:
         linklist += "%s : %s\n" % (link[0], link[1])
     try:
-        url = sprunge(linklist)
+        url = paste(linklist)
     except:
         log.warning('Failed to upload link list')
         sendMessage(channel, "Error uploading link list")
@@ -123,7 +123,7 @@ def showBlacklist(channel, sender):
     for domain in dbQuery('SELECT domain FROM blacklists'):
         blacklist += domain[0] + "\n"
     try:
-        url = sprunge(blacklist)
+        url = paste(blacklist)
     except:
         log.warning('Failed to upload blacklist')
         sendMessage(channel, "Error uploading blacklist")

@@ -71,7 +71,7 @@ def allQuotes(channel, sender, target):
     for quote in quotes:
         quoteList += '<%s> %s\n' % (target, quote[0])
     try:
-        url = nnmm(quoteList)
+        url = paste(quoteList)
     except Exception:
         sendMessage(channel, "Uploading quotes for %s failed." % target)
         return

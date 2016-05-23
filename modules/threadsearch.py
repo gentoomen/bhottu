@@ -8,7 +8,7 @@ import time
 import requests
 import traceback
 from api import *
-from utils.pastebins import nnmm
+from utils.pastebins import paste
 from time import sleep
 from threading import *
 from collections import deque
@@ -52,7 +52,7 @@ def process_results(channel, sender, results_data):
         post_template = "https://boards.4chan.org/{0}/thread/{1}"
         urls = [post_template.format(search_parameters["board"], post_num) for post_num in post_numbers]
         if len(urls) > max_num_urls_displayed:
-            message = nnmm('\n'.join(urls))
+            message = paste('\n'.join(urls))
         else:
             message = " ".join(urls[:max_num_urls_displayed])
         sendMessage(channel, "{0}: {1} | Search time {2:.2f}s | {3} matches".format(sender, message, total_time, len(urls)))

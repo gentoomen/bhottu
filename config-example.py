@@ -33,6 +33,9 @@ DB_USERNAME = "root"
 DB_PASSWORD = ""
 DB_DATABASE = "bhottu"
 
+#The pastebin to use (available: sprunge, nnmm, sicpme, ix)
+PASTEBIN = 'nnmm'
+
 #recommended modules. For more, browse modules/. There is documentation about writing them in the README and the default ones serve as good examples
 ENABLED_MODULES = [
     'Admins',

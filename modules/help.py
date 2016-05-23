@@ -28,7 +28,7 @@ def help(channel, sender, command):
                 msg_lines.append(command_line)
         msg_lines.append("You can use `help <command>` for specific help.")
         msg = "\n\n".join(msg_lines)
-        url = pastebins.sprunge(msg)
+        url = pastebins.paste(msg)
         sendMessage(channel, "{}: {}".format(sender, url))
 
     else:

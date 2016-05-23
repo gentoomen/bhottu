@@ -23,13 +23,13 @@ def addBook(channel, sender, booktitle):
 
 @register("dumpbooks", syntax="dumpbooks")
 def allBooks(channel, sender):
-    """Fetches all books in database, upload them on nnmml or whatever, not featured not scalable fuckyou"""
+    """Fetches all books in database, upload them on a pastebin, not featured not scalable fuckyou"""
     books = dbQuery('SELECT title, added_by FROM books')
     bookList = ''
     for (title, added_by) in books:
         bookList += '\"%s\" inserted by \"%s\"\n' % (title, added_by)
     try:
-        url = nnmm(bookList)
+        url = paste(bookList)
     except Exception:
         sendMessage(channel, "Uploading book list failed.")
         return

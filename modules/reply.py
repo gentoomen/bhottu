@@ -86,7 +86,7 @@ def listReplies(channel, sender):
     for reply in replies:
         replyList += '%s <reply> %s\n' % (reply[0], reply[1])
     try:
-        url = sprunge(replyList)
+        url = paste(replyList)
     except Exception:
         sendMessage(channel, "Uploading replies failed.")
         return
@@ -152,7 +152,7 @@ def listBannedTriggers(channel, sender):
     for trigger in triggers:
         triggerList += trigger[0] + '\n'
     try:
-        url = sprunge(triggerList)
+        url = paste(triggerList)
     except Exception:
         sendMessage(channel, "Uploading banned triggers failed.")
         return
