@@ -3,15 +3,13 @@ import requests, urllib2
 import config
 
 def paste(data):
-    if config.PASTEBIN == 'sprunge':
-        return sprunge(data)
-    if config.PASTEBIN == 'nnmm':
-        return nnmm(data)
-    if config.PASTEBIN == 'sicpme':
-        return sicpme(data)
-    if config.PASTEBIN == 'ix':
-        return ix(data)
-    raise NotImplementedError
+    pastebins = {
+        'sprunge': sprunge,
+        'nnmm': nnmm,
+        'sicpme': sicpme,
+        'ix': ix,
+    }
+    return pastebins.get(getattr(config, 'PASTEBIN', ''), nnmm)(data)
 
 def sprunge(data):
     sprunge_data = {"sprunge": data}
