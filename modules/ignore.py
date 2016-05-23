@@ -1,4 +1,5 @@
 from api import *
+from util.pastebins import paste
 import time
 
 def load():
@@ -51,7 +52,7 @@ def listIgnores(channel, sender):
     for (nick, issuer, issuetime) in dbQuery("SELECT nick, issuer, issuetime FROM ignores"):
         ignores.append("%s: set by %s on %s" % (nick, issuer, time.strftime("%Y/%m/%d %H:%M:%S", time.gmtime(issuetime))))
     try:
-        url = pastebin('\n'.join(ignores))
+        url = paste('\n'.join(ignores))
         sendMessage(channel, "The following people are currently ignored: %s" % url)
     except Exception as e:
         sendMessage(channel, "Uploading list of ignored people failed: %s" % (e,))
