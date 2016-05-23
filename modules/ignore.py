@@ -1,5 +1,5 @@
 from api import *
-from util.pastebins import paste
+from utils.pastebins import paste
 import time
 
 def load():
