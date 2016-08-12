@@ -10,8 +10,8 @@ registerModule('Choose', load)
 
 def Choose(channel, sender, message):
     """Choose an option"""
-    if not "or" in message:
+    if not " or " in message:
         sendMessage(channel, "Only one option or no options present")
         return
-    options = message.split("or")
+    options = message.split(" or ")
     sendMessage(channel, random.choice(options).strip())
