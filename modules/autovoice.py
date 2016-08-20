@@ -36,5 +36,5 @@ def checkAutovoice(args, sender, command):
         if len(args) != 3: # #channel -mode target
             return
         channel, mode, target = args
-        if mode == '-v' and (isAutovoice(target)):
+        if mode == '-v' and (isAutovoice(target)) and target != "chchjesus":
             sendCommand('MODE %s +v %s' % (channel, target))
