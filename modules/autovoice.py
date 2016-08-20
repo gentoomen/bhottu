@@ -28,14 +28,13 @@ def isAutovoice(target):
     return len(isAutovoice) != 0
 
 def checkAutovoice(args, sender, command):
-    (nick, ident, hostname) = parseSender(sender)
     if command == 'JOIN':
-        if isAutovoice(sender) or isAutovoice(nick):
+        (nick, ident, hostname) = parseSender(sender)
+        if isAutovoice(nick):
             sendCommand('MODE %s +v %s' % (channel, nick))
     elif command == 'MODE':
-        l = args.split()
-        if len(l) != 3:
+        if len(args) != 3: # #channel -mode target
             return
-        channel, mode, target = l
-        if mode == '-v' and (isAutovoice(sender) or isAutovoice(nick)):
-            sendCommand('MODE %s +v %s' % (channel, nick))
+        channel, mode, target = args
+        if mode == '-v' and (isAutovoice(target)):
+            sendCommand('MODE %s +v %s' % (channel, target))
