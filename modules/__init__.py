@@ -33,3 +33,4 @@ import choose
 import kickban
 import books
 import bantimer
+import autovoice

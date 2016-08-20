@@ -7,7 +7,7 @@ def load():
     registerCommandHandler('JOIN', checkAutovoice)
     registerCommandHandler('MODE', checkAutovoice)
 
-registerModule('autovoice', load)
+registerModule('AutoVoice', load)
 
 def addAutovoice(channel, sender, target):
     try:
