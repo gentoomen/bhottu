@@ -17,7 +17,7 @@ You will need to install these packages (or their equivalents) on your OS before
 ## Python packages required
 A list of the required python packages is provided in requirements.txt. Firstly set up a virtualenv:
 
-    virtualenv testing
+    virtualenv --python=python2.7 testing
 
 Then enter the virtualenv:
 
