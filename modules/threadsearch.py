@@ -114,7 +114,8 @@ def perform_concurrent_4chan_search(board, user_regex, catalog_search=False):
     thread_join_timeout_seconds = 10
     results_deque = deque()
     json_url = "https://a.4cdn.org/{0}/{1}.json".format(board, "catalog" if catalog_search else "threads")
-    sections = ["com", "name", "filename", "sub", "ext"]
+    # Note that "tim" is used for the timestamp that is used to name files on 4chan
+    sections = ["com", "name", "filename", "sub", "ext", "tim"] 
     json_data = get_json_data(json_url)
     search_regex = re.compile(user_regex, re.UNICODE + re.IGNORECASE)
     search_parameters = {"sections": sections, "board": sanitise(board), "string": user_regex,
