@@ -48,10 +48,12 @@ def massHighlightCheck(channel, sender, message):
         return
 
     words = message.split()
+    mentions = set()
     for word in words:
         # count the nicks highlighted in this particular message
-        if word in channel_user_list:
+        if word in channel_user_list and word not in mentions:
             mentioned_nicks += 1
+            mentions.add(word)
         if mentioned_nicks > _MAX_NICKS_HIGHLIGHTED:
             sendKick(channel, sender, "Don't mass highlight, you stain")
             sendCommand("MODE %s +b %s" % (channel, sender))
