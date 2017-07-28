@@ -12,7 +12,7 @@ def top10(channel):
     """Displays the top ten chatters by line count."""
     summary = ''
     index = 1
-    for (name, count) in dbQuery("SELECT name, COUNT(message) AS count FROM `lines` WHERE name<>'learningcode' GROUP BY name ORDER BY count DESC LIMIT 10"):
+    for (name, count) in dbQuery("SELECT name, COUNT(message) AS count FROM `lines` GROUP BY name ORDER BY count DESC LIMIT 10"):
         summary += "%i. %s [%i] " % (index, name, count)
         index += 1
     sendMessage(channel, summary.strip())

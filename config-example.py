@@ -40,6 +40,7 @@ PASTEBIN = 'nnmm'
 ENABLED_MODULES = [
     'Admins',
     'AutoUpdate',
+    'BPController',
     'CTCP',
     'Echo',
     'FloodControl',
@@ -57,7 +58,6 @@ ENABLED_MODULES = [
     'Remind',
     'Reply',
     'Spew',
-    'Statistics',
     'Tell',
     'ThreadSearch',
     'Weather',
