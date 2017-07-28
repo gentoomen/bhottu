@@ -37,11 +37,11 @@ def control_reload():
             controlled[nick].append(re.compile(regex, re.UNICODE+re.IGNORECASE))
 
 def control_add(channel, sender, target, regex):
-    current = len(dbQuery('SELECT user_id from controlled_users'))
     dbExecute('INSERT INTO controlled_users (nick, regex) VALUES (%s, %s)', [target, regex])
     control_reload()
+    current = len(dbQuery('SELECT user_id FROM controlled_users WHERE nick=%s', [target]))
     if current:
-        sendMessage(channel, '%s: %s has now %d different filters' % (sender, target, current+1))
+        sendMessage(channel, '%s: %s has now %d filters' % (sender, target, current))
     else:
         sendMessage(channel, "{}: BradPi^W{} is now being controlled".format(sender, target))
 
@@ -50,7 +50,7 @@ def control_stop(channel, sender, target):
     if current:
         dbExecute('DELETE FROM controlled_users WHERE nick=%s', [target])
         dbExecute('DELETE FROM controlled_alts WHERE alt=%s OR orig=%s', [target, target])
-        control_reload();
+        control_reload()
         sendMessage(channel, "Did {} start acting like a normal person then?".format(target))
     else:
         sendMessage(channel, "{} is not in my database".format(target))
@@ -61,7 +61,7 @@ def control_alt(channel, sender, alt, orig):
         sendMessage(channel, "{} is already in my database".format(alt_nick))
     else:
         dbExecute('INSERT INTO controlled_alts (alt, orig) VALUES (%s, %s)', [alt, orig])
-        control_reload();
+        control_reload()
         sendMessage(channel, "BP^H^H{}'s name has been updated. Thanks for fighting the good fight".format(orig))
 
 def control(channel, sender, message):
