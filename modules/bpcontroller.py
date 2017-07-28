@@ -7,14 +7,14 @@ def load():
     """Restricts spamming annoyed SOPs"""
     dbExecute('''create table if not exists controlled_users (
               user_id int auto_increment primary key,
-              nick varchar(255),
-              regex varchar(255),
+              nick varchar(64),
+              regex varchar(500),
               INDEX (nick)
               )''')
     dbExecute('''create table if not exists controlled_alts (
               alt_id int auto_increment primary key,
-              alt varchar(255) UNIQUE,
-              orig varchar(255),
+              alt varchar(64) UNIQUE,
+              orig varchar(64),
               INDEX (orig)
               )''')
     registerFunction("control %s %S", control_add, "control <nick> <regex>", restricted=True)
